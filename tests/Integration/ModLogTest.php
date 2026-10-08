@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Integration;
@@ -31,12 +42,18 @@ class ModLogTest extends IntegrationTestCase
 	 ****************/
 
 	/**
-	 * Entries logged in the same second tie on the time column, and with only
-	 * that column to go on the database chooses their order. MySQL lists them
-	 * oldest first, the opposite of the rest of the log. PostgreSQL lists them
-	 * newest first until one of the rows is rewritten, after which it does not,
-	 * so at the edge of a page which of them are shown can change between page
-	 * loads.
+	 * Entries logged in the same second are listed newest first.
+	 *
+	 * Expected: list_getModLogEntries() with the sort lm.log_time DESC lists two
+	 *           entries logged at the same time with the newer one first.
+	 * Guards:   tied entries had only the time column to go on, so the database
+	 *           chose their order. MySQL listed them oldest first, the opposite
+	 *           of the rest of the log. PostgreSQL listed them newest first until
+	 *           one of the rows was rewritten, after which it did not, so at the
+	 *           edge of a page which of them were shown could change between
+	 *           page loads.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/pull/9726
 	 */
 	public function testEntriesLoggedInTheSameSecondAreNewestFirst(): void
 	{
@@ -46,12 +63,18 @@ class ModLogTest extends IntegrationTestCase
 	}
 
 	/**
-	 * Every column can tie, so every column needs the same tiebreaker. The
-	 * sort a list passes is the column's default or its reverse, and the ties
-	 * turn around along with it.
+	 * Entries that tie on the sorted column follow the direction of the sort.
 	 *
-	 * @param string $sort The ORDER BY clause the list passes.
-	 * @param bool $newest_first Whether the tied entries should come out newest first.
+	 * Every column can tie, so every column needs the same tiebreaker. The sort
+	 * a list passes is the column's default or its reverse, and the ties turn
+	 * around along with it.
+	 *
+	 * Expected: each case in sorts() lists two tied entries oldest first, or
+	 *           newest first when the sort is descending.
+	 * Guards:   only the time column had a tiebreaker, so ties on any other
+	 *           column were left to the database.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/pull/9726
 	 */
 	#[DataProvider('sorts')]
 	public function testTiesFollowTheDirectionOfTheSort(string $sort, bool $newest_first): void

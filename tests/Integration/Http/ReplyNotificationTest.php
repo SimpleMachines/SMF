@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Integration\Http;
@@ -58,10 +69,15 @@ class ReplyNotificationTest extends HttpTestCase
 	/**
 	 * A member emailed about every reply is not told they will hear no more.
 	 *
-	 * The "until you visit it" wording was chosen for any frequency other
-	 * than "never", so a member who asked for an email about every reply was
-	 * told they would get no more until they visited the topic, and then
-	 * went on getting them.
+	 * Expected: the reply notification sent to a member whose msg_notify_pref
+	 *           is 1 does not contain the "until you visit it" wording.
+	 * Guards:   the "until you visit it" wording was chosen for any frequency
+	 *           other than "never", so a member who asked for an email about
+	 *           every reply was told they would get no more until they visited
+	 *           the topic, and then went on getting them.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/147061675 Introduced by "Shift watched topics and watched boards to use alerts"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9747
 	 */
 	public function testAMemberEmailedAboutEveryReplyIsNotToldTheEmailsWillStop(): void
 	{
@@ -70,6 +86,12 @@ class ReplyNotificationTest extends HttpTestCase
 		$this->assertStringNotContainsString(self::ONCE, $body);
 	}
 
+	/**
+	 * A member emailed once until they visit is told so.
+	 *
+	 * Expected: the reply notification sent to a member whose msg_notify_pref
+	 *           is 2 contains the "until you visit it" wording.
+	 */
 	public function testAMemberEmailedOnceUntilTheyVisitIsToldSo(): void
 	{
 		$body = $this->notify(2);

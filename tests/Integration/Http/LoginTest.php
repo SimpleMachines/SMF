@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Integration\Http;
@@ -24,6 +35,13 @@ class LoginTest extends HttpTestCase
 	 * Public methods
 	 ****************/
 
+	/**
+	 * The administrator can sign in over HTTP.
+	 *
+	 * Expected: submitting the login form with the administrator's credentials
+	 *           leaves the session signed in, sets the forum cookie, and logs
+	 *           nothing.
+	 */
 	public function testTheAdministratorCanSignIn(): void
 	{
 		$response = $this->signInAsAdmin();
@@ -43,6 +61,12 @@ class LoginTest extends HttpTestCase
 		$this->assertNoErrorsLogged('signing in logged something.' . "\n");
 	}
 
+	/**
+	 * The wrong password does not sign anyone in.
+	 *
+	 * Expected: submitting the login form with the administrator's name and a
+	 *           wrong password leaves the session signed out.
+	 */
 	public function testTheWrongPasswordDoesNotSignAnyoneIn(): void
 	{
 		$form = $this->fetch('?action=login');
@@ -56,9 +80,13 @@ class LoginTest extends HttpTestCase
 	}
 
 	/**
-	 * A post carrying no session check should be turned away. This is the guard
-	 * that stops another site from posting to the forum on a visitor's behalf,
-	 * and nothing that does not go over HTTP can exercise it.
+	 * A post carrying no session check is turned away.
+	 *
+	 * This is the guard that stops another site from posting to the forum on a
+	 * visitor's behalf, and nothing that does not go over HTTP can exercise it.
+	 *
+	 * Expected: posting the correct credentials to ?action=login2 without the
+	 *           form's session fields leaves the session signed out.
 	 */
 	public function testAPostWithoutTheSessionCheckIsRejected(): void
 	{
@@ -72,6 +100,12 @@ class LoginTest extends HttpTestCase
 		$this->assertSignedIn(false, 'a login with no session check was accepted');
 	}
 
+	/**
+	 * Signing out ends the session.
+	 *
+	 * Expected: following the logout link on a signed in page leaves the
+	 *           session signed out, and logs nothing.
+	 */
 	public function testSigningOutEndsTheSession(): void
 	{
 		// This test should not use the cached authenticated client.

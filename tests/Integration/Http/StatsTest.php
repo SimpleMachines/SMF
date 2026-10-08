@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Integration\Http;
@@ -31,11 +42,20 @@ class StatsTest extends HttpTestCase
 	 ****************/
 
 	/**
-	 * The top tens were ordered by their count alone, so members with the same
-	 * count came in whatever order the database returned them: here, on both
-	 * engines, the later member first. PostgreSQL also returns a row it has
-	 * just rewritten after the others, so there the order changes whenever a
-	 * tied member's row is updated.
+	 * Members with the same post count are ranked in the order they joined.
+	 *
+	 * Expected: with two members tied on post count, the earlier member is
+	 *           listed before the later one in the top posters on
+	 *           ?action=stats, even after the earlier row is rewritten, with
+	 *           nothing logged.
+	 * Guards:   the top tens were ordered by their count alone, so members with
+	 *           the same count came in whatever order the database returned
+	 *           them: here, on both engines, the later member first.
+	 *           PostgreSQL also returns a row it has just rewritten after the
+	 *           others, so there the order changed whenever a tied member's row
+	 *           was updated.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/pull/9722
 	 */
 	public function testMembersWithTheSamePostCountAreRankedInTheOrderTheyJoined(): void
 	{

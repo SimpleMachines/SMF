@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\TestCase;
@@ -38,12 +49,23 @@ abstract class AbstractRouteTestCase extends TestCase
 	 * Public methods
 	 ****************/
 
+	/**
+	 * Each class under test implements Routable.
+	 *
+	 * Expected: each class in provideClassNameCases() is a Routable.
+	 */
 	#[DataProvider('provideClassNameCases')]
 	public function testImplementsRoutable(string $class_name): void
 	{
 		$this->assertTrue(is_a($class_name, Routable::class, true));
 	}
 
+	/**
+	 * Each class builds a route result of the expected structure.
+	 *
+	 * Expected: for each class and each case's parameters, buildRoute() returns an
+	 *           array of exactly two entries, 'route' and 'params', both arrays.
+	 */
 	#[DataProvider('provideClassAndRouteCases')]
 	public function testStructure(string $class_name, string $route, array $params): void
 	{
@@ -56,6 +78,13 @@ abstract class AbstractRouteTestCase extends TestCase
 		$this->assertIsArray($actual['params']);
 	}
 
+	/**
+	 * A route builds from its parameters and parses back to them.
+	 *
+	 * Expected: for each case in provideRouteCases(), QueryString::buildRoute()
+	 *           returns the route, and QueryString::parseRoute() on that route,
+	 *           with its query string split off, returns the parameters.
+	 */
 	#[DataProvider('provideRouteCases')]
 	public function testRoute(string $route, array $params): void
 	{

@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Unit;
@@ -20,6 +31,12 @@ class QueryStringRouteTest extends TestCase
 	 * Public methods
 	 ****************/
 
+	/**
+	 * A plain topic route is parsed as the display action.
+	 *
+	 * Expected: parseRoute('/topics/1', []) returns
+	 *           ['action' => 'display', 'topic' => '1'].
+	 */
 	public function testAPlainTopicRouteIsTheDisplayAction(): void
 	{
 		$this->assertSame(
@@ -28,6 +45,12 @@ class QueryStringRouteTest extends TestCase
 		);
 	}
 
+	/**
+	 * A plain board route is parsed as the message index action.
+	 *
+	 * Expected: parseRoute('/boards/2', []) returns
+	 *           ['action' => 'messageindex', 'board' => '2'].
+	 */
 	public function testAPlainBoardRouteIsTheMessageIndexAction(): void
 	{
 		$this->assertSame(
@@ -36,6 +59,12 @@ class QueryStringRouteTest extends TestCase
 		);
 	}
 
+	/**
+	 * A parameter that already exists wins over the one in the route.
+	 *
+	 * Expected: parseRoute('/topics/42', ['topic' => '99']) returns the display
+	 *           action with topic 99.
+	 */
 	public function testExistingParametersTakePrecedenceOverRoute(): void
 	{
 		$this->assertSame(
@@ -49,6 +78,12 @@ class QueryStringRouteTest extends TestCase
 		);
 	}
 
+	/**
+	 * A path that is not a route leaves the parameters unchanged.
+	 *
+	 * Expected: parseRoute('not/a/route', ['action' => 'foo']) returns
+	 *           ['action' => 'foo'].
+	 */
 	public function testNonRoutePathLeavesParametersUnchanged(): void
 	{
 		$params = ['action' => 'foo'];
@@ -59,6 +94,12 @@ class QueryStringRouteTest extends TestCase
 		);
 	}
 
+	/**
+	 * An unknown route is read in the legacy queryless format.
+	 *
+	 * Expected: parseRoute('/action,foo/bar,baz', []) returns
+	 *           ['action' => 'foo', 'bar' => 'baz'].
+	 */
 	public function testUnknownRouteUsesLegacyQuerylessFormat(): void
 	{
 		$this->assertSame(
@@ -70,6 +111,12 @@ class QueryStringRouteTest extends TestCase
 		);
 	}
 
+	/**
+	 * The legacy .html and .htm route extensions are ignored.
+	 *
+	 * Expected: each path in routeExtensionProvider() parses as the display action
+	 *           for topic 42.
+	 */
 	#[DataProvider('routeExtensionProvider')]
 	public function testLegacyRouteExtensionsAreIgnored(
 		string $path,
@@ -81,14 +128,25 @@ class QueryStringRouteTest extends TestCase
 	}
 
 	/**
-	 * Topic::parseRoute() and Board::parseRoute() used to look for the action
-	 * suffix in QueryString::$route_parsers directly. That list only ever holds
-	 * the handful of content parsers it is declared with, because the parser for
-	 * an action is added to it on demand by QueryString::getRouteParser(). So
-	 * the suffix was never recognised and fell through to the branch that treats
-	 * whatever is left as a start value: '/topics/1/post' parsed as the display
-	 * action with a start of 'post', and every posting, voting, poll, print and
-	 * mark-as-read link on a topic or board silently reloaded the page instead.
+	 * An action suffix on a topic or board route is parsed as the action.
+	 *
+	 * The parser for an action is added to QueryString::$route_parsers on
+	 * demand by QueryString::getRouteParser(), so the suffix has to be
+	 * looked up through that method rather than in the list.
+	 *
+	 * Expected: each case in actionSuffixProvider() parses to the action named by
+	 *           the suffix, with the topic or board kept.
+	 * Guards:   Topic::parseRoute() and Board::parseRoute() looked for the suffix in
+	 *           QueryString::$route_parsers directly. That list holds only the
+	 *           content parsers, because the parser for an action is added to
+	 *           it on demand by QueryString::getRouteParser(). So the suffix
+	 *           was never recognised and '/topics/1/post' parsed as the
+	 *           display action with a start of 'post'. Every posting, voting,
+	 *           poll, print and mark-as-read link on a topic or board
+	 *           silently reloaded the page instead.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/39ca0ee61 Introduced by "Implements QueryString::getRouteParser()"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9575
 	 */
 	#[DataProvider('actionSuffixProvider')]
 	public function testAnActionSuffixOnATopicOrBoardRoute(string $path, array $expected): void
@@ -97,11 +155,20 @@ class QueryStringRouteTest extends TestCase
 	}
 
 	/**
+	 * A start value is kept alongside an action suffix.
+	 *
 	 * A start value and an action suffix can both be present, because
-	 * Topic::buildRoute() and Board::buildRoute() put the start value into the
-	 * route before the action is appended to it. Parsing only ever consumed one
-	 * of the two, so replying from any page of a topic but the first lost the
-	 * action as well.
+	 * Topic::buildRoute() and Board::buildRoute() put the start value into
+	 * the route before the action is appended to it.
+	 *
+	 * Expected: each case in startValueProvider() parses to the topic or board, the
+	 *           start value and, when there is one, the action.
+	 * Guards:   Parsing took either the start value or the action suffix and never
+	 *           both, so replying from any page of a topic but the first lost the
+	 *           action as well.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/244da60f0 Introduced by "Implements URL routing (i.e. better queryless URLs)"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9575
 	 */
 	#[DataProvider('startValueProvider')]
 	public function testAStartValueIsKeptAlongsideTheAction(string $path, array $expected): void

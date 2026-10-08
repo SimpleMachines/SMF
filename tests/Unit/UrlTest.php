@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Unit;
@@ -18,6 +29,13 @@ class UrlTest extends TestCase
 	 * Public methods
 	 ****************/
 
+	/**
+	 * A URL exposes its host, path, query, fragment and port as properties.
+	 *
+	 * Expected: new Url('https://user@a.example.com:8080/a/b?c=d#f') has host
+	 *           'a.example.com', path '/a/b', query 'c=d', fragment 'f' and
+	 *           port 8080.
+	 */
 	public function testItExposesTheParsedComponents(): void
 	{
 		$url = new Url('https://user@a.example.com:8080/a/b?c=d#f');
@@ -29,6 +47,12 @@ class UrlTest extends TestCase
 		$this->assertSame(8080, $url->port);
 	}
 
+	/**
+	 * A component that the URL does not contain is not set.
+	 *
+	 * Expected: new Url('https://example.com') has no query and no fragment, so
+	 *           isset() is false for both.
+	 */
 	public function testMissingComponentsAreNotSet(): void
 	{
 		$url = new Url('https://example.com');
@@ -37,6 +61,12 @@ class UrlTest extends TestCase
 		$this->assertFalse(isset($url->fragment));
 	}
 
+	/**
+	 * Casting a URL back to a string returns the URL it was built from.
+	 *
+	 * Expected: (string) new Url('https://example.com/a/b?c=d#f') returns that
+	 *           same string.
+	 */
 	public function testCastingBackToStringPreservesTheUrl(): void
 	{
 		$original = 'https://example.com/a/b?c=d#f';
@@ -44,6 +74,12 @@ class UrlTest extends TestCase
 		$this->assertSame($original, (string) new Url($original));
 	}
 
+	/**
+	 * toAscii() punycodes an internationalised host.
+	 *
+	 * Expected: toAscii() on 'https://münchen.de/' gives
+	 *           'https://xn--mnchen-3ya.de/'.
+	 */
 	public function testToAsciiPunycodesAnInternationalisedHost(): void
 	{
 		$this->assertSame(
@@ -52,6 +88,12 @@ class UrlTest extends TestCase
 		);
 	}
 
+	/**
+	 * toAscii() percent-encodes a non-ASCII path.
+	 *
+	 * Expected: toAscii() on 'https://münchen.de/straße' gives
+	 *           'https://xn--mnchen-3ya.de/stra%C3%9Fe'.
+	 */
 	public function testToAsciiPercentEncodesANonAsciiPath(): void
 	{
 		$this->assertSame(
@@ -60,6 +102,12 @@ class UrlTest extends TestCase
 		);
 	}
 
+	/**
+	 * toUtf8() reverses the punycoding of a host.
+	 *
+	 * Expected: toUtf8() on 'https://xn--mnchen-3ya.de/' gives the host
+	 *           'münchen.de'.
+	 */
 	public function testToUtf8ReversesPunycode(): void
 	{
 		$this->assertSame(
@@ -68,13 +116,25 @@ class UrlTest extends TestCase
 		);
 	}
 
+	/**
+	 * The scheme is reported exactly as it was written.
+	 *
+	 * Schemes are case insensitive, but the class does not normalise them, so a
+	 * caller comparing the property against 'https' must lowercase it first.
+	 *
+	 * Expected: new Url('HTTPS://example.com') has the scheme 'HTTPS'.
+	 */
 	public function testTheSchemeIsReportedExactlyAsItWasWritten(): void
 	{
-		// Schemes are case insensitive, but this does not normalise them, so a
-		// caller comparing against 'https' must lowercase first.
 		$this->assertSame('HTTPS', (new Url('HTTPS://example.com'))->scheme);
 	}
 
+	/**
+	 * isScheme() matches the scheme against one name or a list of names.
+	 *
+	 * Expected: https://example.com matches 'https' and ['http', 'https'], and
+	 *           does not match 'ftp'.
+	 */
 	public function testIsSchemeMatchesTheSchemeAsWritten(): void
 	{
 		$this->assertTrue((new Url('https://example.com'))->isScheme('https'));
@@ -82,15 +142,40 @@ class UrlTest extends TestCase
 		$this->assertFalse((new Url('https://example.com'))->isScheme('ftp'));
 	}
 
+	/**
+	 * isScheme() ignores case on both sides of the comparison.
+	 *
+	 * RFC 3986 section 3.1 makes scheme names case insensitive. The scheme is
+	 * not normalised on parsing, so the comparison has to fold it.
+	 *
+	 * Expected: isScheme('https') is true for HTTPS://example.com,
+	 *           isScheme('HTTPS') is true for https://example.com, and
+	 *           isScheme(['http', 'https']) is true for HtTp://example.com.
+	 * Guards:   isScheme() compared the scheme as written with in_array(), so a
+	 *           URL written with an uppercase scheme did not match its own
+	 *           name.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/2029bc6c3 Introduced by "Fix avatar issues"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9325
+	 */
 	public function testIsSchemeIgnoresCaseOnBothSides(): void
 	{
-		// RFC 3986 section 3.1: scheme names are case insensitive. The scheme is
-		// not normalised on parsing, so the comparison has to fold it.
 		$this->assertTrue((new Url('HTTPS://example.com'))->isScheme('https'));
 		$this->assertTrue((new Url('https://example.com'))->isScheme('HTTPS'));
 		$this->assertTrue((new Url('HtTp://example.com'))->isScheme(['http', 'https']));
 	}
 
+	/**
+	 * A URL with an uppercase http or https scheme is still a website.
+	 *
+	 * Expected: isWebsite() is true for HTTP://example.com and
+	 *           HTTPS://example.com, and false for ftp://example.com.
+	 * Guards:   isWebsite() relies on isScheme(), so HTTP:// and HTTPS:// URLs
+	 *           stopped being recognised as websites.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/2029bc6c3 Introduced by "Fix avatar issues"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9325
+	 */
 	public function testAnUppercaseSchemeIsStillAWebsite(): void
 	{
 		$this->assertTrue((new Url('HTTP://example.com'))->isWebsite());
@@ -98,28 +183,66 @@ class UrlTest extends TestCase
 		$this->assertFalse((new Url('ftp://example.com'))->isWebsite());
 	}
 
+	/**
+	 * An uppercase DATA: URI is recognised as a data URI.
+	 *
+	 * User's avatar handling asks isScheme('data') to decide whether the value
+	 * is an inline image or a remote address.
+	 *
+	 * Expected: isScheme('data') is true for 'DATA:image/png;base64,AAAA'.
+	 * Guards:   a DATA: URI was not recognised as one, so the avatar handling
+	 *           in User treated it as though it were a remote address.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/2029bc6c3 Introduced by "Fix avatar issues"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9325
+	 */
 	public function testAnUppercaseDataUriIsRecognised(): void
 	{
-		// User's avatar handling asks isScheme('data') to decide whether the
-		// value is an inline image or a remote address.
 		$this->assertTrue((new Url('DATA:image/png;base64,AAAA'))->isScheme('data'));
 	}
 
+	/**
+	 * An IPv6 host is reported with its brackets.
+	 *
+	 * The brackets are part of the authority, not part of the address, so the
+	 * host comes back with them still on it. Anything wanting to treat the host
+	 * as an address has to take them off first, as proxied() does.
+	 *
+	 * Expected: new Url('http://[2001:db8::1]/pic.png') has the host
+	 *           '[2001:db8::1]'.
+	 */
 	public function testAnIPv6HostIsWrittenInBrackets(): void
 	{
-		// The brackets are part of the authority, not part of the address, so
-		// the host comes back with them still on it. Anything wanting to treat
-		// the host as an address has to take them off first, which is what
-		// proxied() was not doing.
 		$this->assertSame('[2001:db8::1]', (new Url('http://[2001:db8::1]/pic.png'))->host);
 	}
 
+	/**
+	 * isValid() accepts absolute URLs and rejects bare words and the empty
+	 * string.
+	 *
+	 * Expected: each case in validityProvider() gives the expected result.
+	 */
 	#[DataProvider('validityProvider')]
 	public function testValidity(string $input, bool $expected): void
 	{
 		$this->assertSame($expected, (new Url($input))->isValid());
 	}
 
+	/**
+	 * proxied() leaves hosts that are private or reserved addresses alone.
+	 *
+	 * Expected: with the image proxy switched on, each case in
+	 *           proxiedProvider() is returned unchanged when its host is a
+	 *           private, loopback or documentation address, and is routed
+	 *           through https://forum.test-site.com/forum/proxy.php when its
+	 *           host is a global address.
+	 * Guards:   filter_var() does not accept an address in brackets, so every
+	 *           IPv6 literal read as a name rather than an address and went to
+	 *           the proxy, private and reserved ranges included.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/1c9e53bf7 Introduced by "Avoids some unnecessary image proxy usage"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9507
+	 */
 	#[DataProvider('proxiedProvider')]
 	public function testProxiedLeavesUnroutableHostsAlone(string $url, bool $expected): void
 	{
@@ -137,26 +260,51 @@ class UrlTest extends TestCase
 		});
 	}
 
+	/**
+	 * isFetchSafe() judges an address written out in the URL without a lookup.
+	 *
+	 * Expected: each case in fetchSafeLiteralProvider() is fetch safe only when
+	 *           its address is globally routable, in both IPv4 and IPv6.
+	 */
 	#[DataProvider('fetchSafeLiteralProvider')]
 	public function testIsFetchSafeJudgesLiteralAddresses(string $url, bool $expected): void
 	{
 		$this->assertSame($expected, Url::create($url)->isFetchSafe(['http', 'https']));
 	}
 
+	/**
+	 * isFetchSafe() refuses hosts under reserved top-level domains.
+	 *
+	 * These never reach the resolver: they are refused on the name alone, which
+	 * is the only reason this case can live in a unit test.
+	 *
+	 * Expected: each URL in fetchSafeReservedTldProvider() is not fetch safe.
+	 */
 	#[DataProvider('fetchSafeReservedTldProvider')]
 	public function testIsFetchSafeRejectsReservedTlds(string $url): void
 	{
-		// These never reach the resolver: they are refused on the name alone,
-		// which is the only reason this case can live in a unit test.
 		$this->assertFalse(Url::create($url)->isFetchSafe(['http', 'https']));
 	}
 
+	/**
+	 * isFetchSafe() only accepts the schemes it is given.
+	 *
+	 * Expected: each case in fetchSafeSchemeProvider() is fetch safe only when
+	 *           the URL has a scheme in the allowed list and a host.
+	 */
 	#[DataProvider('fetchSafeSchemeProvider')]
 	public function testIsFetchSafeHonoursTheAllowedSchemes(string $url, array $schemes, bool $expected): void
 	{
 		$this->assertSame($expected, Url::create($url)->isFetchSafe($schemes));
 	}
 
+	/**
+	 * isFetchSafe() with no list of schemes allows any scheme that can be
+	 * fetched.
+	 *
+	 * Expected: isFetchSafe() is true for 'http://93.184.216.34/x' and
+	 *           'ftp://93.184.216.34/x', and false for 'javascript:alert(1)'.
+	 */
 	public function testIsFetchSafeWithNoSchemesAllowsAnythingWeCanFetch(): void
 	{
 		$this->assertTrue(Url::create('http://93.184.216.34/x')->isFetchSafe());
@@ -164,11 +312,21 @@ class UrlTest extends TestCase
 		$this->assertFalse(Url::create('javascript:alert(1)')->isFetchSafe());
 	}
 
+	/**
+	 * isFetchSafe() leaves the URL it was asked about untouched.
+	 *
+	 * Expected: after isFetchSafe(['http', 'https']) on
+	 *           'https://93.184.216.34:8443/a/b?c=d#e', the URL still casts to
+	 *           that same string and still has the host '93.184.216.34'.
+	 * Guards:   the host was swapped for a literal address, so the request went
+	 *           out with the wrong SNI name, the wrong Host header, and a
+	 *           certificate that could not match.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/94b25ba27 Introduced by "WebFetchApi::isFetchSafe() → WebFetchApi::makeSafe()"
+	 * @link https://github.com/SimpleMachines/SMF/issues/9533
+	 */
 	public function testIsFetchSafeLeavesTheUrlAlone(): void
 	{
-		// The whole point of the exercise. When the host was swapped for a
-		// literal address, the request went out with the wrong SNI name, the
-		// wrong Host header, and a certificate that could not match.
 		$url = new Url('https://93.184.216.34:8443/a/b?c=d#e');
 
 		$url->isFetchSafe(['http', 'https']);
@@ -177,6 +335,14 @@ class UrlTest extends TestCase
 		$this->assertSame('93.184.216.34', $url->host);
 	}
 
+	/**
+	 * isFetchSafe() leaves an internationalised host in UTF-8.
+	 *
+	 * Expected: with xn--mnchen-3ya.smf-unit-tests resolving to 93.184.216.34,
+	 *           isFetchSafe() is true for
+	 *           'https://münchen.smf-unit-tests/straße', and the URL still
+	 *           reads that way afterwards.
+	 */
 	public function testIsFetchSafeLeavesAnInternationalisedHostInUtf8(): void
 	{
 		$url = new Url('https://münchen.smf-unit-tests/straße');
@@ -188,6 +354,13 @@ class UrlTest extends TestCase
 		$this->assertSame('https://münchen.smf-unit-tests/straße', (string) $url);
 	}
 
+	/**
+	 * isFetchSafe() judges a name by every address it resolves to.
+	 *
+	 * Expected: each case in fetchSafeResolutionProvider() is fetch safe only
+	 *           when the host resolved to at least one address and every
+	 *           address is globally routable.
+	 */
 	#[DataProvider('fetchSafeResolutionProvider')]
 	public function testIsFetchSafeJudgesWhatTheHostResolvesTo(array $ips, bool $expected): void
 	{
@@ -196,6 +369,13 @@ class UrlTest extends TestCase
 		});
 	}
 
+	/**
+	 * resolvesTo() matches any of the addresses the host resolves to.
+	 *
+	 * Expected: with a host resolving to 93.184.216.34 and 93.184.216.35,
+	 *           resolvesTo() is true for each of them and false for
+	 *           93.184.216.36.
+	 */
 	public function testResolvesToMatchesAnyOfTheKnownAddresses(): void
 	{
 		$this->withResolvedHosts(['resolved.smf-unit-tests' => ['93.184.216.34', '93.184.216.35']], function (): void {
@@ -207,24 +387,40 @@ class UrlTest extends TestCase
 		});
 	}
 
+	/**
+	 * resolvesTo() compares addresses rather than their written form.
+	 *
+	 * SMF\IP puts v6 addresses through inet_ntop(inet_pton()), so the expanded
+	 * and the compressed spelling are the same address by the time they are
+	 * compared.
+	 *
+	 * Expected: for 'http://[2606:4700:4700::1111]/x', resolvesTo() is true for
+	 *           the expanded 2606:4700:4700:0000:0000:0000:0000:1111 and false
+	 *           for 2606:4700:4700::1112.
+	 */
 	public function testResolvesToComparesAddressesRatherThanTheirWrittenForm(): void
 	{
-		// SMF\IP puts v6 addresses through inet_ntop(inet_pton()), so the
-		// expanded and the compressed spelling are the same address by the
-		// time we compare them.
 		$url = new Url('http://[2606:4700:4700::1111]/x');
 
 		$this->assertTrue($url->resolvesTo(new IP('2606:4700:4700:0000:0000:0000:0000:1111')));
 		$this->assertFalse($url->resolvesTo(new IP('2606:4700:4700::1112')));
 	}
 
+	/**
+	 * getIPs() finds the addresses of an internationalised host and leaves the
+	 * URL as it was written.
+	 *
+	 * getIPs() punycodes the host, looks that up, and then puts the URL back
+	 * into UTF-8 before returning. Both conversions re-parse the URL, so the
+	 * host is spelled one way going in and another coming out, and the answer
+	 * has to be found under the spelling it was stored with.
+	 *
+	 * Expected: with xn--mnchen-3ya.smf-unit-tests resolving to 93.184.216.34,
+	 *           getIPs() on 'https://münchen.smf-unit-tests/x' returns that one
+	 *           address, and the URL and its host keep their UTF-8 spelling.
+	 */
 	public function testGetIPsSurvivesTheRoundTripThroughAscii(): void
 	{
-		// getIPs() punycodes the host, looks that up, and then puts the URL
-		// back into UTF-8 before returning. Both conversions re-parse the URL,
-		// so the host is spelled one way going in and another coming out, and
-		// reaching for the answer by host name afterwards reaches for a key
-		// that was never written.
 		$url = new Url('https://münchen.smf-unit-tests/x');
 
 		$this->withResolvedHosts(['xn--mnchen-3ya.smf-unit-tests' => ['93.184.216.34']], function () use ($url): void {
@@ -239,6 +435,13 @@ class UrlTest extends TestCase
 		$this->assertSame('münchen.smf-unit-tests', $url->host);
 	}
 
+	/**
+	 * getIPs() returns an empty array for an internationalised host that
+	 * resolves to nothing.
+	 *
+	 * Expected: with no addresses for xn--mnchen-3ya.smf-unit-tests, getIPs()
+	 *           on 'https://münchen.smf-unit-tests/x' returns [].
+	 */
 	public function testGetIPsReturnsAnArrayForAnInternationalisedHostThatResolvesToNothing(): void
 	{
 		$url = new Url('https://münchen.smf-unit-tests/x');
@@ -248,11 +451,19 @@ class UrlTest extends TestCase
 		});
 	}
 
+	/**
+	 * resolvesTo() works on a URL whose host is internationalised.
+	 *
+	 * get_ips_for_url() and url_resolves_to() reach getIPs() and resolvesTo()
+	 * without converting the URL first, so this is the shape the compatibility
+	 * layer hands them.
+	 *
+	 * Expected: with xn--mnchen-3ya.smf-unit-tests resolving to 93.184.216.34,
+	 *           resolvesTo() on 'https://münchen.smf-unit-tests/x' is true for
+	 *           93.184.216.34 and false for 10.0.0.1.
+	 */
 	public function testResolvesToWorksOnAnInternationalisedHost(): void
 	{
-		// get_ips_for_url() and url_resolves_to() reach getIPs() and
-		// resolvesTo() without converting the URL first, so this is the shape
-		// the compatibility layer hands them.
 		$url = new Url('https://münchen.smf-unit-tests/x');
 
 		$this->withResolvedHosts(['xn--mnchen-3ya.smf-unit-tests' => ['93.184.216.34']], function () use ($url): void {
@@ -261,12 +472,21 @@ class UrlTest extends TestCase
 		});
 	}
 
+	/**
+	 * proxied() decides without asking the resolver.
+	 *
+	 * proxied() runs for every image in every post, and only decides whether to
+	 * route through proxy.php, which does its own checking. An empty answer
+	 * from the resolver would read as unsafe to isFetchSafe(), so a URL that
+	 * comes back proxied shows that proxied() never asked.
+	 *
+	 * Expected: with the image proxy on and images.smf-unit-tests seeded as
+	 *           resolving to nothing, proxied() on
+	 *           'http://images.smf-unit-tests/pic.png' returns a URL under
+	 *           https://forum.test-site.com/forum/proxy.php.
+	 */
 	public function testProxiedDoesNotConsultTheResolver(): void
 	{
-		// proxied() runs for every image in every post, and only decides whether
-		// to route through proxy.php, which does its own checking. An empty
-		// answer here would read as "unsafe" to isFetchSafe(), so if this comes
-		// back proxied then proxied() never asked.
 		$this->withResolvedHosts(['images.smf-unit-tests' => []], function (): void {
 			$this->withProxySettings(function (): void {
 				$this->assertStringStartsWith(

@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Integration\Http;
@@ -36,8 +47,15 @@ class StatsStartersTest extends HttpTestCase
 	 ****************/
 
 	/**
-	 * The list skipped the members ranked after index 10, which kept indexes
-	 * 0 to 10: eleven members under a heading that says ten.
+	 * The top topic starters list holds ten members.
+	 *
+	 * Expected: with eleven members who each started two topics, ?action=stats
+	 *           lists exactly ten starters, with nothing logged.
+	 * Guards:   the list skipped the members ranked after index 10, which kept
+	 *           indexes 0 to 10: eleven members under a heading that says ten.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/58920877d Introduced by "Show 10 top topic starters"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9725
 	 */
 	public function testTheTopTenStartersAreTen(): void
 	{
@@ -60,9 +78,19 @@ class StatsStartersTest extends HttpTestCase
 	}
 
 	/**
+	 * Starters with no member do not take a place in the top ten.
+	 *
 	 * Topics credited to nobody, or to a member since deleted, are counted
 	 * too, but there is no name to list. Such a starter must not take one of
 	 * the ten places and leave it empty.
+	 *
+	 * Expected: with eleven members who each started two topics and three
+	 *           topics credited to no member, ?action=stats lists exactly ten
+	 *           starters, with nothing logged.
+	 * Guards:   a starter with no member to name kept its place in the list
+	 *           empty, so the ten places held fewer than ten members.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/pull/9725
 	 */
 	public function testStartersWithNoMemberDoNotTakeAPlace(): void
 	{

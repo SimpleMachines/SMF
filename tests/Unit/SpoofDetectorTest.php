@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Unit;
@@ -35,11 +46,19 @@ class SpoofDetectorTest extends TestCase
 	 ****************/
 
 	/**
+	 * The list the installer writes is read as one name per line.
+	 *
 	 * The installer stores the default list with the separators written out as
 	 * the two characters backslash and n, because the value travels through
-	 * Table::populate() as a placeholder in a PHP string. Splitting it on real
-	 * newlines alone gives one long name that nobody would ever type, so every
-	 * name an admin put on the list was free to register.
+	 * Table::populate() as a placeholder in a PHP string.
+	 *
+	 * Expected: with that list, checkReservedName() is true for Admin,
+	 *           Webmaster, Guest and root.
+	 * Guards:   the list was split on real newlines alone, which gave one long
+	 *           name that nobody would ever type, so every name an admin put
+	 *           on the list was free to register.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/pull/9484
 	 */
 	public function testTheListTheInstallerWritesIsOneNamePerLine(): void
 	{
@@ -52,8 +71,13 @@ class SpoofDetectorTest extends TestCase
 	}
 
 	/**
+	 * A list written with real line breaks is read as one name per line.
+	 *
 	 * A list an admin edited by hand arrives with real line breaks, whichever
 	 * kind their browser sent.
+	 *
+	 * Expected: with 'Admin\nWebmaster' and 'Admin\r\nWebmaster' as the list,
+	 *           checkReservedName('Webmaster') is true.
 	 */
 	public function testAListWrittenWithRealLineBreaksStillWorks(): void
 	{
@@ -66,6 +90,11 @@ class SpoofDetectorTest extends TestCase
 		$this->assertTrue(SpoofDetector::checkReservedName('Webmaster'));
 	}
 
+	/**
+	 * A name that is not on the list is allowed.
+	 *
+	 * Expected: checkReservedName('Somebody') is false.
+	 */
 	public function testANameNobodyReservedIsAllowed(): void
 	{
 		Config::$modSettings['reserveNames'] = 'Admin\nWebmaster\nGuest\nroot';
@@ -73,6 +102,11 @@ class SpoofDetectorTest extends TestCase
 		$this->assertFalse(SpoofDetector::checkReservedName('Somebody'));
 	}
 
+	/**
+	 * An empty list reserves no names.
+	 *
+	 * Expected: with an empty list, checkReservedName('Admin') is false.
+	 */
 	public function testAnEmptyListReservesNothing(): void
 	{
 		Config::$modSettings['reserveNames'] = '';
@@ -81,9 +115,14 @@ class SpoofDetectorTest extends TestCase
 	}
 
 	/**
+	 * A character that merely looks the same as a listed one is still reserved.
+	 *
 	 * The point of the class: a name is compared by its skeleton, so a
 	 * character that merely looks like the one on the list counts as being on
 	 * the list. U+0410 is Cyrillic capital A.
+	 *
+	 * Expected: with 'Admin' on the list, checkReservedName() is true for
+	 *           '\u{0410}dmin'.
 	 */
 	public function testACharacterThatMerelyLooksTheSameIsStillReserved(): void
 	{
@@ -93,8 +132,13 @@ class SpoofDetectorTest extends TestCase
 	}
 
 	/**
+	 * An entity in the name is decoded before it is compared.
+	 *
 	 * The admin's list and the name being checked are both decoded first, so
 	 * neither side can hide behind an entity.
+	 *
+	 * Expected: with 'Webmaster' on the list, checkReservedName() is true for
+	 *           'Web&#109;aster'.
 	 */
 	public function testAnEntityIsDecodedBeforeComparison(): void
 	{
@@ -103,6 +147,12 @@ class SpoofDetectorTest extends TestCase
 		$this->assertTrue(SpoofDetector::checkReservedName('Web&#109;aster'));
 	}
 
+	/**
+	 * The reserveWord setting decides whether part of a name counts.
+	 *
+	 * Expected: with 'Admin' on the list, each case in reserveWordCases() has
+	 *           checkReservedName() return the stated boolean.
+	 */
 	#[DataProvider('reserveWordCases')]
 	public function testReserveWordDecidesWhetherPartOfANameCounts(int $reserve_word, string $name, bool $expected): void
 	{
@@ -112,6 +162,12 @@ class SpoofDetectorTest extends TestCase
 		$this->assertSame($expected, SpoofDetector::checkReservedName($name));
 	}
 
+	/**
+	 * The reserveCase setting decides whether the case has to match.
+	 *
+	 * Expected: with 'Admin' on the list, each case in reserveCaseCases() has
+	 *           checkReservedName() return the stated boolean.
+	 */
 	#[DataProvider('reserveCaseCases')]
 	public function testReserveCaseDecidesWhetherTheCaseHasToMatch(int $reserve_case, string $name, bool $expected): void
 	{

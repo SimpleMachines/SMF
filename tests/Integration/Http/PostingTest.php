@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Integration\Http;
@@ -36,6 +47,13 @@ class PostingTest extends HttpTestCase
 	 * Public methods
 	 ****************/
 
+	/**
+	 * A topic can be started and replied to.
+	 *
+	 * Expected: posting through the new topic form creates a topic that shows
+	 *           its subject and body, and replying through the reply form adds
+	 *           a second message that shows on the topic, with nothing logged.
+	 */
 	public function testStartingATopicAndReplyingToIt(): void
 	{
 		$this->signInAsAdmin();
@@ -87,8 +105,12 @@ class PostingTest extends HttpTestCase
 	}
 
 	/**
-	 * A guest cannot post on a stock install, and the forum should say so rather
-	 * than accept it.
+	 * A guest cannot start a topic on a stock install.
+	 *
+	 * The forum should say so rather than accept the post.
+	 *
+	 * Expected: posting to ?action=post2;board=1 as a guest leaves the number
+	 *           of topics in board 1 unchanged.
 	 */
 	public function testAGuestCannotStartATopic(): void
 	{

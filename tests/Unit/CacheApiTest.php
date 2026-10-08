@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Unit;
@@ -91,6 +102,13 @@ final class CacheApiTest extends TestCase
 		rmdir($this->cachedir);
 	}
 
+	/**
+	 * An accelerator returns what was put into it.
+	 *
+	 * Expected: after put() of each value in cacheableValues(),
+	 *           get() returns an identical value, for every
+	 *           accelerator in accelerators().
+	 */
 	#[DataProvider('accelerators')]
 	public function testAnAcceleratorReturnsWhatWasPutIntoIt(string $class): void
 	{
@@ -103,6 +121,13 @@ final class CacheApiTest extends TestCase
 		}
 	}
 
+	/**
+	 * An object comes back as an equal object.
+	 *
+	 * Expected: after put() of a stdClass, get() returns an
+	 *           object equal to it, for every accelerator in
+	 *           accelerators().
+	 */
 	#[DataProvider('accelerators')]
 	public function testAnObjectComesBackAsAnEqualObject(string $class): void
 	{
@@ -116,6 +141,13 @@ final class CacheApiTest extends TestCase
 		$this->assertEquals($object, CacheApi::get('an_object', 120));
 	}
 
+	/**
+	 * Putting null removes the entry.
+	 *
+	 * Expected: after put() of a value and then of null under the
+	 *           same key, get() returns null, for every
+	 *           accelerator in accelerators().
+	 */
 	#[DataProvider('accelerators')]
 	public function testPuttingNullRemovesTheEntry(string $class): void
 	{
@@ -127,6 +159,12 @@ final class CacheApiTest extends TestCase
 		$this->assertNull(CacheApi::get('to_be_removed', 120));
 	}
 
+	/**
+	 * A key that was never stored is a miss.
+	 *
+	 * Expected: get() of a key nothing was put under returns
+	 *           null, for every accelerator in accelerators().
+	 */
 	#[DataProvider('accelerators')]
 	public function testAKeyThatWasNeverStoredIsAMiss(string $class): void
 	{
@@ -135,6 +173,12 @@ final class CacheApiTest extends TestCase
 		$this->assertNull(CacheApi::get('never_stored_' . bin2hex(random_bytes(4)), 120));
 	}
 
+	/**
+	 * Cleaning the cache empties it.
+	 *
+	 * Expected: after put() and then clean(), get() returns null,
+	 *           for every accelerator in accelerators().
+	 */
 	#[DataProvider('accelerators')]
 	public function testCleaningTheCacheEmptiesIt(string $class): void
 	{
@@ -147,8 +191,14 @@ final class CacheApiTest extends TestCase
 	}
 
 	/**
+	 * An entry is gone once its time to live has passed.
+	 *
 	 * APCu is left out because it reads a time to live of zero or less as
 	 * "never expires" rather than as a moment already past.
+	 *
+	 * Expected: after put() with a time to live of -1, get()
+	 *           returns null, for every accelerator in
+	 *           acceleratorsWithARelativeTtl().
 	 */
 	#[DataProvider('acceleratorsWithARelativeTtl')]
 	public function testAnEntryIsGoneOnceItsTimeToLiveHasPassed(string $class): void
@@ -161,9 +211,18 @@ final class CacheApiTest extends TestCase
 	}
 
 	/**
-	 * Turning on write ahead logging used to leave the SQLite accelerator with
-	 * no table at all: the pragma writes a header, so the emptiness test that
-	 * decided whether to create one never passed on a fresh database.
+	 * The SQLite cache stores values with write ahead logging on.
+	 *
+	 * Expected: with Config::$cache_sqlite_wal set, put() of ['a'
+	 *           => 1] followed by get() returns ['a' => 1].
+	 * Guards:   the pragma writes a header, so the check that
+	 *           decided whether to create the table, which
+	 *           looked for an empty file, never passed on a
+	 *           fresh database. The accelerator had no table,
+	 *           every read missed and every write threw.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/48f3d7bcb Introduced by "[3.0] Add support for WAL in Sqlite3 caching"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9627
 	 */
 	public function testTheSqliteCacheStoresValuesWithWriteAheadLoggingOn(): void
 	{
@@ -177,9 +236,20 @@ final class CacheApiTest extends TestCase
 	}
 
 	/**
-	 * The file cache stores JSON, and json_encode() returns false rather than a
-	 * string for anything that is not valid UTF-8. Handing that on to the writer
-	 * took the request down with a TypeError; a value it cannot store is a miss.
+	 * A value the file cache cannot encode is a miss rather than a fatal
+	 * error.
+	 *
+	 * The file cache stores JSON, and json_encode() returns false rather
+	 * than a string for anything that is not valid UTF-8.
+	 *
+	 * Expected: put() of an array holding invalid UTF-8 does not
+	 *           throw, and get() returns null.
+	 * Guards:   the false from json_encode() was handed on to the
+	 *           writer, which took the request down with a
+	 *           TypeError.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/8b7ef30ce Introduced by "Start adding types and enforcing strict typing"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9627
 	 */
 	public function testAValueTheFileCacheCannotEncodeIsAMissRatherThanAFatal(): void
 	{
@@ -191,9 +261,19 @@ final class CacheApiTest extends TestCase
 	}
 
 	/**
-	 * A truncated entry unserialises to false, which is also what a cached false
-	 * looks like. Telling them apart is the difference between a miss and handing
-	 * the caller a value nobody ever stored.
+	 * An entry that will not unserialise reads as a miss.
+	 *
+	 * A truncated entry unserialises to false, which is also what a cached
+	 * false looks like. Telling them apart is the difference between a miss
+	 * and handing the caller a value nobody ever stored.
+	 *
+	 * Expected: get() of a file cache entry whose value is not
+	 *           serialised data returns null.
+	 * Guards:   the false from unserialize() was returned as the
+	 *           cached value.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/17fdb6e07 Introduced by "Uses serialization rather than JSON to cache. Needed for objects."
+	 * @link https://github.com/SimpleMachines/SMF/pull/9627
 	 */
 	public function testAnEntryThatWillNotUnserialiseReadsAsAMiss(): void
 	{
@@ -208,6 +288,15 @@ final class CacheApiTest extends TestCase
 		$this->assertNull(CacheApi::get('corrupt', 120));
 	}
 
+	/**
+	 * A cached false is still read back as false.
+	 *
+	 * This is the other side of
+	 * testAnEntryThatWillNotUnserialiseReadsAsAMiss(): a miss must not be
+	 * mistaken for a stored false either.
+	 *
+	 * Expected: after put() of false, get() returns false.
+	 */
 	public function testACachedFalseIsStillReadBackAsFalse(): void
 	{
 		$this->loadApi(FileBased::class);
@@ -218,10 +307,23 @@ final class CacheApiTest extends TestCase
 	}
 
 	/**
-	 * Adding a server or-ed a bool into a bool, which PHP hands back as an int,
-	 * and the method says it returns a bool. Every page load fatalled the moment
-	 * memcached was the chosen accelerator. No server is needed to see it, since
-	 * addServer() only records where the server is meant to be.
+	 * The memcached accelerator connects.
+	 *
+	 * No server is needed to see this, since addServer() only records where
+	 * the server is meant to be.
+	 *
+	 * Expected: connect() returns true with
+	 *           Config::$cache_memcached set to
+	 *           '127.0.0.1:11211'; the test is skipped when the
+	 *           memcached extension is not installed.
+	 * Guards:   adding a server or-ed a bool into a bool, which
+	 *           PHP hands back as an int, and the method
+	 *           declares a bool. Every page load died with a
+	 *           TypeError the moment memcached was the chosen
+	 *           accelerator.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/8b7ef30ce Introduced by "Start adding types and enforcing strict typing"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9627
 	 */
 	public function testTheMemcachedAcceleratorConnects(): void
 	{

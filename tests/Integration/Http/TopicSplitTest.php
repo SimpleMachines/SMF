@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Integration\Http;
@@ -30,17 +41,23 @@ class TopicSplitTest extends HttpTestCase
 	/**
 	 * The posts to choose from are listed oldest first.
 	 *
-	 * The queries behind the list only said ORDER BY when the member views
-	 * topics newest first, and otherwise left the order to the database. MySQL
-	 * happens to return InnoDB rows in primary key order, so it never showed
-	 * there. PostgreSQL returns them in the order they sit in the table, and an
-	 * UPDATE writes a row's new version at the end, so a post that had been
-	 * edited was listed after the ones posted later. With LIMIT on the same
-	 * queries, it could also turn up on two pages of the list and be missing
-	 * from another.
+	 * The edit in the test is what makes PostgreSQL misorder the list. On MySQL
+	 * the test passes either way.
 	 *
-	 * The edit below is what makes PostgreSQL misorder the list. On MySQL the
-	 * test passes either way.
+	 * Expected: after the first post of a three post topic is edited,
+	 *           ?action=splittopics lists the posts in the order of their
+	 *           ids, with nothing logged.
+	 * Guards:   the queries behind the list only said ORDER BY when the member
+	 *           views topics newest first, and otherwise left the order to the
+	 *           database. MySQL happens to return InnoDB rows in primary key
+	 *           order, so it never showed there. PostgreSQL returns them in the
+	 *           order they sit in the table, and an UPDATE writes a row's new
+	 *           version at the end, so a post that had been edited was listed
+	 *           after the ones posted later. With LIMIT on the same queries, it
+	 *           could also turn up on two pages of the list and be missing from
+	 *           another.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/pull/9714
 	 */
 	public function testThePostsAreListedOldestFirst(): void
 	{

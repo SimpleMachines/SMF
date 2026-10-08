@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Integration\Http;
@@ -40,13 +51,20 @@ class CronTest extends HttpTestCase
 	 ****************/
 
 	/**
-	 * cron.php can report an error, and carries on when it does.
+	 * An error in a task is logged by cron.php, and the task is cleared.
 	 *
-	 * Only Forum gave ErrorHandler its service, so anything cron.php tried to
-	 * log threw a LogicException instead. TaskRunner's exception handler then
-	 * tried to log that, and threw again. The request died with the task still
-	 * claimed, so it ran again five minutes later: a notification email whose
-	 * task logged so much as a warning was sent again every five minutes.
+	 * Expected: requesting cron.php with a queued task whose class does not
+	 *           exist returns no fatal error, removes the task from
+	 *           background_tasks and logs a message naming the missing class.
+	 * Guards:   only Forum gave ErrorHandler its service, so anything cron.php
+	 *           tried to log threw a LogicException instead. TaskRunner's
+	 *           exception handler then tried to log that, and threw again. The
+	 *           request died with the task still claimed, so it ran again five
+	 *           minutes later: a notification email whose task logged so much
+	 *           as a warning was sent again every five minutes.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/058a81c27 Introduced by "wire the error handler service up to the new service implementation"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9737
 	 */
 	public function testAnErrorInATaskIsLoggedAndTheTaskIsCleared(): void
 	{

@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Integration;
@@ -24,11 +35,20 @@ class NotifyTest extends IntegrationTestCase
 	 ****************/
 
 	/**
-	 * changeBoardTopicPref() wrote the log_notify row for User::$me rather
-	 * than for the member whose preference was being changed. Subscribing
-	 * through a token therefore subscribed whoever followed the link, which
-	 * for a guest meant a row for member 0, and left the member themselves
-	 * with a preference saying they were subscribed and nothing to send to.
+	 * Subscribing through a token records the member the token is for.
+	 *
+	 * Expected: changeBoardTopicPref() with a member_info for another member
+	 *           adds a log_notify row for that member and leaves the acting
+	 *           administrator's subscription as it was, with no errors logged.
+	 * Guards:   changeBoardTopicPref() wrote the log_notify row for User::$me
+	 *           rather than for the member whose preference was being changed.
+	 *           Subscribing through a token therefore subscribed whoever
+	 *           followed the link, which for a guest meant a row for member 0,
+	 *           and left the member with a preference saying they were
+	 *           subscribed and nothing to send to.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/6228a85e4 Introduced by "Implements unsubscribe tokens for email notifications"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9735
 	 */
 	public function testSubscribingThroughATokenRecordsTheMemberItIsFor(): void
 	{
