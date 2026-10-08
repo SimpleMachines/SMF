@@ -145,7 +145,7 @@ function RemindPick()
 		sendmail($row['email_address'], $emaildata['subject'], $emaildata['body'], null, 'reminder', $emaildata['is_html'], 1);
 
 		// Set the password in the database.
-		updateMemberData($row['id_member'], array('validation_code' => substr(md5($password), 0, 10)) . '|' . time());
+		updateMemberData($row['id_member'], array('validation_code' => substr(md5($password), 0, 10) . '|' . time()));
 
 		// Set up the template.
 		$context['sub_template'] = 'sent';
