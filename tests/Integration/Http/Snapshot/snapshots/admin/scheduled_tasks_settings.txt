@@ -1,0 +1,62 @@
+status 200
+@ title
+title
+  "Settings"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=scheduledtasks;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Scheduled Tasks"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=scheduledtasks;sa=settings;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Settings"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  form#admin_form_wrapper [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=scheduledtasks;save;sa=settings" method="post"]
+    div.cat_bar
+      h3.catbg
+        "Settings"
+    div.noup.windowbg
+      dl.settings
+        dt
+          a#setting_cron_is_real_cron_help [href="{boardurl}/index.php?action=helpadmin;help=cron_is_real_cron" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_cron_is_real_cron
+          span
+            label [for="cron_is_real_cron"]
+              "Disable JavaScript-based method of running scheduled tasks."
+            br
+            span.smalltext
+              strong
+                "Do not check this box"
+              "unless you are"
+              strong
+                u
+                  "sure"
+              "that you have configured another method to tell your server to run SMF’s cron.php on a regular basis."
+        dd
+          input#cron_is_real_cron [name="cron_is_real_cron" type="checkbox" value="#"]
+      input.button [type="submit" value="Save"]
+    input [name="{token_var}" type="hidden" value="{hash}"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]

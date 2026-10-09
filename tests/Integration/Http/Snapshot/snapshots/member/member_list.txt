@@ -1,0 +1,134 @@
+status 200
+@ title
+title
+  "Search for Members"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=mlist" itemprop="item"]
+        span [itemprop="name"]
+          "Members List"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=mlist;sa=search" itemprop="item"]
+        span [itemprop="name"]
+          "Search for Members"
+      meta [content="#" itemprop="position"]
+@ #content_section
+div#content_section
+  main#main_content_section
+    div#memberlist.main_section
+      div.pagesection
+        div.floatleft.pagelinks
+          span.pages
+            "Pages"
+          span.current_page
+            "#"
+        div.buttonlist.floatright
+          a.button.button_strip_view_all_members [href="{boardurl}/index.php?action=mlist;sa=all"]
+            "View all Members"
+          a.active.button.button_strip_mlist_search [href="{boardurl}/index.php?action=mlist;sa=search"]
+            "Search for Members"
+      div.cat_bar
+        h3.catbg
+          span.floatleft
+            "Members List"
+      div#mlist
+        table.table_grid
+          thead
+            tr.title_bar
+              th.is_online [scope="col"]
+                a [href="{boardurl}/index.php?action=mlist;sa=search;start=#;sort=is_online;search=snapshot;fields=name" rel="nofollow"]
+                  "Status"
+              th.lefttext.real_name.selected [scope="col" style="width: auto;"]
+                a [href="{boardurl}/index.php?action=mlist;sa=search;start=#;sort=real_name;desc;search=snapshot;fields=name" rel="nofollow"]
+                  "Name"
+                span.main_icons.sort_up
+              th.website_url [scope="col"]
+                a [href="{boardurl}/index.php?action=mlist;sa=search;start=#;sort=website_url;search=snapshot;fields=name" rel="nofollow"]
+                  "Website"
+              th.id_group [scope="col"]
+                a [href="{boardurl}/index.php?action=mlist;sa=search;start=#;sort=id_group;search=snapshot;fields=name" rel="nofollow"]
+                  "Position"
+              th.registered [scope="col"]
+                a [href="{boardurl}/index.php?action=mlist;sa=search;start=#;sort=registered;search=snapshot;fields=name" rel="nofollow"]
+                  "Date registered"
+              th.post_count [scope="col"]
+                a [href="{boardurl}/index.php?action=mlist;sa=search;start=#;sort=post_count;desc;search=snapshot;fields=name" rel="nofollow"]
+                  "Posts"
+          tbody
+            tr.windowbg
+              td.centertext.is_online
+                a [href="{boardurl}/index.php?action=pm;sa=send;u=#" title="Offline"]
+                  span.off [title="Offline"]
+              td.lefttext.real_name
+                a [href="{boardurl}/index.php?action=profile;u=#" title="View the profile of {member}"]
+                  "{member}"
+              td.centertext.website_url
+                a [href="https://www.example.com" rel="noopener" target="_blank"]
+                  span.main_icons.www [title="Example"]
+              td.centertext.id_group
+                "Administrator"
+              td.centertext.registered
+                "{date}"
+              td.centertext.post_count
+                div.generic_bar
+                  div.bar [style="width: #%;"]
+                  span
+                    "#"
+            tr.windowbg
+              td.centertext.is_online
+                a [href="{boardurl}/index.php?action=pm;sa=send;u=#" title="Online"]
+                  span.on [title="Online"]
+              td.lefttext.real_name
+                a [href="{boardurl}/index.php?action=profile;u=#" title="View the profile of {member}"]
+                  "{member}"
+              td.centertext.website_url
+                a [href="https://www.example.com" rel="noopener" target="_blank"]
+                  span.main_icons.www [title="Example"]
+              td.centertext.id_group
+              td.centertext.registered
+                "{date}"
+              td.centertext.post_count
+                div.generic_bar
+                  div.bar [style="width: #%;"]
+                  span
+                    "#"
+            tr.windowbg
+              td.centertext.is_online
+                a [href="{boardurl}/index.php?action=pm;sa=send;u=#" title="Offline"]
+                  span.off [title="Offline"]
+              td.lefttext.real_name
+                a [href="{boardurl}/index.php?action=profile;u=#" title="View the profile of {member}"]
+                  "{member}"
+              td.centertext.website_url
+                a [href="https://www.example.com" rel="noopener" target="_blank"]
+                  span.main_icons.www [title="Example"]
+              td.centertext.id_group
+                "Newbie"
+              td.centertext.registered
+                "{date}"
+              td.centertext.post_count
+                div.generic_bar
+                  div.bar [style="width: #%;"]
+                  span
+                    "#"
+      div.pagesection
+        div.floatleft.pagelinks
+          span.pages
+            "Pages"
+          span.current_page
+            "#"
+        div.buttonlist.floatright
+          a.button [href="{boardurl}/index.php?action=mlist;sa=search;search=snapshot"]
+            "Search again"

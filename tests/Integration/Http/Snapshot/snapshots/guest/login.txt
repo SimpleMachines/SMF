@@ -1,0 +1,59 @@
+status 200
+@ title
+title
+  "Log in"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=login" itemprop="item"]
+        span [itemprop="name"]
+          "Log in"
+      meta [content="#" itemprop="position"]
+@ #content_section
+div#content_section
+  main#main_content_section
+    div.login
+      div.cat_bar
+        h3.catbg
+          span.login.main_icons
+          "Log in"
+      div.roundframe
+        form#frmLogin.login [accept-charset="UTF-#" action="{boardurl}/index.php?action=login#" method="post" name="frmLogin"]
+          dl
+            dt
+              "Username"
+            dd
+              input#loginuser [name="user" required size="#" type="text" value]
+            dt
+              "Password"
+            dd
+              input#loginpass [name="passwrd" required size="#" type="password" value]
+          dl
+            dt
+            dd
+              label
+                input [name="cookieneverexp" type="checkbox"]
+                "Remember me"
+          p
+            input.button [type="submit" value="Log in"]
+          p.smalltext
+            a [href="{boardurl}/index.php?action=reminder"]
+              "Forgot your password?"
+          input [name="{session_var}" type="hidden" value="{session_id}"]
+          input [name="{token_var}" type="hidden" value="{hash}"]
+          script
+            | setTimeout(function() { document.getElementById("loginuser").focus(); }, #);
+        hr
+        div.centertext
+          "Don’t have an account?"
+          a [href="{boardurl}/index.php?action=signup"]
+            "Sign up"
+          "."

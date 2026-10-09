@@ -1,0 +1,151 @@
+status 200
+@ title
+title
+  "Change settings"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=pm" itemprop="item"]
+        span [itemprop="name"]
+          "Personal Messages"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=pm;sa=settings" itemprop="item"]
+        span [itemprop="name"]
+          "Change settings"
+      meta [content="#" itemprop="position"]
+@ #content_section
+div#content_section
+  main#main_content_section
+    nav#genericmenu [aria-label=" Menu"]
+      a.mobile_generic_menu_1
+        span.menu_icon
+        span.text_menu
+          "Menu"
+      div#mobile_generic_menu_#.popup_container
+        div.description.popup_window
+          div.popup_heading
+            "Menu"
+            a.hide_popup.main_icons [href="javascript:void(#);"]
+          div.generic_menu
+            ul.dropdown_menu_1.dropmenu
+              li.subsections
+                a [href="{boardurl}/index.php?action=pm;f=inbox"]
+                  "Messages"
+                ul
+                  li
+                    a.inbox.pm_menu_icon [href="{boardurl}/index.php?action=pm;f=inbox"]
+                      span.inbox.main_icons
+                      "Inbox"
+                  li
+                    a.pm_menu_icon.send [href="{boardurl}/index.php?action=pm;sa=send"]
+                      span.main_icons.send
+                      "send"
+                  li
+                    a.pm_menu_icon.sent [href="{boardurl}/index.php?action=pm;f=sent"]
+                      span.main_icons.sent
+                      "sent"
+                  li
+                    a.drafts.pm_menu_icon [href="{boardurl}/index.php?action=pm;f=drafts"]
+                      span.drafts.main_icons
+                      "Drafts"
+              li.subsections
+                a [href="{boardurl}/index.php?action=pm;sa=search"]
+                  "Actions"
+                ul
+                  li
+                    a.pm_menu_icon.search [href="{boardurl}/index.php?action=pm;sa=search"]
+                      span.main_icons.search
+                      "Search"
+                  li
+                    a.pm_menu_icon.prune [href="{boardurl}/index.php?action=pm;sa=prune"]
+                      span.main_icons.prune
+                      "prune"
+              li.subsections
+                a.active [href="{boardurl}/index.php?action=pm;sa=manlabels"]
+                  "Preferences"
+                ul
+                  li
+                    a.manlabels.pm_menu_icon [href="{boardurl}/index.php?action=pm;sa=manlabels"]
+                      span.main_icons.manlabels
+                      "manlabels"
+                  li
+                    a.manrules.pm_menu_icon [href="{boardurl}/index.php?action=pm;sa=manrules"]
+                      span.main_icons.manrules
+                      "manrules"
+                  li
+                    a.chosen.pm_menu_icon.settings [href="{boardurl}/index.php?action=pm;sa=settings"]
+                      span.main_icons.settings
+                      "Settings"
+    script
+      | $( ".mobile_generic_menu_#" ).click(function() { $( "#mobile_generic_menu_#" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#" ).hide(); });
+    div#admin_content
+      div#personal_messages
+        form#creator [accept-charset="UTF-#" action="{boardurl}/index.php?action=pm;sa=settings;save" enctype="multipart/form-data" method="post" name="creator"]
+          div.cat_bar
+            h3.catbg.profile_hd
+              "Personal Messages"
+          p.information
+            "From this page you can change a variety of personal messaging options, including how messages are displayed and who may send them to you."
+          div.roundframe
+            dl.settings
+              dt
+                label [for="pm_prefs"]
+                  "Display personal messages"
+              dd
+                select#pm_prefs [name="pm_prefs"]
+                  option [selected value="#"]
+                    "All at once"
+                  option [value="#"]
+                    "One at a time"
+                  option [value="#"]
+                    "As a conversation"
+              dt
+                label [for="view_newest_pm_first"]
+                  "Show most recent personal messages at top"
+              dd
+                input [name="default_options[view_newest_pm_first]" type="hidden" value="#"]
+                input#view_newest_pm_first [name="default_options[view_newest_pm_first]" type="checkbox" value="#"]
+            hr
+            dl.settings
+              dt
+                label [for="pm_receive_from"]
+                  "Receive personal messages from:"
+              dd
+                select#pm_receive_from [name="pm_receive_from"]
+                  option [value="#"]
+                    "All members"
+                  option [selected value="#"]
+                    "All members, except those on my ignore list"
+                  option [value="#"]
+                    "Buddies and Administrators only"
+                  option [value="#"]
+                    "Administrators only"
+              dt
+                label [for="popup_messages"]
+                  "Show a popup when I receive new messages."
+              dd
+                input [name="default_options[popup_messages]" type="hidden" value="#"]
+                input#popup_messages [name="default_options[popup_messages]" type="checkbox" value="#"]
+            hr
+            dl.settings
+              dt
+                label [for="pm_remove_inbox_label"]
+                  "Remove the inbox label when applying another label"
+              dd
+                input [name="default_options[pm_remove_inbox_label]" type="hidden" value="#"]
+                input#pm_remove_inbox_label [name="default_options[pm_remove_inbox_label]" type="checkbox" value="#"]
+            input.button.floatright [name="save" type="submit" value="Change settings"]
+            input [name="{session_var}" type="hidden" value="{session_id}"]
+            input [name="u" type="hidden" value="#"]
+            input [name="sa" type="hidden" value="settings"]
