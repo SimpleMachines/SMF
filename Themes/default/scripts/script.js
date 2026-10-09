@@ -373,7 +373,7 @@ function reqOverlayDiv(desktopURL, sHeader, sIcon)
 		statusCode: {
 			403: function(res, status, xhr) {
 				let errorMsg = res.getResponseHeader('x-smf-errormsg');
-				oPopup_body.html(errorMsg ?? banned_text);
+				oPopup_body.html(errorMsg !== null && errorMsg !== undefined ? errorMsg : banned_text);
 			},
 			500: function() {
 				oPopup_body.html('500 Internal Server Error');

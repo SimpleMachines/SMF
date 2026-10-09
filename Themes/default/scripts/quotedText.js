@@ -39,7 +39,7 @@ function getSelectedText(node) {
 				return container.innerHTML;
 			} else {
 				const el = frag.getElementById(node.id);
-				return el?.innerHTML;
+				return el ? el.innerHTML : undefined;
 			}
 		}
 	}
@@ -54,7 +54,7 @@ function quotedTextClick(oOptions)
 
 		// Do a call to make sure this is a valid message.
 		$.ajax({
-			url: smf_prepareScriptUrl(smf_scripturl) + 'action=quotefast;quote=' + oOptions.msgID + ';xml;pb='+ oEditorID + ';mode=' + (oEditorObject?.bRichTextEnabled ? 1 : 0),
+			url: smf_prepareScriptUrl(smf_scripturl) + 'action=quotefast;quote=' + oOptions.msgID + ';xml;pb='+ oEditorID + ';mode=' + (oEditorObject && oEditorObject.bRichTextEnabled ? 1 : 0),
 			type: 'GET',
 			headers: {
 				"X-SMF-AJAX": 1
