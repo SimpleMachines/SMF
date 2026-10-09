@@ -14,6 +14,12 @@ $finder = (new PhpCsFixer\Finder())
 	->in(__DIR__)
 	->in(__DIR__ . '/Languages')
 	->in(__DIR__ . '/Sources/Unicode')
+	// Include files that are otherwise ignored.
+	->append([
+		new SplFileInfo(__FILE__),
+		new SplFileInfo(__DIR__ . '/.github/phpcs/HeaderCommentWithFilterFixer.php'),
+		new SplFileInfo(__DIR__ . '/.github/phpcs/SectionComments.php'),
+	])
 	// Don't touch libraries.
 	->exclude([
 		'cache',
@@ -27,10 +33,13 @@ $finder = (new PhpCsFixer\Finder())
 	// Skip anything being ignored in .gitignore.
 	->ignoreVCSIgnored(true);
 
+require_once '.github/phpcs/HeaderCommentWithFilterFixer.php';
+
 require_once '.github/phpcs/SectionComments.php';
 
 return (new PhpCsFixer\Config())
 	->registerCustomFixers([
+		new SMF\Fixer\Comment\HeaderCommentWithFilterFixer(),
 		new SMF\Fixer\ClassNotation\SectionComments(),
 	])
 	->setRules([
@@ -89,6 +98,26 @@ return (new PhpCsFixer\Config())
 		'ordered_types' => [
 			'null_adjustment' => 'always_last',
 			'sort_algorithm' => 'none',
+		],
+
+		// Comment.
+		'SMF/header_comment_with_filter' => [
+			'header' => <<<'HEADER'
+				Simple Machines Forum (SMF)
+
+				@package SMF
+				@author Simple Machines https://www.simplemachines.org
+				@copyright 2026 Simple Machines and individual contributors
+				@license https://www.simplemachines.org/about/smf/license.php BSD
+
+				@version 3.0 Alpha 5-dev
+				HEADER,
+			'validator' => '~(?P<EXTRA>.*)??Simple Machines Forum \(SMF\)\R\R@package SMF\R@author Simple Machines https?://www\.simplemachines\.org\R@copyright \d{4} Simple Machines and individual contributors\R@license https?://www\.simplemachines\.org/about/smf/license\.php BSD\R\R@version .*~',
+			'comment_type' => 'PHPDoc',
+			'location' => 'after_open',
+			'separate' => 'both',
+			'files_pattern' => '/Sources[\\\\\/]/',
+			'files_regex_exclude' => '/index\.php/',
 		],
 		'SMF/section_comments' => true,
 
