@@ -1,0 +1,90 @@
+status 200
+@ title
+title
+  "Support and Credits"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=credits;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Support and Credits"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      "Support and Credits"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  div.noup.roundframe
+    div.title_bar
+      h3.titlebg
+        "Support Information"
+    snapshot-ignored [selector="#admin_content .roundframe > .title_bar:not(#support_resources) + .padding"]
+    div#support_resources.title_bar
+      h3.titlebg
+        "Support Resources"
+    div.padding
+      p
+        "Our"
+        a [href="https://wiki.simplemachines.org/"]
+          "Online Manual"
+        "provides the main documentation for SMF. The SMF Online Manual has many documents to help answer support questions and explain"
+        a [href="https://wiki.simplemachines.org/smf/features#"]
+          "Features"
+        ","
+        a [href="https://wiki.simplemachines.org/smf/options#"]
+          "Settings"
+        ","
+        a [href="https://wiki.simplemachines.org/smf/themes#"]
+          "Themes"
+        ","
+        a [href="https://wiki.simplemachines.org/smf/packages#"]
+          "Packages"
+        ", etc. The Online Manual documents each area of SMF thoroughly and should answer most questions quickly."
+      p
+        "If you cannot find the answers to your questions in the Online Manual, you may want to search our"
+        a [href="https://www.simplemachines.org/community/"]
+          "Support Community"
+        "or ask for assistance in either our"
+        a [href="https://www.simplemachines.org/redirect/english_support"]
+          "English"
+        "or one of our many"
+        a [href="https://www.simplemachines.org/redirect/international_support_boards"]
+          "international support boards"
+        ". The SMF Support Community can be used for"
+        a [href="https://www.simplemachines.org/redirect/smf_support"]
+          "support"
+        ","
+        a [href="https://www.simplemachines.org/redirect/customize_support"]
+          "customization"
+        ", and many other things such as discussing SMF, finding a host, and discussing administrative issues with other forum administrators."
+    div#credits_sections.title_bar
+      h3.titlebg
+        "Credits"
+    snapshot-ignored [selector="#admin_content .roundframe > .title_bar:not(#support_resources) + .padding"]
+  snapshot-ignored [selector="#admin_content script"]

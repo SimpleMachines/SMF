@@ -1,0 +1,232 @@
+status 200
+@ title
+title
+  "Post Settings"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=postsettings;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Posts and Topics"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=postsettings;sa=posts;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Post Settings"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      a.help [href="{boardurl}/index.php?action=helpadmin;help=posts_and_topics" onclick="return reqOverlayDiv(this.href);"]
+        span.help.main_icons [title="Help"]
+      "Manage Posts and Topics"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "Here you can set everything related to posts and posting."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Manage Posts and Topics Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Manage Posts and Topics Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=postsettings;sa=posts;{session_var}={session_id}"]
+                "Post Settings"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=postsettings;sa=censor;{session_var}={session_id}"]
+                "Censored Words"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=postsettings;sa=topics;{session_var}={session_id}"]
+                "Topic Settings"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=postsettings;sa=drafts;{session_var}={session_id}"]
+                "Drafts"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  form#admin_form_wrapper [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=postsettings;save;sa=posts" method="post"]
+    div.cat_bar
+      h3.catbg
+        "Post Settings"
+    div.noup.windowbg
+      dl.settings
+        dt
+          a#setting_removeNestedQuotes_help [href="{boardurl}/index.php?action=helpadmin;help=removeNestedQuotes" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_removeNestedQuotes
+          span
+            label [for="removeNestedQuotes"]
+              "Remove nested quotes when quoting"
+        dd
+          input#removeNestedQuotes [name="removeNestedQuotes" type="checkbox" value="#"]
+        dt
+          a#setting_disable_wysiwyg_help [href="{boardurl}/index.php?action=helpadmin;help=disable_wysiwyg" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_disable_wysiwyg
+          span
+            label [for="disable_wysiwyg"]
+              "Disable WYSIWYG editor"
+        dd
+          input#disable_wysiwyg [name="disable_wysiwyg" type="checkbox" value="#"]
+        dt
+          a#setting_additional_options_collapsable
+          span
+            label [for="additional_options_collapsable"]
+              "Enable collapsible additional post options"
+        dd
+          input#additional_options_collapsable [checked name="additional_options_collapsable" type="checkbox" value="#"]
+        dt
+          a#setting_guest_post_no_email
+          span
+            label [for="guest_post_no_email"]
+              "Do not show the email field for guests’ posts"
+        dd
+          input#guest_post_no_email [name="guest_post_no_email" type="checkbox" value="#"]
+      hr
+      dl.settings
+        dt
+          a#setting_max_messageLength
+          span
+            label [for="max_messageLength"]
+              "Maximum allowed post size"
+            br
+            span.smalltext
+              "# for(s) no max."
+        dd
+          input#max_messageLength [min="#" name="max_messageLength" size="#" type="number" value="#"]
+          "characters"
+        dt
+          a#setting_topicSummaryPosts_help [href="{boardurl}/index.php?action=helpadmin;help=topicSummaryPosts" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_topicSummaryPosts
+          span
+            label [for="topicSummaryPosts"]
+              "Posts to show on topic summary"
+        dd
+          input#topicSummaryPosts [min="#" name="topicSummaryPosts" size="#" type="number" value="#"]
+          "posts"
+      hr
+      dl.settings
+        dt
+          a#setting_spamWaitTime_help [href="{boardurl}/index.php?action=helpadmin;help=spamWaitTime" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_spamWaitTime
+          span
+            label [for="spamWaitTime"]
+              "Time required between posts from the same IP"
+        dd
+          input#spamWaitTime [min="#" name="spamWaitTime" size="#" type="number" value="#"]
+          "seconds"
+        dt
+          a#setting_edit_wait_time_help [href="{boardurl}/index.php?action=helpadmin;help=edit_wait_time" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_edit_wait_time
+          span
+            label [for="edit_wait_time"]
+              "Courtesy edit wait time"
+        dd
+          input#edit_wait_time [min="#" name="edit_wait_time" size="#" type="number" value="#"]
+          "seconds"
+        dt
+          a#setting_edit_disable_time_help [href="{boardurl}/index.php?action=helpadmin;help=edit_disable_time" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_edit_disable_time
+          span
+            label [for="edit_disable_time"]
+              "Maximum time after posting to allow edit"
+            br
+            span.smalltext
+              "(Set to # to(s) disable.)"
+        dd
+          input#edit_disable_time [min="#" name="edit_disable_time" size="#" type="number" value="#"]
+          "minutes"
+      hr
+      dl.settings
+        dt
+          a#setting_max_image_width_help [href="{boardurl}/index.php?action=helpadmin;help=max_image_width" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_max_image_width
+          span
+            label [for="max_image_width"]
+              "Max display width of posted or attached images"
+            br
+            span.smalltext
+              "(# for(s) no limit)"
+        dd
+          input#max_image_width [min="#" name="max_image_width" size="#" type="number" value="#"]
+        dt
+          a#setting_max_image_height_help [href="{boardurl}/index.php?action=helpadmin;help=max_image_height" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_max_image_height
+          span
+            label [for="max_image_height"]
+              "Max display height of posted or attached images"
+            br
+            span.smalltext
+              "(# for(s) no limit)"
+        dd
+          input#max_image_height [min="#" name="max_image_height" size="#" type="number" value="#"]
+      hr
+      dl.settings
+        dt
+          a#setting_preview_characters_help [href="{boardurl}/index.php?action=helpadmin;help=preview_characters" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_preview_characters
+          span
+            label [for="preview_characters"]
+              "Maximum length of last/first post preview"
+            br
+            span.smalltext
+              "(Set to # to(s) disable.)"
+        dd
+          input#preview_characters [min="#" name="preview_characters" size="#" type="number" value="#"]
+          "characters"
+        dt
+          a#setting_quote_expand_help [href="{boardurl}/index.php?action=helpadmin;help=quote_expand" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_quote_expand
+          span
+            label [for="quote_expand"]
+              "Minimum quote height to add an expand link on large quotes"
+            br
+            span.smalltext
+              "(Set to # to(s) disable.)"
+        dd
+          input#quote_expand [min="#" name="quote_expand" size="#" type="number" value="#"]
+          "pixels"
+      input.button [type="submit" value="Save"]
+    input [name="{token_var}" type="hidden" value="{hash}"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]

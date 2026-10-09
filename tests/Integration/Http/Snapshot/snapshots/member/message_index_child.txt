@@ -1,0 +1,319 @@
+status 200
+@ title
+title
+  "{board}"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php#c#" itemprop="item"]
+        span [itemprop="name"]
+          "Snapshot fixtures"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?board=#" itemprop="item"]
+        span [itemprop="name"]
+          "{board}"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?board=#" itemprop="item"]
+        span [itemprop="name"]
+          "{board}"
+      meta [content="#" itemprop="position"]
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php#c#" itemprop="item"]
+        span [itemprop="name"]
+          "Snapshot fixtures"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?board=#" itemprop="item"]
+        span [itemprop="name"]
+          "{board}"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?board=#" itemprop="item"]
+        span [itemprop="name"]
+          "{board}"
+      meta [content="#" itemprop="position"]
+@ #content_section
+div#content_section
+  main#main_content_section
+    div#display_head.information
+      h2.display_title
+        "{board}"
+      p
+        "The first child board."
+    div.pagesection
+      div.floatleft.pagelinks
+        a.button [href="#bot"]
+          "Go Down"
+        span.pages
+          "Pages"
+        span.current_page
+          "#"
+      div.buttonlist.floatright
+        a.active.button.button_strip_new_topic [href="{boardurl}/index.php?action=post;board=#"]
+          "New Topic"
+        a.button.button_strip_post_poll [href="{boardurl}/index.php?action=post;board=#;poll"]
+          "New poll"
+        a.button.button_strip_markread.you_sure [data-confirm="Are you sure you want to mark messages as read?" href="{boardurl}/index.php?action=markasread;sa=board;board=#;{session_var}={session_id}"]
+          "Mark Read"
+        a.button.button_strip_notify
+          "No Alerts or Emails"
+        div.dropmenu.notify_dropdown.top_menu
+          div.viewport
+            div.overview
+              a [href="{boardurl}/index.php?action=notifyboard;board=#;mode=#;{session_var}={session_id}"]
+                strong
+                  "No Alerts or Emails"
+                br
+                span
+                  "You will not receive any emails or alerts for new topics"
+              a [href="{boardurl}/index.php?action=notifyboard;board=#;mode=#;{session_var}={session_id}"]
+                strong
+                  "Receive Alerts"
+                br
+                span
+                  "You will receive alerts for this board."
+              a [href="{boardurl}/index.php?action=notifyboard;board=#;mode=#;{session_var}={session_id}"]
+                strong
+                  "Receive Emails and Alerts"
+                br
+                span
+                  "You will receive both alerts and e-mails for this board."
+      div.floatright.mobile_buttons
+        a.button.mobile_act
+          "User actions"
+    div#messageindex
+      div#topic_header.title_bar
+        div.board_icon
+        div.info
+          a [href="{boardurl}/index.php?board=#;sort=subject"]
+            "Subject"
+          "/"
+          a [href="{boardurl}/index.php?board=#;sort=starter"]
+            "Started by"
+        div.board_stats.centertext
+          a [href="{boardurl}/index.php?board=#;sort=replies"]
+            "Replies"
+          "/"
+          a [href="{boardurl}/index.php?board=#;sort=views"]
+            "Views"
+        div.lastpost
+          a [href="{boardurl}/index.php?board=#;asc"]
+            "Last post"
+            span.main_icons.sort_down
+      div#topic_container
+        div.windowbg
+          div.board_icon
+            img [alt src="{boardurl}/Themes/default/images/post/xx.png"]
+            span.main_icons.profile_sm
+          div.info.info_block
+            div
+              div#icons#.floatright.icons
+              div.message_index_title
+                span.preview [title]
+                  span#msg#
+                    a [href="{boardurl}/index.php?topic=#"]
+                      "{subject}"
+              p.floatleft
+                "Started by"
+                a.preview [href="{boardurl}/index.php?action=profile;u=#" title="View the profile of {member}"]
+                  "{member}"
+          div.board_stats.centertext
+            p
+              "# reply(s)"
+              br
+              "# view(s)"
+          div.lastpost
+            p
+              a [href="{boardurl}/index.php?topic=##new"]
+                "{date}"
+              br
+              "by"
+              a [href="{boardurl}/index.php?action=profile;u=#"]
+                "{member}"
+        div.windowbg
+          div.board_icon
+            img [alt src="{boardurl}/Themes/default/images/post/xx.png"]
+          div.info.info_block
+            div
+              div#icons#.floatright.icons
+              div.message_index_title
+                span.preview [title]
+                  span#msg#
+                    a [href="{boardurl}/index.php?topic=#"]
+                      "{subject}"
+              p.floatleft
+                "Started by"
+                a.preview [href="{boardurl}/index.php?action=profile;u=#" title="View the profile of {member}"]
+                  "{member}"
+          div.board_stats.centertext
+            p
+              "# reply(s)"
+              br
+              "# view(s)"
+          div.lastpost
+            p
+              a [href="{boardurl}/index.php?topic=##new"]
+                "{date}"
+              br
+              "by"
+              a [href="{boardurl}/index.php?action=profile;u=#"]
+                "{member}"
+    div.pagesection
+      div.floatleft.pagelinks
+        a#bot.button [href="#main_content_section"]
+          "Go Up"
+        span.pages
+          "Pages"
+        span.current_page
+          "#"
+      div.buttonlist.floatright
+        a.active.button.button_strip_new_topic [href="{boardurl}/index.php?action=post;board=#"]
+          "New Topic"
+        a.button.button_strip_post_poll [href="{boardurl}/index.php?action=post;board=#;poll"]
+          "New poll"
+        a.button.button_strip_markread.you_sure [data-confirm="Are you sure you want to mark messages as read?" href="{boardurl}/index.php?action=markasread;sa=board;board=#;{session_var}={session_id}"]
+          "Mark Read"
+        a.button.button_strip_notify
+          "No Alerts or Emails"
+        div.dropmenu.notify_dropdown.top_menu
+          div.viewport
+            div.overview
+              a [href="{boardurl}/index.php?action=notifyboard;board=#;mode=#;{session_var}={session_id}"]
+                strong
+                  "No Alerts or Emails"
+                br
+                span
+                  "You will not receive any emails or alerts for new topics"
+              a [href="{boardurl}/index.php?action=notifyboard;board=#;mode=#;{session_var}={session_id}"]
+                strong
+                  "Receive Alerts"
+                br
+                span
+                  "You will receive alerts for this board."
+              a [href="{boardurl}/index.php?action=notifyboard;board=#;mode=#;{session_var}={session_id}"]
+                strong
+                  "Receive Emails and Alerts"
+                br
+                span
+                  "You will receive both alerts and e-mails for this board."
+      div.floatright.mobile_buttons
+        a.button.mobile_act
+          "User actions"
+    nav.navigate_section [aria-label="Breadcrumb"]
+      ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+        li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+          a [href="{boardurl}/index.php" itemprop="item"]
+            span [itemprop="name"]
+              "{forum_name}"
+          meta [content="#" itemprop="position"]
+        li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+          span.dividers
+            "►"
+          a [href="{boardurl}/index.php#c#" itemprop="item"]
+            span [itemprop="name"]
+              "Snapshot fixtures"
+          meta [content="#" itemprop="position"]
+        li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+          span.dividers
+            "►"
+          a [href="{boardurl}/index.php?board=#" itemprop="item"]
+            span [itemprop="name"]
+              "{board}"
+          meta [content="#" itemprop="position"]
+        li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+          span.dividers
+            "►"
+          a [href="{boardurl}/index.php?board=#" itemprop="item"]
+            span [itemprop="name"]
+              "{board}"
+          meta [content="#" itemprop="position"]
+    script
+      | window.addEventListener("DOMContentLoaded", function() { new QuickModifyTopic({ aHidePrefixes: ["icons", "msg", "pages", "newicon"], sTopicContainer: "topic_container", }); });
+    div#topic_icons.tborder
+      div.information
+        p#message_index_jump_to
+        p.floatleft
+          span.main_icons.profile_sm
+          "Topic you have posted in"
+          br
+          span.main_icons.poll
+          "Poll"
+          br
+          span.main_icons.move
+          "Moved Topic"
+          br
+        p
+          span.lock.main_icons
+          "Locked Topic"
+          br
+          span.main_icons.sticky
+          "Sticky Topic"
+          br
+          span.main_icons.watch
+          "Topic you are watching"
+          br
+        script
+          | window.addEventListener("DOMContentLoaded", function() { new JumpTo({ sContainerId: "message_index_jump_to", sJumpToTemplate: "<label class=\"smalltext jump_to\" for=\"%select_id%\">Jump to<" + "/label> %dropdown_list%", iCurBoardId: #, iCurBoardChildLevel: #, sCurBoardName: "Snapshot child one", sBoardChildLevelIndicator: "==", sBoardPrefix: "=> ", sCatSeparator: "-----------------------------", sCatPrefix: "", sGoButtonLabel: "Go" }); });
+    div#mobile_action.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "User actions"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.buttonlist
+          a.active.button.button_strip_new_topic [href="{boardurl}/index.php?action=post;board=#"]
+            "New Topic"
+          a.button.button_strip_post_poll [href="{boardurl}/index.php?action=post;board=#;poll"]
+            "New poll"
+          a.button.button_strip_markread.you_sure [data-confirm="Are you sure you want to mark messages as read?" href="{boardurl}/index.php?action=markasread;sa=board;board=#;{session_var}={session_id}"]
+            "Mark Read"
+          a.button.button_strip_notify
+            "No Alerts or Emails"
+          div.dropmenu.notify_dropdown.top_menu
+            div.viewport
+              div.overview
+                a [href="{boardurl}/index.php?action=notifyboard;board=#;mode=#;{session_var}={session_id}"]
+                  strong
+                    "No Alerts or Emails"
+                  br
+                  span
+                    "You will not receive any emails or alerts for new topics"
+                a [href="{boardurl}/index.php?action=notifyboard;board=#;mode=#;{session_var}={session_id}"]
+                  strong
+                    "Receive Alerts"
+                  br
+                  span
+                    "You will receive alerts for this board."
+                a [href="{boardurl}/index.php?action=notifyboard;board=#;mode=#;{session_var}={session_id}"]
+                  strong
+                    "Receive Emails and Alerts"
+                  br
+                  span
+                    "You will receive both alerts and e-mails for this board."

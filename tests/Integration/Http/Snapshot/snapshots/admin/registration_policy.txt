@@ -1,0 +1,99 @@
+status 200
+@ title
+title
+  "Privacy Policy"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=regcenter;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Registration"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=regcenter;sa=policy;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Privacy Policy"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      a.help [href="{boardurl}/index.php?action=helpadmin;help=registrations" onclick="return reqOverlayDiv(this.href);"]
+        span.help.main_icons [title="Help"]
+      "Registration"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "This privacy policy describes the promises you make to your users regarding how you will use their personal data. It is shown when a user registers an account on this forum and has to be accepted before the user can continue registration."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Registration Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Registration Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a [href="{boardurl}/index.php?action=admin;area=regcenter;sa=register;{session_var}={session_id}"]
+                "Register new member"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=regcenter;sa=agreement;{session_var}={session_id}"]
+                "Registration Agreement"
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=regcenter;sa=policy;{session_var}={session_id}"]
+                "Privacy Policy"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=regcenter;sa=reservednames;{session_var}={session_id}"]
+                "Set reserved names"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=regcenter;sa=settings;{session_var}={session_id}"]
+                "Settings"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  div.cat_bar
+    h3.catbg
+      "Privacy Policy"
+  div#privacy_policy.windowbg
+    form [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=regcenter" method="post"]
+      textarea#agreement [cols="#" name="policy" rows="#"]
+      div.information
+        span
+          "Last updated: Never."
+      div.righttext
+        input.button [onclick="return resetPolicyConfirm()" type="submit" value="Save"]
+        input [name="policy_lang" type="hidden" value="en_US"]
+        input [name="sa" type="hidden" value="policy"]
+        input [name="{session_var}" type="hidden" value="{session_id}"]
+        input [name="{token_var}" type="hidden" value="{hash}"]
+        script
+          | function resetPolicyConfirm() { return true; }

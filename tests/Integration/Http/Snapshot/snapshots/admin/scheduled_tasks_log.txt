@@ -1,0 +1,62 @@
+status 200
+@ title
+title
+  "Task Log"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=scheduledtasks;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Scheduled Tasks"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=scheduledtasks;sa=tasklog;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Task Log"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  form [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=scheduledtasks;sa=tasklog" method="post"]
+    div.cat_bar
+      h3.catbg
+        "Task Log"
+    div.flow_hidden.information
+      div.additional_row
+        strong
+          "Note:"
+        "All times given below are"
+        em
+          "server time"
+        "and do not take into account any time offsets set up within SMF."
+    table#task_log.table_grid
+      thead
+        tr.title_bar
+          th#header_task_log_name.name [scope="col"]
+            "Task Name"
+          th#header_task_log_date.date [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=scheduledtasks;sa=tasklog;sort=date;desc" rel="nofollow"]
+              "Time Run"
+              span.main_icons.sort_up
+          th#header_task_log_time_taken.time_taken [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=scheduledtasks;sa=tasklog;sort=time_taken" rel="nofollow"]
+              "Time taken"
+      snapshot-ignored [selector="table.table_grid tbody"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]
+    input [name="{token_var}" type="hidden" value="{hash}"]

@@ -1,0 +1,417 @@
+status 200
+@ title
+title
+  "Features and Options"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=featuresettings;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Features and Options"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=basic;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "General"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      a.help [href="{boardurl}/index.php?action=helpadmin;help=featuresettings" onclick="return reqOverlayDiv(this.href);"]
+        span.help.main_icons [title="Help"]
+      "Features and Options"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "This page allows you to change the settings of features and basic options in your forum. Please see the"
+    a [href="{boardurl}/index.php?action=admin;area=theme;sa=list;th=#;{session_var}={session_id}"]
+      "theme settings"
+    "for more options. Click the help icons for more information about a setting."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Features and Options Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Features and Options Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=basic;{session_var}={session_id}"]
+                "General"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=bbc;{session_var}={session_id}"]
+                "Bulletin Board Code & Markdown"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=layout;{session_var}={session_id}"]
+                "Layout"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=sig;{session_var}={session_id}"]
+                "Signatures"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=profile;{session_var}={session_id}"]
+                "Profile Fields"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=likes;{session_var}={session_id}"]
+                "Likes"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=mentions;{session_var}={session_id}"]
+                "Mentions"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=alerts;{session_var}={session_id}"]
+                "Notifications"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  form#admin_form_wrapper [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=featuresettings;save;sa=basic" method="post"]
+    div.cat_bar
+      h3.catbg
+        "General"
+    div.noup.windowbg
+      dl.settings
+        dt
+          a#setting_pollMode_help [href="{boardurl}/index.php?action=helpadmin;help=pollMode" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_pollMode
+          span
+            label [for="pollMode"]
+              "Poll mode"
+        dd
+          select#pollMode [name="pollMode" size="#"]
+            option [value="#"]
+              "Disable polls"
+            option [selected value="#"]
+              "Enable polls"
+            option [value="#"]
+              "Show existing polls as topics"
+      hr
+      dl.settings
+        dt
+          a#setting_allow_guestAccess_help [href="{boardurl}/index.php?action=helpadmin;help=allow_guestAccess" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_allow_guestAccess
+          span
+            label [for="allow_guestAccess"]
+              "Allow guests to browse the forum"
+        dd
+          input#allow_guestAccess [checked name="allow_guestAccess" type="checkbox" value="#"]
+        dt
+          a#setting_enable_buddylist
+          span
+            label [for="enable_buddylist"]
+              "Enable buddy/ignore lists"
+        dd
+          input#enable_buddylist [checked name="enable_buddylist" type="checkbox" value="#"]
+        dt
+          a#setting_allow_hideOnline_help [href="{boardurl}/index.php?action=helpadmin;help=allow_hideOnline" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_allow_hideOnline
+          span
+            label [for="allow_hideOnline"]
+              "Allow non-administrators to hide their online status"
+        dd
+          input#allow_hideOnline [checked name="allow_hideOnline" type="checkbox" value="#"]
+        dt
+          a#setting_titlesEnable_help [href="{boardurl}/index.php?action=helpadmin;help=titlesEnable" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_titlesEnable
+          span
+            label [for="titlesEnable"]
+              "Enable custom titles"
+        dd
+          input#titlesEnable [checked name="titlesEnable" type="checkbox" value="#"]
+        dt
+          a#setting_default_personal_text_help [href="{boardurl}/index.php?action=helpadmin;help=default_personal_text" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_default_personal_text
+          span
+            label [for="default_personal_text"]
+              "Default personal text"
+            br
+            span.smalltext
+              "Personal text to assign to newly registered members."
+        dd
+          input#default_personal_text [name="default_personal_text" type="text" value]
+        dt
+          a#setting_topic_move_any_help [href="{boardurl}/index.php?action=helpadmin;help=topic_move_any" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_topic_move_any
+          span
+            label [for="topic_move_any"]
+              "Allow moving of topics to read-only boards"
+        dd
+          input#topic_move_any [name="topic_move_any" type="checkbox" value="#"]
+        dt
+          a#setting_defaultMaxListItems
+          span
+            label [for="defaultMaxListItems"]
+              "Maximum number of items per page in lists"
+        dd
+          input#defaultMaxListItems [max="#" min="#" name="defaultMaxListItems" size="#" step="#" type="number" value="#"]
+      hr
+      dl.settings
+        dt
+          a#setting_jquery_source_help [href="{boardurl}/index.php?action=helpadmin;help=jquery_source" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_jquery_source
+          span
+            label [for="jquery_source"]
+              "Source for the jQuery Library"
+        dd
+          select#jquery_source [name="jquery_source" onchange="if (this.value == 'custom'){document.getElementById('jquery_custom').disabled = false; } else {document.getElementById('jquery_custom').disabled = true;}" size="#"]
+            option [value="cdn"]
+              "Google CDN"
+            option [value="cloudflare_cdn"]
+              "Cloudflare CDN"
+            option [value="jquery_cdn"]
+              "jQuery CDN"
+            option [value="microsoft_cdn"]
+              "Microsoft CDN"
+            option [value="local"]
+              "Local"
+            option [value="custom"]
+              "Custom URL to the jQuery Library"
+        dt
+          a#setting_jquery_custom
+          span [style="color: ##;"]
+            label [for="jquery_custom"]
+              "Custom URL to the jQuery Library"
+        dd
+          input#jquery_custom [disabled name="jquery_custom" size="#" type="text" value]
+        dt
+          a#setting_fontawesome_source_help [href="{boardurl}/index.php?action=helpadmin;help=fontawesome_source" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_fontawesome_source
+          span
+            label [for="fontawesome_source"]
+              "Source for the FontAwesome Library"
+        dd
+          select#fontawesome_source [name="fontawesome_source" onchange="if (this.value == 'custom'){document.getElementById('fontawesome_custom').disabled = false; } else {document.getElementById('fontawesome_custom').disabled = true;}" size="#"]
+            option [value="cdn"]
+              "Cloudflare CDN"
+            option [value="fontawesome_cdn"]
+              "FontAwesome CDN"
+            option [value="local"]
+              "Local"
+            option [value="custom"]
+              "Custom URL to the FontAwesome Library"
+        dt
+          a#setting_fontawesome_custom
+          span [style="color: ##;"]
+            label [for="fontawesome_custom"]
+              "Custom URL to the FontAwesome Library"
+        dd
+          input#fontawesome_custom [disabled name="fontawesome_custom" size="#" type="text" value]
+      hr
+      dl.settings
+        dt
+          a#setting_minimize_files_help [href="{boardurl}/index.php?action=helpadmin;help=minimize_files" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_minimize_files
+          span
+            label [for="minimize_files"]
+              "Minimize CSS and JavaScript files"
+        dd
+          input#minimize_files [checked name="minimize_files" type="checkbox" value="#"]
+      hr
+      dl.settings
+        dt
+          a#setting_queryless_urls_help [href="{boardurl}/index.php?action=helpadmin;help=queryless_urls" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_queryless_urls
+          span
+            label [for="queryless_urls"]
+              "Use friendly URLs"
+            br
+            span.smalltext
+              strong
+                "Supported on Apache, Lighttpd, and LiteSpeed only"
+        dd
+          input#queryless_urls [name="queryless_urls" type="checkbox" value="#"]
+        dt
+          a#setting_hide_index_php_help [href="{boardurl}/index.php?action=helpadmin;help=hide_index_php" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_hide_index_php
+          span
+            label [for="hide_index_php"]
+              "Hide index.php in URLs"
+        dd
+          input#hide_index_php [name="hide_index_php" type="checkbox" value="#"]
+        dt
+          a#setting_use_ascii_slugs_help [href="{boardurl}/index.php?action=helpadmin;help=use_ascii_slugs" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_use_ascii_slugs
+          span
+            label [for="use_ascii_slugs"]
+              "Transliterate non-ASCII characters in friendly URLs."
+        dd
+          input#use_ascii_slugs [name="use_ascii_slugs" type="checkbox" value="#"]
+      hr
+      dl.settings
+        dt
+          a#setting_time_format_help [href="{boardurl}/index.php?action=helpadmin;help=time_format" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_time_format
+          span
+            label [for="time_format"]
+              "Default time format"
+        dd
+          input#time_format [name="time_format" type="text" value="%b %d, %Y, %I:%M %p"]
+        dt
+          a#setting_default_timezone_help [href="{boardurl}/index.php?action=helpadmin;help=default_timezone" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_default_timezone
+          span
+            label [for="default_timezone"]
+              "Forum default timezone"
+        dd
+          snapshot-ignored [selector="#default_timezone"]
+        dt
+          a#setting_timezone_priority_countries_help [href="{boardurl}/index.php?action=helpadmin;help=timezone_priority_countries" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_timezone_priority_countries
+          span
+            label [for="timezone_priority_countries"]
+              "Show time zones from these countries first"
+            br
+            span.smalltext
+              "A comma separated list of two character ISO country codes."
+        dd
+          input#timezone_priority_countries [name="timezone_priority_countries" type="text" value]
+      hr
+      dl.settings
+        dt
+          a#setting_who_enabled_help [href="{boardurl}/index.php?action=helpadmin;help=who_enabled" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_who_enabled
+          span
+            label [for="who_enabled"]
+              "Enable who’s online list"
+        dd
+          input#who_enabled [checked name="who_enabled" type="checkbox" value="#"]
+        dt
+          a#setting_lastActive_help [href="{boardurl}/index.php?action=helpadmin;help=lastActive" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_lastActive
+          span
+            label [for="lastActive"]
+              "User online time threshold"
+        dd
+          input#lastActive [min="#" name="lastActive" size="#" type="number" value="#"]
+          "minutes"
+      hr
+      dl.settings
+        dt
+          a#setting_trackStats_help [href="{boardurl}/index.php?action=helpadmin;help=trackStats" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_trackStats
+          span
+            label [for="trackStats"]
+              "Track statistics"
+        dd
+          input#trackStats [checked name="trackStats" type="checkbox" value="#"]
+        dt
+          a#setting_hitStats
+          span
+            label [for="hitStats"]
+              "Track daily page views (statistics tracking must be enabled)"
+        dd
+          input#hitStats [name="hitStats" type="checkbox" value="#"]
+      hr
+      dl.settings
+        dt
+          a#setting_no_guest_logging_help [href="{boardurl}/index.php?action=helpadmin;help=no_guest_logging" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_no_guest_logging
+          span
+            label [for="no_guest_logging"]
+              "Do not include guests or bots in Users Online stats"
+        dd
+          input#no_guest_logging [name="no_guest_logging" type="checkbox" value="#"]
+        dt
+          a#setting_no_guest_views_help [href="{boardurl}/index.php?action=helpadmin;help=no_guest_views" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_no_guest_views
+          span
+            label [for="no_guest_views"]
+              "Disable counting views for guests and bots"
+        dd
+          input#no_guest_views [name="no_guest_views" type="checkbox" value="#"]
+      hr
+      dl.settings
+        dt
+          a#setting_disallow_sendBody_help [href="{boardurl}/index.php?action=helpadmin;help=disallow_sendBody" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_disallow_sendBody
+          span
+            label [for="disallow_sendBody"]
+              "Do not allow post text in notifications"
+        dd
+          input#disallow_sendBody [name="disallow_sendBody" type="checkbox" value="#"]
+      hr
+      dl.settings
+        dt
+          a#setting_enable_ajax_alerts_help [href="{boardurl}/index.php?action=helpadmin;help=enable_ajax_alerts" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_enable_ajax_alerts
+          span
+            label [for="enable_ajax_alerts"]
+              "Allow AJAX desktop notifications for alerts"
+        dd
+          input#enable_ajax_alerts [checked name="enable_ajax_alerts" type="checkbox" value="#"]
+        dt
+          a#setting_alerts_auto_purge_help [href="{boardurl}/index.php?action=helpadmin;help=alerts_auto_purge" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_alerts_auto_purge
+          span
+            label [for="alerts_auto_purge"]
+              "Automatically delete read alerts"
+        dd
+          select#alerts_auto_purge [name="alerts_auto_purge" size="#"]
+            option [value="#"]
+              "Never"
+            option [value="#"]
+              "After {duration}"
+            option [selected value="#"]
+              "After {duration}"
+            option [value="#"]
+              "After {duration}"
+        dt
+          a#setting_alerts_per_page
+          span
+            label [for="alerts_per_page"]
+              "Alerts Per Page"
+        dd
+          input#alerts_per_page [max="#" min="#" name="alerts_per_page" size="#" step="#" type="number" value="#"]
+      input.button [type="submit" value="Save"]
+    input [name="{token_var}" type="hidden" value="{hash}"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]

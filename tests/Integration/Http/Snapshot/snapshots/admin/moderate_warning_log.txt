@@ -1,0 +1,93 @@
+status 200
+@ title
+title
+  "Viewing warning log"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=moderate" itemprop="item"]
+        span [itemprop="name"]
+          "Moderation Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=moderate;area=warnings" itemprop="item"]
+        span [itemprop="name"]
+          "Warnings"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=moderate;area=warnings;sa=log" itemprop="item"]
+        span [itemprop="name"]
+          "Log"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      "Warnings"
+  p.information
+    "From this section you can see which warnings have been issued to members of the forum. You can also add and modify the notification templates used when sending a warning to a member."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Warnings Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Warnings Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a.active [href="{boardurl}/index.php?action=moderate;area=warnings;sa=log"]
+                "Log"
+            li
+              a [href="{boardurl}/index.php?action=moderate;area=warnings;sa=templates"]
+                "Custom Templates"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  form [accept-charset="UTF-#" action="{boardurl}/index.php?action=moderate;area=warnings;sa=log;sort=member" method="post"]
+    div.cat_bar
+      h3.catbg
+        "Viewing warning log"
+    table#warning_list.table_grid
+      thead
+        tr.title_bar
+          th#header_warning_list_issuer.issuer [scope="col"]
+            a [href="{boardurl}/index.php?action=moderate;area=warnings;sa=log;{session_var}={session_id};sort=issuer" rel="nofollow"]
+              "Issued By"
+          th#header_warning_list_recipient.recipient [scope="col"]
+            a [href="{boardurl}/index.php?action=moderate;area=warnings;sa=log;{session_var}={session_id};sort=recipient" rel="nofollow"]
+              "Recipient"
+          th#header_warning_list_time.time [scope="col"]
+            a [href="{boardurl}/index.php?action=moderate;area=warnings;sa=log;{session_var}={session_id};sort=time;desc" rel="nofollow"]
+              "Time"
+              span.main_icons.sort_up
+          th#header_warning_list_reason.reason [scope="col"]
+            "Reason"
+          th#header_warning_list_points.points [scope="col"]
+            "Points"
+      tbody
+        tr.windowbg
+          td.centertext [colspan="#"]
+            "No warnings have been issued."
+    div.flow_auto
+      div.additional_row.floatright
+        "Quick Search"
+        input [name="search" size="#" type="text" value]
+        input.button [name="is_search" type="submit" value="Go"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]
+    input [name="params" type="hidden" value]
+    input [name="sort" type="hidden" value="time"]
