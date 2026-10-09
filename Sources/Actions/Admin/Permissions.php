@@ -108,7 +108,7 @@ class Permissions implements ActionInterface
 			'member_admin',
 			'profile',
 			'profile_account',
-			'likes',
+			'reactions',
 			'mentions',
 			'bbc',
 		],
