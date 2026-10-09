@@ -24,6 +24,7 @@ use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\Lang;
+use SMF\PageIndex;
 use SMF\Parser;
 use SMF\Poll;
 use SMF\Routable;
@@ -42,6 +43,16 @@ class TopicPrint implements ActionInterface, Routable
 {
 	use ActionSuffixRouter;
 	use ActionTrait;
+
+	/*****************
+	 * Class constants
+	 *****************/
+
+	/**
+	 * The number of posts to show on one print page in forums that never show
+	 * the "All" view.
+	 */
+	public const DEFAULT_MAX_POSTS = 250;
 
 	/****************
 	 * Public methods
@@ -97,7 +108,56 @@ class TopicPrint implements ActionInterface, Routable
 		$row = Db::$db->fetch_assoc($request);
 		Db::$db->free_result($request);
 
-		if (!empty($row['id_poll'])) {
+		// Only the posts this user is allowed to see are printed or counted.
+		$approval_filter = Config::$modSettings['postmod_active'] && !User::$me->allowedTo('approve_posts') ? '
+				AND (m.approved = {int:is_approved}' . (User::$me->is_guest ? '' : ' OR m.id_member = {int:current_member}') . ')' : '';
+
+		$request = Db::$db->query(
+			'SELECT COUNT(*)
+			FROM {db_prefix}messages AS m
+			WHERE m.id_topic = {int:current_topic}' . $approval_filter,
+			[
+				'current_topic' => Topic::$topic_id,
+				'is_approved' => 1,
+				'current_member' => User::$me->id,
+			],
+		);
+		list($total_posts) = Db::$db->fetch_row($request);
+		Db::$db->free_result($request);
+
+		$per_page = $this->getPostsPerPage();
+
+		Utils::$context['start'] = (int) $_REQUEST['start'];
+
+		$page_index = new PageIndex(
+			Config::$scripturl . '?action=printpage;topic=' . Topic::$topic_id . '.%1$d' . (isset($_REQUEST['images']) ? ';images' : ''),
+			Utils::$context['start'],
+			(int) $total_posts,
+			$per_page,
+			true,
+			true,
+			// The print page carries its own styles and no scripts, so the
+			// icons and the expanding page list have to be plain text here.
+			[
+				'previous_page' => Lang::getTxt('prev', file: 'General'),
+				'next_page' => Lang::getTxt('next', file: 'General'),
+				'expand_pages' => ' ... ',
+			],
+		);
+
+		// If the supplied start value was invalid, redirect to the correct one.
+		if ($_REQUEST['start'] != Utils::$context['start']) {
+			Utils::redirectexit(\sprintf($page_index->base_url, Utils::$context['start']));
+		}
+
+		// There is nothing to navigate when the whole topic fits on one page.
+		if ($total_posts > $per_page) {
+			Utils::$context['page_index'] = $page_index;
+		}
+
+		// The poll belongs to the topic rather than to any of its posts, so it
+		// is printed once, with the first page.
+		if (!empty($row['id_poll']) && Utils::$context['start'] === 0) {
 			$poll = Poll::load(Topic::$topic_id, Poll::LOAD_BY_TOPIC);
 			Utils::$context['poll'] = $poll->format(['no_buttons' => true]);
 		}
@@ -120,13 +180,15 @@ class TopicPrint implements ActionInterface, Routable
 			'SELECT subject, poster_time, body, COALESCE(mem.real_name, poster_name) AS poster_name, id_msg
 			FROM {db_prefix}messages AS m
 				LEFT JOIN {db_prefix}members AS mem ON (mem.id_member = m.id_member)
-			WHERE m.id_topic = {int:current_topic}' . (Config::$modSettings['postmod_active'] && !User::$me->allowedTo('approve_posts') ? '
-				AND (m.approved = {int:is_approved}' . (User::$me->is_guest ? '' : ' OR m.id_member = {int:current_member}') . ')' : '') . '
-			ORDER BY m.id_msg',
+			WHERE m.id_topic = {int:current_topic}' . $approval_filter . '
+			ORDER BY m.id_msg
+			LIMIT {int:per_page} OFFSET {int:start}',
 			[
 				'current_topic' => Topic::$topic_id,
 				'is_approved' => 1,
 				'current_member' => User::$me->id,
+				'per_page' => $per_page,
+				'start' => Utils::$context['start'],
 			],
 		);
 		Utils::$context['posts'] = [];
@@ -214,5 +276,25 @@ class TopicPrint implements ActionInterface, Routable
 
 		// Set a canonical URL for this page.
 		Utils::$context['canonical_url'] = Config::$scripturl . '?topic=' . Topic::$topic_id . '.0';
+	}
+
+	/******************
+	 * Internal methods
+	 ******************/
+
+	/**
+	 * Works out how many posts belong on a single print page.
+	 *
+	 * A print page holds whole posts, parsed and in memory all at once, so it
+	 * shows no more of them at a time than the admin is willing to show in the
+	 * "All" view of a topic.
+	 *
+	 * @return int The maximum number of posts on one print page.
+	 */
+	protected function getPostsPerPage(): int
+	{
+		$per_page = (int) (Config::$modSettings['enableAllMessages'] ?? 0);
+
+		return $per_page > 0 ? $per_page : self::DEFAULT_MAX_POSTS;
 	}
 }
