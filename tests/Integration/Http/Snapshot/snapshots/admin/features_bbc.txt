@@ -1,0 +1,588 @@
+status 200
+@ title
+title
+  "Bulletin Board Code settings"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=featuresettings;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Features and Options"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=bbc;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Bulletin Board Code & Markdown"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      a.help [href="{boardurl}/index.php?action=helpadmin;help=featuresettings" onclick="return reqOverlayDiv(this.href);"]
+        span.help.main_icons [title="Help"]
+      "Features and Options"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "Bulletin board code and Markdown can be used to add markup to forum messages. For example, to highlight the word \"house\" you can type [b]house[/b] (using BBC) or **house** (using Markdown). All bulletin board code tags are surrounded by square brackets (\"[\" and \"]\")."
+    a [href="https://commonmark.org/help/" target="_blank"]
+      "Markdown syntax"
+    "is a little more complicated, but not too hard."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Features and Options Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Features and Options Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=basic;{session_var}={session_id}"]
+                "General"
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=bbc;{session_var}={session_id}"]
+                "Bulletin Board Code & Markdown"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=layout;{session_var}={session_id}"]
+                "Layout"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=sig;{session_var}={session_id}"]
+                "Signatures"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=profile;{session_var}={session_id}"]
+                "Profile Fields"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=likes;{session_var}={session_id}"]
+                "Likes"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=mentions;{session_var}={session_id}"]
+                "Mentions"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=alerts;{session_var}={session_id}"]
+                "Notifications"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  form#admin_form_wrapper [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=featuresettings;save;sa=bbc" method="post"]
+    div.cat_bar
+      h3.catbg
+        "Bulletin Board Code settings"
+    div.noup.windowbg
+      dl.settings
+        dt
+          a#setting_enableBBC_help [href="{boardurl}/index.php?action=helpadmin;help=enableBBC" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_enableBBC
+          span
+            label [for="enableBBC"]
+              "Enable bulletin board code (BBC)"
+        dd
+          input#enableBBC [checked name="enableBBC" onchange="toggleBBCDisabled('disabledBBC', !this.checked); toggleBBCDisabled('legacyBBC', !this.checked);" type="checkbox" value="#"]
+        dt
+          a#setting_enablePostHTML_help [href="{boardurl}/index.php?action=helpadmin;help=enablePostHTML" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_enablePostHTML
+          span
+            label [for="enablePostHTML"]
+              "Enable"
+              em
+                "basic"
+              "HTML in posts"
+        dd
+          input#enablePostHTML [name="enablePostHTML" type="checkbox" value="#"]
+        dt
+          a#setting_autoLinkUrls
+          span
+            label [for="autoLinkUrls"]
+              "Automatically link posted URLs"
+        dd
+          input#autoLinkUrls [checked name="autoLinkUrls" type="checkbox" value="#"]
+      hr
+      dl.settings
+        dt
+          a#setting_disabledBBC
+          span
+            label [for="disabledBBC"]
+              "Enabled BBC tags"
+        dd
+          fieldset#disabledBBC
+            legend
+              "Select the tags which are allowed to be used"
+            ul
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_abbr [checked name="disabledBBC_enabledTags[]" type="checkbox" value="abbr"]
+                label [for="tag_disabledBBC_abbr"]
+                  "abbr"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_anchor [checked name="disabledBBC_enabledTags[]" type="checkbox" value="anchor"]
+                label [for="tag_disabledBBC_anchor"]
+                  "anchor"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_attach [checked name="disabledBBC_enabledTags[]" type="checkbox" value="attach"]
+                label [for="tag_disabledBBC_attach"]
+                  "attach"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_b [checked name="disabledBBC_enabledTags[]" type="checkbox" value="b"]
+                label [for="tag_disabledBBC_b"]
+                  "b"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_br [checked name="disabledBBC_enabledTags[]" type="checkbox" value="br"]
+                label [for="tag_disabledBBC_br"]
+                  "br"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_center [checked name="disabledBBC_enabledTags[]" type="checkbox" value="center"]
+                label [for="tag_disabledBBC_center"]
+                  "center"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_code [checked name="disabledBBC_enabledTags[]" type="checkbox" value="code"]
+                label [for="tag_disabledBBC_code"]
+                  "code"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_color [checked name="disabledBBC_enabledTags[]" type="checkbox" value="color"]
+                label [for="tag_disabledBBC_color"]
+                  "color"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_details [checked name="disabledBBC_enabledTags[]" type="checkbox" value="details"]
+                label [for="tag_disabledBBC_details"]
+                  "details"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_email [checked name="disabledBBC_enabledTags[]" type="checkbox" value="email"]
+                label [for="tag_disabledBBC_email"]
+                  "email"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_float [checked name="disabledBBC_enabledTags[]" type="checkbox" value="float"]
+                label [for="tag_disabledBBC_float"]
+                  "float"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_font [checked name="disabledBBC_enabledTags[]" type="checkbox" value="font"]
+                label [for="tag_disabledBBC_font"]
+                  "font"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_h# [checked name="disabledBBC_enabledTags[]" type="checkbox" value="h#"]
+                label [for="tag_disabledBBC_h#"]
+                  "h#"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_html [checked name="disabledBBC_enabledTags[]" type="checkbox" value="html"]
+                label [for="tag_disabledBBC_html"]
+                  "html"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_hr [checked name="disabledBBC_enabledTags[]" type="checkbox" value="hr"]
+                label [for="tag_disabledBBC_hr"]
+                  "hr"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_i [checked name="disabledBBC_enabledTags[]" type="checkbox" value="i"]
+                label [for="tag_disabledBBC_i"]
+                  "i"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_img [checked name="disabledBBC_enabledTags[]" type="checkbox" value="img"]
+                label [for="tag_disabledBBC_img"]
+                  "img"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_iurl [checked name="disabledBBC_enabledTags[]" type="checkbox" value="iurl"]
+                label [for="tag_disabledBBC_iurl"]
+                  "iurl"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_justify [checked name="disabledBBC_enabledTags[]" type="checkbox" value="justify"]
+                label [for="tag_disabledBBC_justify"]
+                  "justify"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_list [checked name="disabledBBC_enabledTags[]" type="checkbox" value="list"]
+                label [for="tag_disabledBBC_list"]
+                  "list"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_ltr [checked name="disabledBBC_enabledTags[]" type="checkbox" value="ltr"]
+                label [for="tag_disabledBBC_ltr"]
+                  "ltr"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_me [checked name="disabledBBC_enabledTags[]" type="checkbox" value="me"]
+                label [for="tag_disabledBBC_me"]
+                  "me"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_member [checked name="disabledBBC_enabledTags[]" type="checkbox" value="member"]
+                label [for="tag_disabledBBC_member"]
+                  "member"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_nobbc [checked name="disabledBBC_enabledTags[]" type="checkbox" value="nobbc"]
+                label [for="tag_disabledBBC_nobbc"]
+                  "nobbc"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_nolink [checked name="disabledBBC_enabledTags[]" type="checkbox" value="nolink"]
+                label [for="tag_disabledBBC_nolink"]
+                  "nolink"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_php [checked name="disabledBBC_enabledTags[]" type="checkbox" value="php"]
+                label [for="tag_disabledBBC_php"]
+                  "php"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_pre [checked name="disabledBBC_enabledTags[]" type="checkbox" value="pre"]
+                label [for="tag_disabledBBC_pre"]
+                  "pre"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_quote [checked name="disabledBBC_enabledTags[]" type="checkbox" value="quote"]
+                label [for="tag_disabledBBC_quote"]
+                  "quote"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_right [checked name="disabledBBC_enabledTags[]" type="checkbox" value="right"]
+                label [for="tag_disabledBBC_right"]
+                  "right"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_rtl [checked name="disabledBBC_enabledTags[]" type="checkbox" value="rtl"]
+                label [for="tag_disabledBBC_rtl"]
+                  "rtl"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_s [checked name="disabledBBC_enabledTags[]" type="checkbox" value="s"]
+                label [for="tag_disabledBBC_s"]
+                  "s"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_size [checked name="disabledBBC_enabledTags[]" type="checkbox" value="size"]
+                label [for="tag_disabledBBC_size"]
+                  "size"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_spoiler [checked name="disabledBBC_enabledTags[]" type="checkbox" value="spoiler"]
+                label [for="tag_disabledBBC_spoiler"]
+                  "spoiler"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_sub [checked name="disabledBBC_enabledTags[]" type="checkbox" value="sub"]
+                label [for="tag_disabledBBC_sub"]
+                  "sub"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_sup [checked name="disabledBBC_enabledTags[]" type="checkbox" value="sup"]
+                label [for="tag_disabledBBC_sup"]
+                  "sup"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_table [checked name="disabledBBC_enabledTags[]" type="checkbox" value="table"]
+                label [for="tag_disabledBBC_table"]
+                  "table"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_time [checked name="disabledBBC_enabledTags[]" type="checkbox" value="time"]
+                label [for="tag_disabledBBC_time"]
+                  "time"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_tt [checked name="disabledBBC_enabledTags[]" type="checkbox" value="tt"]
+                label [for="tag_disabledBBC_tt"]
+                  "tt"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_u [checked name="disabledBBC_enabledTags[]" type="checkbox" value="u"]
+                label [for="tag_disabledBBC_u"]
+                  "u"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_url [checked name="disabledBBC_enabledTags[]" type="checkbox" value="url"]
+                label [for="tag_disabledBBC_url"]
+                  "url"
+              li.floatleft.list_bbc
+                input#tag_disabledBBC_youtube [checked name="disabledBBC_enabledTags[]" type="checkbox" value="youtube"]
+                label [for="tag_disabledBBC_youtube"]
+                  "youtube"
+            input#bbc_disabledBBC_select_all [onclick="invertAll(this, this.form, 'disabledBBC_enabledTags');" type="checkbox"]
+            label [for="bbc_disabledBBC_select_all"]
+              em
+                "Select all tags"
+        dt
+          a#setting_legacyBBC_help [href="{boardurl}/index.php?action=helpadmin;help=legacy_bbc" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_legacyBBC
+          span
+            label [for="legacyBBC"]
+              "Legacy BBC tags"
+        dd
+          fieldset#legacyBBC
+            legend
+              "Select the tags which are allowed to be used"
+            ul
+              li.floatleft.list_bbc
+                input#tag_legacyBBC_acronym [name="legacyBBC_enabledTags[]" type="checkbox" value="acronym"]
+                label [for="tag_legacyBBC_acronym"]
+                  "acronym"
+              li.floatleft.list_bbc
+                input#tag_legacyBBC_bdo [name="legacyBBC_enabledTags[]" type="checkbox" value="bdo"]
+                label [for="tag_legacyBBC_bdo"]
+                  "bdo"
+              li.floatleft.list_bbc
+                input#tag_legacyBBC_black [name="legacyBBC_enabledTags[]" type="checkbox" value="black"]
+                label [for="tag_legacyBBC_black"]
+                  "black"
+              li.floatleft.list_bbc
+                input#tag_legacyBBC_blue [name="legacyBBC_enabledTags[]" type="checkbox" value="blue"]
+                label [for="tag_legacyBBC_blue"]
+                  "blue"
+              li.floatleft.list_bbc
+                input#tag_legacyBBC_flash [name="legacyBBC_enabledTags[]" type="checkbox" value="flash"]
+                label [for="tag_legacyBBC_flash"]
+                  "flash"
+              li.floatleft.list_bbc
+                input#tag_legacyBBC_ftp [name="legacyBBC_enabledTags[]" type="checkbox" value="ftp"]
+                label [for="tag_legacyBBC_ftp"]
+                  "ftp"
+              li.floatleft.list_bbc
+                input#tag_legacyBBC_glow [name="legacyBBC_enabledTags[]" type="checkbox" value="glow"]
+                label [for="tag_legacyBBC_glow"]
+                  "glow"
+              li.floatleft.list_bbc
+                input#tag_legacyBBC_green [name="legacyBBC_enabledTags[]" type="checkbox" value="green"]
+                label [for="tag_legacyBBC_green"]
+                  "green"
+              li.floatleft.list_bbc
+                input#tag_legacyBBC_move [name="legacyBBC_enabledTags[]" type="checkbox" value="move"]
+                label [for="tag_legacyBBC_move"]
+                  "move"
+              li.floatleft.list_bbc
+                input#tag_legacyBBC_red [name="legacyBBC_enabledTags[]" type="checkbox" value="red"]
+                label [for="tag_legacyBBC_red"]
+                  "red"
+              li.floatleft.list_bbc
+                input#tag_legacyBBC_shadow [name="legacyBBC_enabledTags[]" type="checkbox" value="shadow"]
+                label [for="tag_legacyBBC_shadow"]
+                  "shadow"
+              li.floatleft.list_bbc
+                input#tag_legacyBBC_white [name="legacyBBC_enabledTags[]" type="checkbox" value="white"]
+                label [for="tag_legacyBBC_white"]
+                  "white"
+            input#bbc_legacyBBC_select_all [onclick="invertAll(this, this.form, 'legacyBBC_enabledTags');" type="checkbox"]
+            label [for="bbc_legacyBBC_select_all"]
+              em
+                "Select all tags"
+        dt
+          a#setting_restricted_bbc_help [href="{boardurl}/index.php?action=helpadmin;help=restricted_bbc" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_restricted_bbc
+          span
+            label [for="restricted_bbc"]
+              "Restricted BBC tags"
+        dd
+          fieldset#restricted_bbc
+            legend
+              "Select the tags that require permission to use"
+            ul
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_abbr [name="restricted_bbc_enabledTags[]" type="checkbox" value="abbr"]
+                label [for="tag_restricted_bbc_abbr"]
+                  "abbr"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_anchor [name="restricted_bbc_enabledTags[]" type="checkbox" value="anchor"]
+                label [for="tag_restricted_bbc_anchor"]
+                  "anchor"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_attach [name="restricted_bbc_enabledTags[]" type="checkbox" value="attach"]
+                label [for="tag_restricted_bbc_attach"]
+                  "attach"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_b [name="restricted_bbc_enabledTags[]" type="checkbox" value="b"]
+                label [for="tag_restricted_bbc_b"]
+                  "b"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_br [name="restricted_bbc_enabledTags[]" type="checkbox" value="br"]
+                label [for="tag_restricted_bbc_br"]
+                  "br"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_center [name="restricted_bbc_enabledTags[]" type="checkbox" value="center"]
+                label [for="tag_restricted_bbc_center"]
+                  "center"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_code [name="restricted_bbc_enabledTags[]" type="checkbox" value="code"]
+                label [for="tag_restricted_bbc_code"]
+                  "code"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_color [name="restricted_bbc_enabledTags[]" type="checkbox" value="color"]
+                label [for="tag_restricted_bbc_color"]
+                  "color"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_details [name="restricted_bbc_enabledTags[]" type="checkbox" value="details"]
+                label [for="tag_restricted_bbc_details"]
+                  "details"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_email [name="restricted_bbc_enabledTags[]" type="checkbox" value="email"]
+                label [for="tag_restricted_bbc_email"]
+                  "email"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_float [name="restricted_bbc_enabledTags[]" type="checkbox" value="float"]
+                label [for="tag_restricted_bbc_float"]
+                  "float"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_font [name="restricted_bbc_enabledTags[]" type="checkbox" value="font"]
+                label [for="tag_restricted_bbc_font"]
+                  "font"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_h# [name="restricted_bbc_enabledTags[]" type="checkbox" value="h#"]
+                label [for="tag_restricted_bbc_h#"]
+                  "h#"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_html [checked disabled name="restricted_bbc_enabledTags[]" type="checkbox" value="html"]
+                label [for="tag_restricted_bbc_html"]
+                  "html"
+                a.help.main_icons [href="{boardurl}/index.php?action=helpadmin;help=tag_html" onclick="return reqOverlayDiv(this.href);"]
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_hr [name="restricted_bbc_enabledTags[]" type="checkbox" value="hr"]
+                label [for="tag_restricted_bbc_hr"]
+                  "hr"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_i [name="restricted_bbc_enabledTags[]" type="checkbox" value="i"]
+                label [for="tag_restricted_bbc_i"]
+                  "i"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_img [name="restricted_bbc_enabledTags[]" type="checkbox" value="img"]
+                label [for="tag_restricted_bbc_img"]
+                  "img"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_iurl [name="restricted_bbc_enabledTags[]" type="checkbox" value="iurl"]
+                label [for="tag_restricted_bbc_iurl"]
+                  "iurl"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_justify [name="restricted_bbc_enabledTags[]" type="checkbox" value="justify"]
+                label [for="tag_restricted_bbc_justify"]
+                  "justify"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_list [name="restricted_bbc_enabledTags[]" type="checkbox" value="list"]
+                label [for="tag_restricted_bbc_list"]
+                  "list"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_ltr [name="restricted_bbc_enabledTags[]" type="checkbox" value="ltr"]
+                label [for="tag_restricted_bbc_ltr"]
+                  "ltr"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_me [name="restricted_bbc_enabledTags[]" type="checkbox" value="me"]
+                label [for="tag_restricted_bbc_me"]
+                  "me"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_member [name="restricted_bbc_enabledTags[]" type="checkbox" value="member"]
+                label [for="tag_restricted_bbc_member"]
+                  "member"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_nobbc [name="restricted_bbc_enabledTags[]" type="checkbox" value="nobbc"]
+                label [for="tag_restricted_bbc_nobbc"]
+                  "nobbc"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_nolink [name="restricted_bbc_enabledTags[]" type="checkbox" value="nolink"]
+                label [for="tag_restricted_bbc_nolink"]
+                  "nolink"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_php [name="restricted_bbc_enabledTags[]" type="checkbox" value="php"]
+                label [for="tag_restricted_bbc_php"]
+                  "php"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_pre [name="restricted_bbc_enabledTags[]" type="checkbox" value="pre"]
+                label [for="tag_restricted_bbc_pre"]
+                  "pre"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_quote [name="restricted_bbc_enabledTags[]" type="checkbox" value="quote"]
+                label [for="tag_restricted_bbc_quote"]
+                  "quote"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_right [name="restricted_bbc_enabledTags[]" type="checkbox" value="right"]
+                label [for="tag_restricted_bbc_right"]
+                  "right"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_rtl [name="restricted_bbc_enabledTags[]" type="checkbox" value="rtl"]
+                label [for="tag_restricted_bbc_rtl"]
+                  "rtl"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_s [name="restricted_bbc_enabledTags[]" type="checkbox" value="s"]
+                label [for="tag_restricted_bbc_s"]
+                  "s"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_size [name="restricted_bbc_enabledTags[]" type="checkbox" value="size"]
+                label [for="tag_restricted_bbc_size"]
+                  "size"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_spoiler [name="restricted_bbc_enabledTags[]" type="checkbox" value="spoiler"]
+                label [for="tag_restricted_bbc_spoiler"]
+                  "spoiler"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_sub [name="restricted_bbc_enabledTags[]" type="checkbox" value="sub"]
+                label [for="tag_restricted_bbc_sub"]
+                  "sub"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_sup [name="restricted_bbc_enabledTags[]" type="checkbox" value="sup"]
+                label [for="tag_restricted_bbc_sup"]
+                  "sup"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_table [name="restricted_bbc_enabledTags[]" type="checkbox" value="table"]
+                label [for="tag_restricted_bbc_table"]
+                  "table"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_time [name="restricted_bbc_enabledTags[]" type="checkbox" value="time"]
+                label [for="tag_restricted_bbc_time"]
+                  "time"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_tt [name="restricted_bbc_enabledTags[]" type="checkbox" value="tt"]
+                label [for="tag_restricted_bbc_tt"]
+                  "tt"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_u [name="restricted_bbc_enabledTags[]" type="checkbox" value="u"]
+                label [for="tag_restricted_bbc_u"]
+                  "u"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_url [name="restricted_bbc_enabledTags[]" type="checkbox" value="url"]
+                label [for="tag_restricted_bbc_url"]
+                  "url"
+              li.floatleft.list_bbc
+                input#tag_restricted_bbc_youtube [name="restricted_bbc_enabledTags[]" type="checkbox" value="youtube"]
+                label [for="tag_restricted_bbc_youtube"]
+                  "youtube"
+            input#bbc_restricted_bbc_select_all [onclick="invertAll(this, this.form, 'restricted_bbc_enabledTags');" type="checkbox"]
+            label [for="bbc_restricted_bbc_select_all"]
+              em
+                "Select all tags"
+    div.cat_bar
+      h3.catbg
+        "Markdown settings"
+    div.noup.windowbg
+      dl.settings
+        dt
+          a#setting_enableMarkdown_help [href="{boardurl}/index.php?action=helpadmin;help=enableMarkdown" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_enableMarkdown
+          span
+            label [for="enableMarkdown"]
+              "Enable Markdown"
+        dd
+          input#enableMarkdown [name="enableMarkdown" onchange="document.getElementById('collapse_blank_lines').disabled = !this.checked; document.getElementById('collapse_single_breaks').disabled = !this.checked;" type="checkbox" value="#"]
+        dt
+          a#setting_collapse_blank_lines_help [href="{boardurl}/index.php?action=helpadmin;help=collapse_blank_lines" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_collapse_blank_lines
+          span [style="color: ##;"]
+            label [for="collapse_blank_lines"]
+              "Collapse extra blank lines"
+        dd
+          input#collapse_blank_lines [checked disabled name="collapse_blank_lines" type="checkbox" value="#"]
+        dt
+          a#setting_collapse_single_breaks_help [href="{boardurl}/index.php?action=helpadmin;help=collapse_single_breaks" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_collapse_single_breaks
+          span [style="color: ##;"]
+            label [for="collapse_single_breaks"]
+              "Clean up line breaks inside paragraphs"
+        dd
+          input#collapse_single_breaks [checked disabled name="collapse_single_breaks" type="checkbox" value="#"]
+      input.button [type="submit" value="Save"]
+    input [name="{token_var}" type="hidden" value="{hash}"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]

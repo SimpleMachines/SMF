@@ -1,0 +1,84 @@
+<?php
+
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
+use SMF\Lang;
+use SMF\Utils;
+
+if (!defined('SMF')) {
+	die('No direct access...');
+}
+
+/*	This template contains two humble sub templates - main. Its job is pretty
+	simple: it collects the information we need to actually send the topic.
+
+	The report sub template gets shown from:
+		'?action=reporttm;topic=##.##;msg=##'
+		'?action=reporttm;u=#'
+	It should submit to:
+		'?action=reporttm;topic=' . Utils::$context['current_topic'] . '.' . Utils::$context['start']
+		'?action=reporttm;u=#'
+	It only needs to send the following fields:
+		comment: an additional comment to give the moderator.
+		sc: the session id, or Utils::$context['session_id'].
+*/
+/*
+ * The main "report this to the moderator" page
+ */
+?>
+
+<?php /* Want to see your master piece? */ ?>
+	<div id="preview_section"<?= isset(Utils::$context['preview_message']) ? '' : ' class="hidden"' ?>>
+		<div class="cat_bar">
+			<h3 class="catbg">
+				<span><?= Lang::getTxt('preview', file: 'General') ?></span>
+			</h3>
+		</div>
+		<div class="windowbg">
+			<div class="post" id="preview_body">
+				<?= empty(Utils::$context['preview_message']) ? '<br>' : Utils::$context['preview_message'] ?>
+			</div>
+		</div>
+	</div>
+	<div id="report_form">
+		<form action="<?= Utils::$context['submit_url'] ?>" method="post" accept-charset="UTF-8">
+			<input type="hidden" name="<?= Utils::$context['report_type'] ?>" value="<?= Utils::$context['reported_item'] ?>">
+			<div class="cat_bar">
+				<h3 class="catbg"><?= Utils::$context['page_title'] ?></h3>
+			</div>
+			<div class="windowbg">
+<?php if (!empty(Utils::$context['post_errors'])): ?>
+				<div id="error_box" class="errorbox">
+					<ul id="error_list">
+<?php foreach (Utils::$context['post_errors'] as $key => $error): ?>
+						<li id="error_<?= $key ?>" class="error"><?= $error ?></li>
+<?php endforeach; ?>
+					</ul>
+<?php else: ?>
+				<div id="error_box" class="errorbox hidden">
+<?php endif; ?>
+				</div>
+				<p class="noticebox"><?= Utils::$context['notice'] ?></p>
+				<dl class="settings" id="report_post">
+					<dt>
+						<label for="report_comment"><?= Lang::getTxt('enter_comment', file: 'Post') ?></label>
+					</dt>
+					<dd>
+						<textarea type="text" id="report_comment" name="comment" maxlength="254"><?= Utils::$context['comment_body'] ?></textarea>
+					</dd>
+				</dl>
+				<input type="submit" name="preview" value="<?= Lang::getTxt('preview', file: 'General') ?>" class="button">
+				<input type="submit" name="save" value="<?= Lang::getTxt('report_submit', file: 'Post') ?>" class="button">
+				<input type="hidden" name="<?= Utils::$context['session_var'] ?>" value="<?= Utils::$context['session_id'] ?>">
+			</div><!-- .windowbg -->
+		</form>
+	</div><!-- #report_form -->

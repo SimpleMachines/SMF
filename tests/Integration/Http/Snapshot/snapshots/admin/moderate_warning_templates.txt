@@ -1,0 +1,89 @@
+status 200
+@ title
+title
+  "Custom warning templates"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=moderate" itemprop="item"]
+        span [itemprop="name"]
+          "Moderation Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=moderate;area=warnings" itemprop="item"]
+        span [itemprop="name"]
+          "Warnings"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=moderate;area=warnings;sa=templates" itemprop="item"]
+        span [itemprop="name"]
+          "Custom Templates"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      "Warnings"
+  p.information
+    "From this section you can see which warnings have been issued to members of the forum. You can also add and modify the notification templates used when sending a warning to a member."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Warnings Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Warnings Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a [href="{boardurl}/index.php?action=moderate;area=warnings;sa=log"]
+                "Log"
+            li
+              a.active [href="{boardurl}/index.php?action=moderate;area=warnings;sa=templates"]
+                "Custom Templates"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  form [accept-charset="UTF-#" action="{boardurl}/index.php?action=moderate;area=warnings;sa=templates" method="post"]
+    div.cat_bar
+      h3.catbg
+        "Custom warning templates"
+    table#warning_template_list.table_grid
+      thead
+        tr.title_bar
+          th#header_warning_template_list_title.title [scope="col"]
+            a [href="{boardurl}/index.php?action=moderate;area=warnings;sa=templates;{session_var}={session_id};sort=title;desc" rel="nofollow"]
+              "Template"
+              span.main_icons.sort_up
+          th#header_warning_template_list_creator.creator [scope="col"]
+            a [href="{boardurl}/index.php?action=moderate;area=warnings;sa=templates;{session_var}={session_id};sort=creator" rel="nofollow"]
+              "Created By"
+          th#header_warning_template_list_time.time [scope="col"]
+            a [href="{boardurl}/index.php?action=moderate;area=warnings;sa=templates;{session_var}={session_id};sort=time" rel="nofollow"]
+              "Time Created"
+          th#header_warning_template_list_delete.centercol.delete [scope="col" style="width: #%;"]
+            input [onclick="invertAll(this, this.form);" type="checkbox"]
+      tbody
+        tr.windowbg
+          td.centertext [colspan="#"]
+            "No warning templates have been created yet"
+    div.additional_row
+      input.button.you_sure [data-confirm="Are you sure you want to delete the selected templates?" name="delete" type="submit" value="Delete Selected"]
+    div.additional_row
+      input.button [name="add" type="submit" value="Add Template"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]
+    input [name="{token_var}" type="hidden" value="{hash}"]

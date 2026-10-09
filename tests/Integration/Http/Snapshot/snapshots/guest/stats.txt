@@ -1,0 +1,203 @@
+status 200
+@ title
+title
+  "{forum_name} - Statistics Center"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=stats" itemprop="item"]
+        span [itemprop="name"]
+          "Statistics Center"
+      meta [content="#" itemprop="position"]
+@ #content_section
+div#content_section
+  main#main_content_section
+    div#statistics.main_section
+      div.cat_bar
+        h3.catbg
+          "{forum_name} - Statistics Center"
+      div.roundframe
+        div.title_bar
+          h4.titlebg
+            span.general.main_icons
+            "General Statistics"
+        dl.half_content.stats
+          dt
+            "Total Members"
+          dd
+            "#"
+          dt
+            "Total Posts"
+          dd
+            "#"
+          dt
+            "Total Topics"
+          dd
+            "#"
+          dt
+            "Total Categories"
+          dd
+            "#"
+          dt
+            "Users Online"
+          dd
+            "#"
+          dt
+            "Most Online"
+          dd
+            "# on(s) {date}"
+          dt
+            "Online today"
+          dd
+            "#"
+        dl.half_content.stats
+          dt
+            "Average registrations per day"
+          dd
+            "#"
+          dt
+            "Average posts per day"
+          dd
+            "#"
+          dt
+            "Average topics per day"
+          dd
+            "#"
+          dt
+            "Total Boards"
+          dd
+            "#"
+          dt
+            "Latest Member"
+          dd
+            a [href="{boardurl}/index.php?action=profile;u=#"]
+              "{member}"
+          dt
+            "Average online per day"
+          dd
+            "#"
+          dt
+            "Gender stats"
+          dd
+            "None: #"
+            br
+        div.half_content
+          div.title_bar
+            h4.titlebg
+              span.main_icons.posters
+              "Top # Poster(s)"
+          dl.stats
+            dt
+              a [href="{boardurl}/index.php?action=profile;u=#"]
+                "{member}"
+            dd.generic_bar.righttext.statsbar
+              snapshot-ignored [selector=".statsbar > .bar"]
+              span
+                "#"
+        div.half_content
+          div.title_bar
+            h4.titlebg
+              span.boards.main_icons
+              "Top # Board(s)"
+          dl.stats
+            dt
+              a [href="{boardurl}/index.php?board=#"]
+                "{board}"
+            dd.generic_bar.righttext.statsbar
+              snapshot-ignored [selector=".statsbar > .bar"]
+              span
+                "#"
+        div.half_content
+          div.title_bar
+            h4.titlebg
+              span.main_icons.topics_replies
+              "Top # Topic(s) (by Replies)"
+          dl.stats
+            dt
+              a [href="{boardurl}/index.php?topic=#"]
+                "{subject}"
+            dd.generic_bar.righttext.statsbar
+              snapshot-ignored [selector=".statsbar > .bar"]
+              span
+                "#"
+        div.half_content
+          div.title_bar
+            h4.titlebg
+              span.main_icons.topics_views
+              "Top # Topic(s) (by Views)"
+          dl.stats
+            dt
+              a [href="{boardurl}/index.php?topic=#"]
+                "{subject}"
+            dd.generic_bar.righttext.statsbar
+              snapshot-ignored [selector=".statsbar > .bar"]
+              span
+                "#"
+        div.half_content
+          div.title_bar
+            h4.titlebg
+              span.main_icons.starters
+              "Top Topic Starters"
+          dl.stats
+            dt
+              a [href="{boardurl}/index.php?action=profile;u=#"]
+                "{member}"
+            dd.generic_bar.righttext.statsbar
+              snapshot-ignored [selector=".statsbar > .bar"]
+              span
+                "#"
+        div.half_content
+          div.title_bar
+            h4.titlebg
+              span.main_icons.time_online
+              "Most Time Online"
+          dl.stats
+            dt
+              a [href="{boardurl}/index.php?action=profile;u=#"]
+                "{member}"
+            dd.generic_bar.righttext.statsbar
+              snapshot-ignored [selector=".statsbar > .bar"]
+              span
+      br.clear
+      div.cat_bar
+        h3.catbg
+          span.history.main_icons
+          "Forum History (using forum time offset)"
+      table#stats.table_grid
+        thead
+          tr.title_bar
+            th.lefttext
+              "Yearly Summary"
+            th
+              "New Topics"
+            th
+              "New Posts"
+            th
+              "New Members"
+            th
+              "Most Online"
+        tbody
+          tr#year_#.windowbg
+            th.lefttext
+              img#year_img_# [alt="*" src="{boardurl}/Themes/default/images/selected_open.png"]
+              a#year_link_# [href="#year_#"]
+                "#"
+            th
+              "#"
+          tr#tr_month_#.windowbg
+            th.stats_month
+              img#img_# [alt src="{boardurl}/Themes/default/images/selected.png"]
+              a#m# [href="{boardurl}/index.php?action=stats;expand=##m#" onclick="return doingExpandCollapse;"]
+                "{date}"
+            th
+              "#"
+    script
+      | var oStatsCenter = new smf_StatsCenter({ sTableId: 'stats', reYearPattern: /year_(\d+)/, sYearImageCollapsed: 'selected.png', sYearImageExpanded: 'selected_open.png', sYearImageIdPrefix: 'year_img_', sYearLinkIdPrefix: 'year_link_', reMonthPattern: /tr_month_(\d+)/, sMonthImageCollapsed: 'selected.png', sMonthImageExpanded: 'selected_open.png', sMonthImageIdPrefix: 'img_', sMonthLinkIdPrefix: 'm', reDayPattern: /tr_day_(\d+-\d+-\d+)/, sDayRowClassname: 'windowbg', sDayRowIdPrefix: 'tr_day_', aCollapsedYears: [ ], aDataCells: [ 'date', 'new_topics', 'new_posts', 'new_members', 'most_members_online' ] });

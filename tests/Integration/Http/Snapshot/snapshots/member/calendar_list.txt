@@ -1,0 +1,210 @@
+status 200
+@ title
+title
+  "Calendar"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=calendar" itemprop="item"]
+        span [itemprop="name"]
+          "Calendar"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=calendar;year=#;month=#" itemprop="item"]
+        span [itemprop="name"]
+          "{date}"
+      meta [content="#" itemprop="position"]
+@ #content_section
+div#content_section
+  main#main_content_section
+    div#calendar
+      div#month_grid
+        div.cat_bar
+          h3.catbg.centertext.largetext
+            a [href="{boardurl}/index.php?action=calendar;viewlist;year=#;month=#;day=#"]
+              "{date}"
+        table.calendar_table
+          tbody
+            tr
+              th.days [scope="col"]
+                "Sun"
+              th.days [scope="col"]
+                "Mon"
+              th.days [scope="col"]
+                "Tue"
+              th.days [scope="col"]
+                "Wed"
+              th.days [scope="col"]
+                "Thu"
+              th.days [scope="col"]
+                "Fri"
+              th.days [scope="col"]
+                "Sat"
+            tr.days_wrapper
+              td.days.windowbg
+                a [href="{boardurl}/index.php?action=calendar;viewlist;year=#;month=#;day=#"]
+                  span.day_text
+                    "#"
+            tr.days_wrapper
+              td.days.holidays.windowbg
+                a [href="{boardurl}/index.php?action=calendar;viewlist;year=#;month=#;day=#"]
+                  span.day_text
+                    "#"
+              td.days.windowbg
+                a [href="{boardurl}/index.php?action=calendar;viewlist;year=#;month=#;day=#"]
+                  span.day_text
+                    "#"
+            tr.days_wrapper
+              td.days.windowbg
+                a [href="{boardurl}/index.php?action=calendar;viewlist;year=#;month=#;day=#"]
+                  span.day_text
+                    "#"
+              td.days.disabled
+        div.cat_bar
+          h3.catbg.centertext.largetext
+            a [href="{boardurl}/index.php?action=calendar;viewlist;year=#;month=#;day=#"]
+              "{date}"
+        table.calendar_table
+          tbody
+            tr
+              th.days [scope="col"]
+                "Sun"
+              th.days [scope="col"]
+                "Mon"
+              th.days [scope="col"]
+                "Tue"
+              th.days [scope="col"]
+                "Wed"
+              th.days [scope="col"]
+                "Thu"
+              th.days [scope="col"]
+                "Fri"
+              th.days [scope="col"]
+                "Sat"
+            tr.days_wrapper
+              td.days.disabled
+              td.days.holidays.windowbg
+                a [href="{boardurl}/index.php?action=calendar;viewlist;year=#;month=#;day=#"]
+                  span.day_text
+                    "#"
+              td.days.windowbg
+                a [href="{boardurl}/index.php?action=calendar;viewlist;year=#;month=#;day=#"]
+                  span.day_text
+                    "#"
+            tr.days_wrapper
+              td.days.windowbg
+                a [href="{boardurl}/index.php?action=calendar;viewlist;year=#;month=#;day=#"]
+                  span.day_text
+                    "#"
+            tr.days_wrapper
+              td.days.windowbg
+                a [href="{boardurl}/index.php?action=calendar;viewlist;year=#;month=#;day=#"]
+                  span.day_text
+                    "#"
+              td.days.events.windowbg
+                a [href="{boardurl}/index.php?action=calendar;viewlist;year=#;month=#;day=#"]
+                  span.day_text
+                    "#"
+              td.days.windowbg
+                a [href="{boardurl}/index.php?action=calendar;viewlist;year=#;month=#;day=#"]
+                  span.day_text
+                    "#"
+            tr.days_wrapper
+              td.days.windowbg
+                a [href="{boardurl}/index.php?action=calendar;viewlist;year=#;month=#;day=#"]
+                  span.day_text
+                    "#"
+              td.days.disabled
+        div.cat_bar
+          h3.catbg.centertext.largetext
+            a [href="{boardurl}/index.php?action=calendar;viewlist;year=#;month=#;day=#"]
+              "{date}"
+        table.calendar_table
+          tbody
+            tr
+              th.days [scope="col"]
+                "Sun"
+              th.days [scope="col"]
+                "Mon"
+              th.days [scope="col"]
+                "Tue"
+              th.days [scope="col"]
+                "Wed"
+              th.days [scope="col"]
+                "Thu"
+              th.days [scope="col"]
+                "Fri"
+              th.days [scope="col"]
+                "Sat"
+            tr.days_wrapper
+              td.days.disabled
+              td.days.windowbg
+                a [href="{boardurl}/index.php?action=calendar;viewlist;year=#;month=#;day=#"]
+                  span.day_text
+                    "#"
+            tr.days_wrapper
+              td.days.holidays.windowbg
+                a [href="{boardurl}/index.php?action=calendar;viewlist;year=#;month=#;day=#"]
+                  span.day_text
+                    "#"
+              td.days.windowbg
+                a [href="{boardurl}/index.php?action=calendar;viewlist;year=#;month=#;day=#"]
+                  span.day_text
+                    "#"
+            tr.days_wrapper
+              td.days.windowbg
+                a [href="{boardurl}/index.php?action=calendar;viewlist;year=#;month=#;day=#"]
+                  span.day_text
+                    "#"
+              td.days.holidays.windowbg
+                a [href="{boardurl}/index.php?action=calendar;viewlist;year=#;month=#;day=#"]
+                  span.day_text
+                    "#"
+              td.days.windowbg
+                a [href="{boardurl}/index.php?action=calendar;viewlist;year=#;month=#;day=#"]
+                  span.day_text
+                    "#"
+            tr.days_wrapper
+              td.days.windowbg
+                a [href="{boardurl}/index.php?action=calendar;viewlist;year=#;month=#;day=#"]
+                  span.day_text
+                    "#"
+      div#main_grid
+        div.cat_bar
+          h3.catbg.centertext.largetext
+            a [href="{boardurl}/index.php?action=calendar;viewlist;year=#;month=#;day=#"]
+              "Upcoming Calendar"
+        div.calendar_top.noup.roundframe
+          div#calendar_viewselector.buttonrow.floatleft
+            a.active.button [href="{boardurl}/index.php?action=calendar;viewlist;year=#;month=#;day=#"]
+              "List"
+            a.button [href="{boardurl}/index.php?action=calendar;viewmonth;year=#;month=#;day=#"]
+              "Month"
+            a.button [href="{boardurl}/index.php?action=calendar;viewweek;year=#;month=#;day=#"]
+              "Week"
+          form#calendar_range [accept-charset="UTF-#" action="{boardurl}/index.php?action=calendar;viewlist" method="post"]
+            input#start_date.date_input.start [data-type="date" name="start_date" type="date" value="{date}"]
+            span
+              "to"
+            input#end_date.date_input.end [data-type="date" name="end_date" type="date" value="{date}"]
+            input#view_button.button [style="float:none" type="submit" value="View"]
+        div
+          div.title_bar
+            h3.titlebg
+              "Holidays"
+          div.windowbg
+            p.holidays.inline
+              span
+                strong
+                  "Jan #"
+                ": New Year's Day."

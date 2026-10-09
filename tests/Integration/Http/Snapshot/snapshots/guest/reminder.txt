@@ -1,0 +1,34 @@
+status 200
+@ title
+title
+  "Authentication Reminder"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+@ #content_section
+div#content_section
+  main#main_content_section
+    br
+    form [accept-charset="UTF-#" action="{boardurl}/index.php?action=reminder;sa=picktype" method="post"]
+      div.login.tborder
+        div.cat_bar
+          h3.catbg
+            "Authentication Reminder"
+        div.roundframe
+          p.centertext.smalltext
+            "If you have forgotten your login details, don’t worry, they can be retrieved. To start this process please enter your username or email address below."
+          dl
+            dt
+              label [for="user"]
+                "Username/Email"
+            dd
+              input#user [name="user" size="#" type="text"]
+          input.button [type="submit" value="Continue"]
+          br.clear
+      input [name="{session_var}" type="hidden" value="{session_id}"]
+      input [name="{token_var}" type="hidden" value="{hash}"]

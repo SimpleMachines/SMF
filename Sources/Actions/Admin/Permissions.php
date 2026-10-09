@@ -1082,7 +1082,7 @@ class Permissions implements ActionInterface
 		Utils::$context['current_permission'] = $permission;
 		Utils::$context['member_groups'] = Utils::$context[$permission];
 
-		template_inline_permissions();
+		Theme::loadSubTemplate('inline_permissions');
 	}
 
 	/**

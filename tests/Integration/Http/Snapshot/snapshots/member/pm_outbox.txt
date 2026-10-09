@@ -1,0 +1,131 @@
+status 200
+@ title
+title
+  "Personal Messages Index"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=pm" itemprop="item"]
+        span [itemprop="name"]
+          "Personal Messages"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=pm;f=sent" itemprop="item"]
+        span [itemprop="name"]
+          "Sent Items"
+      meta [content="#" itemprop="position"]
+@ #content_section
+div#content_section
+  main#main_content_section
+    nav#genericmenu [aria-label=" Menu"]
+      a.mobile_generic_menu_1
+        span.menu_icon
+        span.text_menu
+          "Menu"
+      div#mobile_generic_menu_#.popup_container
+        div.description.popup_window
+          div.popup_heading
+            "Menu"
+            a.hide_popup.main_icons [href="javascript:void(#);"]
+          div.generic_menu
+            ul.dropdown_menu_1.dropmenu
+              li.subsections
+                a.active [href="{boardurl}/index.php?action=pm;f=inbox"]
+                  "Messages"
+                ul
+                  li
+                    a.inbox.pm_menu_icon [href="{boardurl}/index.php?action=pm;f=inbox"]
+                      span.inbox.main_icons
+                      "Inbox"
+                  li
+                    a.pm_menu_icon.send [href="{boardurl}/index.php?action=pm;sa=send"]
+                      span.main_icons.send
+                      "send"
+                  li
+                    a.chosen.pm_menu_icon.sent [href="{boardurl}/index.php?action=pm;f=sent"]
+                      span.main_icons.sent
+                      "sent"
+                  li
+                    a.drafts.pm_menu_icon [href="{boardurl}/index.php?action=pm;f=drafts"]
+                      span.drafts.main_icons
+                      "Drafts"
+              li.subsections
+                a [href="{boardurl}/index.php?action=pm;sa=search"]
+                  "Actions"
+                ul
+                  li
+                    a.pm_menu_icon.search [href="{boardurl}/index.php?action=pm;sa=search"]
+                      span.main_icons.search
+                      "Search"
+                  li
+                    a.pm_menu_icon.prune [href="{boardurl}/index.php?action=pm;sa=prune"]
+                      span.main_icons.prune
+                      "prune"
+              li.subsections
+                a [href="{boardurl}/index.php?action=pm;sa=manlabels"]
+                  "Preferences"
+                ul
+                  li
+                    a.manlabels.pm_menu_icon [href="{boardurl}/index.php?action=pm;sa=manlabels"]
+                      span.main_icons.manlabels
+                      "manlabels"
+                  li
+                    a.manrules.pm_menu_icon [href="{boardurl}/index.php?action=pm;sa=manrules"]
+                      span.main_icons.manrules
+                      "manrules"
+                  li
+                    a.pm_menu_icon.settings [href="{boardurl}/index.php?action=pm;sa=settings"]
+                      span.main_icons.settings
+                      "Settings"
+    script
+      | $( ".mobile_generic_menu_#" ).click(function() { $( "#mobile_generic_menu_#" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#" ).hide(); });
+    div#admin_content
+      div#personal_messages
+        script
+          | var allLabels = {}; var currentLabels = {}; function loadLabelChoices() { var listing = document.forms.pmFolder.elements; var theSelect = document.forms.pmFolder.pm_action; var add, remove, toAdd = {length: #}, toRemove = {length: #}; if (theSelect.childNodes.length == #) return; // This is done this way for internationalization reasons. if (!('-#' in allLabels)) { for (var o = #; o < theSelect.options.length; o++) if (theSelect.options[o].value.substr(#, #) == "rem_") allLabels[theSelect.options[o].value.substr(#)] = theSelect.options[o].text; } for (var i = #; i < listing.length; i++) { if (listing[i].name != "pms[]" || !listing[i].checked) continue; var alreadyThere = [], x; for (x in currentLabels[listing[i].value]) { if (!(x in toRemove)) { toRemove[x] = allLabels[x]; toRemove.length++; } alreadyThere[x] = allLabels[x]; } for (x in allLabels) { if (!(x in alreadyThere)) { toAdd[x] = allLabels[x]; toAdd.length++; } } } while (theSelect.options.length > #) theSelect.options[#] = null; if (toAdd.length != #) { theSelect.options[theSelect.options.length] = new Option("Add label", ""); setInnerHTML(theSelect.options[theSelect.options.length - #], "Add label"); theSelect.options[theSelect.options.length - #].disabled = true; for (i in toAdd) { if (i != "length") theSelect.options[theSelect.options.length] = new Option(toAdd[i], "add_" + i); } } if (toRemove.length != #) { theSelect.options[theSelect.options.length] = new Option("Remove label", ""); setInnerHTML(theSelect.options[theSelect.options.length - #], "Remove label"); theSelect.options[theSelect.options.length - #].disabled = true; for (i in toRemove) { if (i != "length") theSelect.options[theSelect.options.length] = new Option(toRemove[i], "rem_" + i); } } }
+        form#pmFolder.flow_hidden [accept-charset="UTF-#" action="{boardurl}/index.php?action=pm;sa=pmactions;f=sent;start=#" method="post" name="pmFolder"]
+          div.cat_bar
+            h3.catbg
+              "Sent Items"
+          table.table_grid
+            thead
+              tr.title_bar
+                th.centercol.pm_icon.table_icon
+                  a [href="{boardurl}/index.php?action=pm;view;f=sent;start=#;sort=date"]
+                    span.main_icons.switch [title="Change view"]
+                th.lefttext.pm_time.quarter_table
+                  a [href="{boardurl}/index.php?action=pm;f=sent;start=#;sort=date;desc"]
+                    "Date"
+                    span.main_icons.sort_up
+                th.half_table.lefttext.pm_subject
+                  a [href="{boardurl}/index.php?action=pm;f=sent;start=#;sort=subject"]
+                    "Subject"
+                th.lefttext.pm_from_to
+                  a [href="{boardurl}/index.php?action=pm;f=sent;start=#;sort=name"]
+                    "To"
+                th.centercol.pm_moderation.table_icon
+                  input [onclick="invertAll(this, this.form);" type="checkbox"]
+            tbody
+              tr.windowbg
+                td [colspan="#"]
+                  "No messages..."
+          div.pagesection
+            div.pagelinks
+              span.pages
+                "Pages"
+              span.current_page
+                "#"
+            div.floatright
+          div.clear_right
+            br
+          input [name="{session_var}" type="hidden" value="{session_id}"]

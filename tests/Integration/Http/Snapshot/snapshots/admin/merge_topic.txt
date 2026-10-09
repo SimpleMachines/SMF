@@ -1,0 +1,100 @@
+status 200
+@ title
+title
+  "Merge Topics"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php#c#" itemprop="item"]
+        span [itemprop="name"]
+          "Snapshot fixtures"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?board=#" itemprop="item"]
+        span [itemprop="name"]
+          "{board}"
+      meta [content="#" itemprop="position"]
+@ #content_section
+div#content_section
+  main#main_content_section
+    div#merge_topics
+      div.cat_bar
+        h3.catbg
+          "Merge Topics"
+      div.information
+        "This function will merge the messages of two topics into one topic. The messages will be sorted according to the time of posting. Therefore, the earliest posted message will be the first message of the merged topic."
+      div.windowbg
+        dl.merge_topic.settings
+          dt
+            strong
+              "Topic to be merged"
+          dd
+            "Snapshot second topic"
+      br
+      div.cat_bar
+        h3.catbg
+          "Target topic"
+      div.title_bar
+        h4.titlebg
+          form#mergeSelectBoard [accept-charset="UTF-#" action="{boardurl}/index.php?action=mergetopics;from=#;targetboard=#;board=#" method="post"]
+            "Select target from the list below (Board:"
+            select [name="targetboard" onchange="this.form.submit();"]
+              optgroup [label="Snapshot fixtures"]
+                option [selected value="#"]
+                  "{board}"
+                option [value="#"]
+                  "=> Snapshot child one"
+                option [value="#"]
+                  "=> Snapshot child two"
+                option [value="#"]
+                  "Snapshot empty board"
+            ")"
+            input [name="from" type="hidden" value="#"]
+            input.button [type="submit" value="Go"]
+      form [accept-charset="UTF-#" action="{boardurl}/index.php?action=mergetopics;sa=options" method="post"]
+        div.pagesection
+          div.pagelinks
+            span.pages
+              "Pages"
+            span.current_page
+              "#"
+        div.windowbg
+          ul.merge_topics
+            li
+              a [href="{boardurl}/index.php?action=mergetopics;sa=options;board=#;from=#;to=#;{session_var}={session_id}"]
+                span.main_icons.merge
+              a [href="{boardurl}/index.php?topic=#" rel="noopener" target="_blank"]
+                "{subject}"
+              "Started by"
+              a [href="{boardurl}/index.php?action=profile;u=#" rel="noopener" target="_blank"]
+                "{member}"
+        div.pagesection
+          div.pagelinks
+            span.pages
+              "Pages"
+            span.current_page
+              "#"
+        br
+        div.title_bar
+          h4.titlebg
+            "Select target by topic ID"
+        div.windowbg
+          dl.merge_topic.settings
+            dt
+              strong
+                "ID of target topic"
+            dd
+              input [name="topics[]" type="hidden" value="#"]
+              input [name="topics[]" type="text"]
+              input [name="{session_var}" type="hidden" value="{session_id}"]
+          input.button [type="submit" value="Merge Topics"]

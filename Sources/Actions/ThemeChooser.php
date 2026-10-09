@@ -284,8 +284,8 @@ class ThemeChooser implements ActionInterface, Routable
 			// Are there any variants?
 			Utils::$context['available_themes'][$id_theme]['variants'] = [];
 
-			if (file_exists($theme_data['theme_dir'] . '/index.template.php') && (empty($theme_data['disable_user_variant']) || User::$me->allowedTo('admin_forum'))) {
-				$file_contents = implode('', file($theme_data['theme_dir'] . '/index.template.php'));
+			if (($init_file = Theme::templateInitFile($theme_data['theme_dir'])) !== null && (empty($theme_data['disable_user_variant']) || User::$me->allowedTo('admin_forum'))) {
+				$file_contents = implode('', file($init_file));
 
 				if (preg_match('~((?:SMF\\\\)?Theme::\$current(?:->|_)|\$)settings\[\'theme_variants\'\]\s*=(.+?);~', $file_contents, $matches)) {
 					Theme::$current->settings['theme_variants'] = [];

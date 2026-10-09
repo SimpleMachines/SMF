@@ -1,0 +1,443 @@
+status 200
+@ title
+title
+  "{subject}"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php#c#" itemprop="item"]
+        span [itemprop="name"]
+          "Snapshot fixtures"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?board=#" itemprop="item"]
+        span [itemprop="name"]
+          "{board}"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?topic=#" itemprop="item"]
+        span [itemprop="name"]
+          "{subject}"
+      meta [content="#" itemprop="position"]
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php#c#" itemprop="item"]
+        span [itemprop="name"]
+          "Snapshot fixtures"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?board=#" itemprop="item"]
+        span [itemprop="name"]
+          "{board}"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?topic=#" itemprop="item"]
+        span [itemprop="name"]
+          "{subject}"
+      meta [content="#" itemprop="position"]
+@ #content_section
+div#content_section
+  main#main_content_section
+    div#display_head.information
+      h2.display_title
+        span#top_subject
+          "{subject}"
+        span.lock.main_icons
+        span.main_icons.sticky
+      p
+        "Started by {member}, {date}"
+      span.floatright.nextlinks
+        a [href="{boardurl}/index.php?topic=#;prev_next=prev#new"]
+          "Previous topic"
+        "-"
+        a [href="{boardurl}/index.php?topic=#;prev_next=next#new"]
+          "Next topic"
+    div#poll
+      div.cat_bar
+        h3.catbg
+          span.main_icons.poll
+          "Which colour?"
+      div.windowbg
+        div#poll_options
+          form [accept-charset="UTF-#" action="{boardurl}/index.php?action=vote;topic=#" method="post"]
+            ul.options
+              li
+                input#options-# [name="options[]" type="radio" value="#"]
+                label [for="options-#"]
+                  "Red"
+              li
+                input#options-# [name="options[]" type="radio" value="#"]
+                label [for="options-#"]
+                  "Green"
+              li
+                input#options-# [name="options[]" type="radio" value="#"]
+                label [for="options-#"]
+                  "Blue"
+            div.submitbutton
+              input.button [type="submit" value="Submit Vote"]
+              input [name="{session_var}" type="hidden" value="{session_id}"]
+    div#pollmoderation
+      div.buttonlist
+        a.button.button_strip_results [href="{boardurl}/index.php?topic=#;viewresults"]
+          "View results"
+        a.button.button_strip_lock [href="{boardurl}/index.php?action=lockvoting;topic=#;{session_var}={session_id}"]
+          "Lock Voting"
+        a.button.button_strip_edit [href="{boardurl}/index.php?action=editpoll;topic=#"]
+          "Edit Poll"
+        a.button.button_strip_remove_poll.you_sure [data-confirm="Are you sure you want to remove this poll from the topic?" href="{boardurl}/index.php?action=removepoll;topic=#;{session_var}={session_id}"]
+          "Remove Poll"
+    div.pagesection.top
+      div.buttonlist.floatright
+        a.active.button.button_strip_reply [href="{boardurl}/index.php?action=post;topic=#;last_msg=#"]
+          "Reply"
+        a.button.button_strip_mark_unread [href="{boardurl}/index.php?action=markasread;sa=topic;t=#;topic=#;{session_var}={session_id}"]
+          "Mark unread"
+        a.button.button_strip_print [href="{boardurl}/index.php?action=printpage;topic=#" rel="nofollow"]
+          "Print"
+        a.button.button_strip_notify
+          "No Alerts or Emails"
+        div.dropmenu.notify_dropdown.top_menu
+          div.viewport
+            div.overview
+              a [href="{boardurl}/index.php?action=notifytopic;topic=#;mode=#;{session_var}={session_id}"]
+                strong
+                  "Not Following"
+                br
+                span
+                  "You will not receive any emails or alerts for this topic and it will also not show up in your unread replies and topics list. You will still receive @mentions for this topic."
+              a [href="{boardurl}/index.php?action=notifytopic;topic=#;mode=#;{session_var}={session_id}"]
+                strong
+                  "No Alerts or Emails"
+                br
+                span
+                  "You will not receive any emails or alerts but only @mentions by other members."
+              a [href="{boardurl}/index.php?action=notifytopic;topic=#;mode=#;{session_var}={session_id}"]
+                strong
+                  "Receive Alerts"
+                br
+                span
+                  "You will receive alerts for this topic."
+              a [href="{boardurl}/index.php?action=notifytopic;topic=#;mode=#;{session_var}={session_id}"]
+                strong
+                  "Receive Emails and Alerts"
+                br
+                span
+                  "You will receive both alerts and e-mails for this topic."
+      div.floatleft.pagelinks
+        a.button [href="#bot"]
+          "Go Down"
+        span.pages
+          "Pages"
+        span.current_page
+          "#"
+      div.floatright.mobile_buttons
+        a.button.mobile_act
+          "User actions"
+        a.button.mobile_mod
+          "Moderation"
+    div#forumposts
+      form#quickModForm [accept-charset="UTF-#" action="{boardurl}/index.php?action=quickmod#;topic=#" method="post" name="quickModForm"]
+        div#msg#.windowbg
+          div.post_wrapper
+            div.poster
+              h4
+                a [href="{boardurl}/index.php?action=profile;u=#" title="View the profile of {member}"]
+                  "{member}"
+              ul.user_info
+                li.membergroup
+                  "Administrator"
+                li.avatar
+                  a [href="{boardurl}/index.php?action=profile;u=#"]
+                    img.avatar [alt src="{boardurl}/avatars/default.png"]
+                li.icons
+                  img [alt="*" src="{boardurl}/Themes/default/images/membericons/iconadmin.png"]
+                li.postgroup
+                  "{text}"
+                li.postcount
+                  "Posts: #"
+                li.blurb
+                  "Personal text for {member}"
+                li.profile
+                  ol.profile_icons
+                    li
+                      a [href="https://www.example.com" rel="noopener" target="_blank" title="Example"]
+                        span.centericon.main_icons.www [title="Example"]
+                    li
+                      a [href="{boardurl}/index.php?action=pm;sa=send;u=#" title="Personal Message (Offline)"]
+                        span.centericon.im_off.main_icons [title="Personal Message (Offline)"]
+                    li.email
+                      a [href="mailto:{email}" rel="nofollow"]
+                        span.centericon.mail.main_icons [title="Email"]
+                li.poster_ip
+                  a.show_on_hover [data-hover="#" href="{boardurl}/index.php?action=profile;area=tracking;sa=ip;u=#;searchip=#"]
+                    span
+                      "Show IP address"
+                  a.help [href="{boardurl}/index.php?action=helpadmin;help=see_admin_ip" onclick="return reqOverlayDiv(this.href);"]
+                    "(?)"
+            div.postarea
+              div.keyinfo
+                div#subject_#.subject_hidden.subject_title
+                  a [href="{boardurl}/index.php?msg=#" rel="nofollow"]
+                    "{subject}"
+                div.postinfo
+                  span.messageicon
+                    img#msg_icon_# [alt src="{boardurl}/Themes/default/images/post/xx.png"]
+                  a.smalltext [href="{boardurl}/index.php?msg=#" rel="nofollow" title="{subject}"]
+                    "{date}"
+                  span.spacer
+                  span#modified_#.floatright.modified.smalltext
+                div#msg_#_quick_mod
+              div.post
+                div#msg_#.inner [data-msgid="#"]
+                  "A sticky, locked topic with a poll."
+              div.under_message
+                ul.quickbuttons.quickbuttons_post
+                  li
+                    a [href="{boardurl}/index.php?action=post;quote=#;topic=#;last_msg=#" onclick="return oQuickReply.quote(#);"]
+                      span.main_icons.quote
+                      "Quote"
+                  li#quoteSelected_# [style="display:none"]
+                    a [href="javascript:void(#)"]
+                      span.main_icons.quote_selected
+                      "Quote selected text"
+                  li#modify_button_#.quick_edit
+                    a [href="javascript:void(#);"]
+                      span.main_icons.quick_edit_button
+                      "Quick Edit"
+                  li.post_options
+                    a [href="javascript:void(#);"]
+                      "More..."
+                    ul
+                      li
+                        a [href="{boardurl}/index.php?action=post;msg=#;topic=#"]
+                          span.main_icons.modify_button
+                          "Modify"
+                      li.you_sure
+                        a [data-confirm="Are you sure you want to remove this topic?" href="{boardurl}/index.php?action=removetopic#;topic=#;{session_var}={session_id}"]
+                          span.main_icons.remove_button
+                          "Remove topic"
+                      li
+                        a [href="{boardurl}/index.php?action=reporttm;topic=#;msg=#"]
+                          span.error.main_icons
+                          "Report to moderator"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=issuewarning;u=#;msg=#"]
+                          span.main_icons.warn_button
+                          "Issue Warning"
+            div.moderatorbar
+              div#msg_#_signature.signature
+                "A signature with"
+                strong
+                  "bold"
+                "text."
+        hr.post_separator
+    div.pagesection
+      div.buttonlist.floatright
+        a.active.button.button_strip_reply [href="{boardurl}/index.php?action=post;topic=#;last_msg=#"]
+          "Reply"
+        a.button.button_strip_mark_unread [href="{boardurl}/index.php?action=markasread;sa=topic;t=#;topic=#;{session_var}={session_id}"]
+          "Mark unread"
+        a.button.button_strip_print [href="{boardurl}/index.php?action=printpage;topic=#" rel="nofollow"]
+          "Print"
+        a.button.button_strip_notify
+          "No Alerts or Emails"
+        div.dropmenu.notify_dropdown.top_menu
+          div.viewport
+            div.overview
+              a [href="{boardurl}/index.php?action=notifytopic;topic=#;mode=#;{session_var}={session_id}"]
+                strong
+                  "Not Following"
+                br
+                span
+                  "You will not receive any emails or alerts for this topic and it will also not show up in your unread replies and topics list. You will still receive @mentions for this topic."
+              a [href="{boardurl}/index.php?action=notifytopic;topic=#;mode=#;{session_var}={session_id}"]
+                strong
+                  "No Alerts or Emails"
+                br
+                span
+                  "You will not receive any emails or alerts but only @mentions by other members."
+              a [href="{boardurl}/index.php?action=notifytopic;topic=#;mode=#;{session_var}={session_id}"]
+                strong
+                  "Receive Alerts"
+                br
+                span
+                  "You will receive alerts for this topic."
+              a [href="{boardurl}/index.php?action=notifytopic;topic=#;mode=#;{session_var}={session_id}"]
+                strong
+                  "Receive Emails and Alerts"
+                br
+                span
+                  "You will receive both alerts and e-mails for this topic."
+      div.floatleft.pagelinks
+        a#bot.button [href="#main_content_section"]
+          "Go Up"
+        span.pages
+          "Pages"
+        span.current_page
+          "#"
+      div.floatright.mobile_buttons
+        a.button.mobile_act
+          "User actions"
+        a.button.mobile_mod
+          "Moderation"
+    nav.navigate_section [aria-label="Breadcrumb"]
+      ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+        li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+          a [href="{boardurl}/index.php" itemprop="item"]
+            span [itemprop="name"]
+              "{forum_name}"
+          meta [content="#" itemprop="position"]
+        li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+          span.dividers
+            "►"
+          a [href="{boardurl}/index.php#c#" itemprop="item"]
+            span [itemprop="name"]
+              "Snapshot fixtures"
+          meta [content="#" itemprop="position"]
+        li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+          span.dividers
+            "►"
+          a [href="{boardurl}/index.php?board=#" itemprop="item"]
+            span [itemprop="name"]
+              "{board}"
+          meta [content="#" itemprop="position"]
+        li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+          span.dividers
+            "►"
+          a [href="{boardurl}/index.php?topic=#" itemprop="item"]
+            span [itemprop="name"]
+              "{subject}"
+          meta [content="#" itemprop="position"]
+    div#moderationbuttons
+      div#moderationbuttons_strip.buttonlist.floatbottom
+        a.button.button_strip_move [href="{boardurl}/index.php?action=movetopic;current_board=#;topic=#"]
+          "Move Topic"
+        a.button.button_strip_delete.you_sure [data-confirm="Are you sure you want to remove this topic?" href="{boardurl}/index.php?action=removetopic#;topic=#;{session_var}={session_id}"]
+          "Remove topic"
+        a.button.button_strip_lock [href="{boardurl}/index.php?action=lock;topic=#;sa=unlock;{session_var}={session_id}"]
+          "Unlock topic"
+        a.button.button_strip_sticky [href="{boardurl}/index.php?action=sticky;topic=#;sa=nonsticky;{session_var}={session_id}"]
+          "Set topic non-sticky"
+        a.button.button_strip_merge [href="{boardurl}/index.php?action=mergetopics;board=#;from=#"]
+          "Merge Topics"
+    div#display_jump_to
+    a#quickreply_anchor
+    div#quickreply.tborder
+      div.cat_bar
+        h3.catbg
+          "Quick Reply"
+      div#quickreply_options
+        div.roundframe
+          p.alert.smalltext
+            "Warning! This topic is currently locked, only admins and moderators can reply."
+          form#postmodify [accept-charset="UTF-#" action="{boardurl}/index.php?board=#;action=post#" method="post" name="postmodify" onsubmit="submitonce(this);"]
+            input [name="topic" type="hidden" value="#"]
+            input [name="subject" type="hidden" value="Re: {subject}"]
+            input [name="icon" type="hidden" value="xx"]
+            input [name="from_qr" type="hidden" value="#"]
+            input [name="notify" type="hidden" value="#"]
+            input [name="not_approved" type="hidden" value]
+            input [name="goback" type="hidden" value="#"]
+            input [name="last_msg" type="hidden" value="#"]
+            input [name="{session_var}" type="hidden" value="{session_id}"]
+            input [name="seqnum" type="hidden" value="#"]
+            textarea#quickReply.editor [cols="#" name="quickReply" style="width: #%; height: #px;"]
+            input#quickReply_mode [name="quickReply_mode" type="hidden" value="#"]
+            script
+              | document.addEventListener("DOMContentLoaded", function () { var textarea = document.getElementById("quickReply"), options = { "width": "#%", "height": "#px", "style": "{boardurl}/Themes/default/css/jquery.sceditor.default.css?smf#alpha#dev_#", "emoticonsCompat": true, "emoticons": { "dropdown": { ":)": { "newRow": false, "url": "smiley.png", "tooltip": "Smiley" }, ";)": { "newRow": false, "url": "wink.png", "tooltip": "Wink" }, ":D": { "newRow": false, "url": "cheesy.png", "tooltip": "Cheesy" }, ";D": { "newRow": false, "url": "grin.png", "tooltip": "Grin" }, ">:(": { "newRow": false, "url": "angry.png", "tooltip": "Angry" }, ":(": { "newRow": false, "url": "sad.png", "tooltip": "Sad" }, ":o": { "newRow": false, "url": "shocked.png", "tooltip": "Shocked" }, "#)": { "newRow": false, "url": "cool.png", "tooltip": "Cool" }, "???": { "newRow": false, "url": "huh.png", "tooltip": "Huh?" }, "::)": { "newRow": false, "url": "rolleyes.png", "tooltip": "Roll Eyes" }, ":P": { "newRow": false, "url": "tongue.png", "tooltip": "Tongue" }, ":-[": { "newRow": false, "url": "embarrassed.png", "tooltip": "Embarrassed" }, ":-X": { "newRow": false, "url": "lipsrsealed.png", "tooltip": "Lips Sealed" }, ":-\\": { "newRow": false, "url": "undecided.png", "tooltip": "Undecided" }, ":-*": { "newRow": false, "url": "kiss.png", "tooltip": "Kiss" }, ":'(": { "newRow": false, "url": "cry.png", "tooltip": "Cry" } } }, "emoticonsEnabled": true, "emoticonsRoot": "{boardurl}/Smileys/fugue/", "colors": [ [ "black", "Black" ], [ "red", "Red" ], [ "yellow", "Yellow" ], [ "pink", "Pink" ], [ "green", "Green" ], [ "orange", "Orange" ], [ "purple", "Purple" ], [ "blue", "Blue" ], [ "beige", "Beige" ], [ "brown", "Brown" ], [ "teal", "Teal" ], [ "navy", "Navy" ], [ "maroon", "Maroon" ], [ "limegreen", "Lime Green" ], [ "white", "White" ] ], "fonts": "Arial,Arial Black,Comic Sans MS,Courier New,Georgia,Impact,Sans-serif,Serif,Times New Roman,Trebuchet MS,Verdana", "icons": "monocons", "format": "bbcode", "plugins": "smf,autolinker", "toolbar": "bold,italic,underline,strike,superscript,subscript,tt,spoiler|pre,left,center,right,justify|font,size,color|removeformat||floatleft,floatright|youtube,image,email,link,unlink|table,code,quote,details|heading,bulletlist,orderedlist,horizontalrule|maximize,source", "customTextualCommands": { "tt": { "image": "tt", "code": "tt", "description": "Inline code" }, "spoiler": { "image": "hidden", "code": "spoiler", "description": "Spoiler" }, "details": { "image": "details", "code": "details", "description": "Details" }, "heading": { "image": "heading", "code": "heading", "description": "Heading" } }, "startInSourceMode": true, "bbcodeTrim": false, "resizeWidth": false, "resizeMaxHeight": -#, "locale": "en", "rtl": false, "commandsWithDropdown": { "color": true, "heading": true, "font": true, "size": true }, "textOnlyCommands": [], "commandsWithText": [], "parserOptions": { "txtVars": { "code": "Code" } } }; sceditor.create(textarea, options, '#', '#'); });
+            span#post_confirm_buttons
+              span.smalltext
+                "Shortcuts: ALT+S post, ALT+P preview, ALT+D save draft"
+              span.post_button_container
+                input.button [accesskey="d" name="save_draft" onclick="return confirm('This will save the text of your post, but it will not save attachments, poll or event information.');" type="submit" value="Save draft"]
+                input#id_draft [name="id_draft" type="hidden" value="#"]
+                input.button [accesskey="p" name="preview" type="submit" value="Preview"]
+                input.button [accesskey="s" name="post" onclick="return submitThisOnce(this);" type="submit" value="Post"]
+    br.clear
+    script
+      | window.addEventListener("DOMContentLoaded", function() { new QuickReply({ bDefaultCollapsed: false, iTopicId: #, iStart: #, sScriptUrl: smf_scripturl, sImagesUrl: smf_images_url, sContainerId: "quickreply_options", sImageId: "quickReplyExpand", sClassCollapsed: "toggle_up", sClassExpanded: "toggle_down", sJumpAnchor: "quickreply_anchor", bIsFull: true }); }); var oEditorID = "quickReply";
+    div#mobile_action.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "User actions"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.buttonlist
+          a.active.button.button_strip_reply [href="{boardurl}/index.php?action=post;topic=#;last_msg=#"]
+            "Reply"
+          a.button.button_strip_mark_unread [href="{boardurl}/index.php?action=markasread;sa=topic;t=#;topic=#;{session_var}={session_id}"]
+            "Mark unread"
+          a.button.button_strip_print [href="{boardurl}/index.php?action=printpage;topic=#" rel="nofollow"]
+            "Print"
+          a.button.button_strip_notify
+            "No Alerts or Emails"
+          div.dropmenu.notify_dropdown.top_menu
+            div.viewport
+              div.overview
+                a [href="{boardurl}/index.php?action=notifytopic;topic=#;mode=#;{session_var}={session_id}"]
+                  strong
+                    "Not Following"
+                  br
+                  span
+                    "You will not receive any emails or alerts for this topic and it will also not show up in your unread replies and topics list. You will still receive @mentions for this topic."
+                a [href="{boardurl}/index.php?action=notifytopic;topic=#;mode=#;{session_var}={session_id}"]
+                  strong
+                    "No Alerts or Emails"
+                  br
+                  span
+                    "You will not receive any emails or alerts but only @mentions by other members."
+                a [href="{boardurl}/index.php?action=notifytopic;topic=#;mode=#;{session_var}={session_id}"]
+                  strong
+                    "Receive Alerts"
+                  br
+                  span
+                    "You will receive alerts for this topic."
+                a [href="{boardurl}/index.php?action=notifytopic;topic=#;mode=#;{session_var}={session_id}"]
+                  strong
+                    "Receive Emails and Alerts"
+                  br
+                  span
+                    "You will receive both alerts and e-mails for this topic."
+    div#mobile_moderation.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Moderation"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div#moderationbuttons_mobile
+          div#moderationbuttons_strip_mobile.buttonlist.floatbottom
+            a.button.button_strip_move [href="{boardurl}/index.php?action=movetopic;current_board=#;topic=#"]
+              "Move Topic"
+            a.button.button_strip_delete.you_sure [data-confirm="Are you sure you want to remove this topic?" href="{boardurl}/index.php?action=removetopic#;topic=#;{session_var}={session_id}"]
+              "Remove topic"
+            a.button.button_strip_lock [href="{boardurl}/index.php?action=lock;topic=#;sa=unlock;{session_var}={session_id}"]
+              "Unlock topic"
+            a.button.button_strip_sticky [href="{boardurl}/index.php?action=sticky;topic=#;sa=nonsticky;{session_var}={session_id}"]
+              "Set topic non-sticky"
+            a.button.button_strip_merge [href="{boardurl}/index.php?action=mergetopics;board=#;from=#"]
+              "Merge Topics"
+    script
+      | window.addEventListener("DOMContentLoaded", function() { new QuickModify({ sScriptUrl: smf_scripturl, sFormName: 'quickModForm', sClassName: 'quick_edit', bShowModify: true, iTopicId: #, sSaveButtonText: 'Save', sCancelButtonText: 'Cancel', sEditReasonText: 'Reason for editing', sErrorBorderStyle: '#px solid red' }); new JumpTo({ sContainerId: "display_jump_to", sJumpToTemplate: "<label class=\"smalltext jump_to\" for=\"%select_id%\">Jump to<" + "/label> %dropdown_list%", iCurBoardId: #, iCurBoardChildLevel: #, sCurBoardName: "Snapshot board", sBoardChildLevelIndicator: "==", sBoardPrefix: "=> ", sCatSeparator: "-----------------------------", sCatPrefix: "", sGoButtonLabel: "Go" }); new IconList({ sIconIdPrefix: "msg_icon_", sScriptUrl: smf_scripturl, bShowModify: true, iBoardId: #, iTopicId: #, sSessionId: smf_session_id, sSessionVar: smf_session_var, sLabelIconList: "Message icon" }); });
