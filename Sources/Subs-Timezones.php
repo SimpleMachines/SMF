@@ -123,6 +123,10 @@ function get_tzid_metazones($when = 'now')
 		'America/Denver' => 'North_America_Mountain',
 
 		// Uses DST
+		// OPTIONS: America/Edmonton, America/Inuvik
+		'America/Edmonton' => 'America_Edmonton',
+
+		// Uses DST
 		'America/Nuuk' => 'North_America_Greenland_Western',
 
 		// No DST
