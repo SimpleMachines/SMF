@@ -4251,6 +4251,9 @@ function groupMembership2($profile_vars, $post_errors, $memID)
 				fatal_lang_error('no_access', false);
 			elseif ($changeType == 'free' && $row['group_type'] != 3 && $row['group_type'] != 2)
 				fatal_lang_error('no_access', false);
+			elseif ($changeType == 'primary' && !isset($addGroups[$row['id_group']])) {
+				fatal_lang_error('no_access', false);			
+			}
 
 			// We can't change the primary group if this is hidden!
 			if ($row['hidden'] == 2)
@@ -4258,7 +4261,7 @@ function groupMembership2($profile_vars, $post_errors, $memID)
 		}
 
 		// If this is their old primary, can we change it?
-		if ($row['id_group'] == $old_profile['id_group'] && ($row['group_type'] > 1 || $context['can_manage_membergroups']) && $canChangePrimary !== false && isset($addGroups[$row['id_group']]))
+		if ($row['id_group'] == $old_profile['id_group'] && ($row['group_type'] > 1 || $context['can_manage_membergroups']) && $canChangePrimary !== false)
 			$canChangePrimary = 1;
 
 		// If we are not doing a force primary move, don't do it automatically if current primary is not 0.
