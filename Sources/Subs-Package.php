@@ -158,6 +158,19 @@ function read_tgz_data($data, $destination, $single_file = false, $overwrite = f
 		$current['data'] = substr($data, ++$offset << 9, $current['size']);
 		$offset += $size;
 
+		// Protect from accidental parent directory writing...
+		do {
+			$prev = $current['filename'];
+			$current['filename'] = strtr($current['filename'], array(
+				'../' => '',
+				'/..' => '',
+				'..' . DIRECTORY_SEPARATOR => '',
+				DIRECTORY_SEPARATOR . '..' => '',
+				'..\\' => '',
+				'\\..' => '',
+			));
+		} while ($prev !== $current['filename']);
+
 		// If hunting for a file in subdirectories, pass to subsequent write test...
 		if ($single_file && $destination !== null && (substr($destination, 0, 2) == '*/'))
 			$write_this = true;
@@ -170,19 +183,6 @@ function read_tgz_data($data, $destination, $single_file = false, $overwrite = f
 		// Folder... create.
 		elseif ($destination !== null && !$single_file)
 		{
-			// Protect from accidental parent directory writing...
-			do {
-				$prev = $current['filename'];
-				$current['filename'] = strtr($current['filename'], array(
-					'../' => '',
-					'/..' => '',
-					'..' . DIRECTORY_SEPARATOR => '',
-					DIRECTORY_SEPARATOR . '..' => '',
-					'..\\' => '',
-					'\\..' => '',
-				));
-			} while ($prev !== $current['filename']);
-
 			if (!file_exists($destination . '/' . $current['filename']))
 				mktree($destination . '/' . $current['filename'], 0777);
 			$write_this = false;
@@ -300,6 +300,19 @@ function read_zip_data($data, $destination, $single_file = false, $overwrite = f
 			if (($general_purpose = unpack('Vcrc/Vcompressed_size/Vsize', substr($data, $gplen, 12))) !== false)
 				$file_info = $general_purpose + $file_info;
 		}
+
+		// Protect from accidental parent directory writing...
+		do {
+			$prev = $current['filename'];
+			$current['filename'] = strtr($current['filename'], array(
+				'../' => '',
+				'/..' => '',
+				'..' . DIRECTORY_SEPARATOR => '',
+				DIRECTORY_SEPARATOR . '..' => '',
+				'..\\' => '',
+				'\\..' => '',
+			));
+		} while ($prev !== $current['filename']);
 
 		$write_this = false;
 		if ($destination !== null)
