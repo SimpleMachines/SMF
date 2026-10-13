@@ -77,8 +77,8 @@ class curl_fetch_web_data
 		CURLOPT_TIMEOUT			=> 90, // A page should load in this amount of time
 		CURLOPT_MAXREDIRS		=> 5, // stop after this many redirects
 		CURLOPT_ENCODING		=> 'gzip,deflate', // accept gzip and decode it
-		CURLOPT_SSL_VERIFYPEER	=> 0, // stop cURL from verifying the peer's certificate
-		CURLOPT_SSL_VERIFYHOST	=> 0, // stop cURL from verifying the peer's host
+		CURLOPT_SSL_VERIFYPEER	=> 1, // Verify the peer's certificate
+		CURLOPT_SSL_VERIFYHOST	=> 2, // Verify the peer's host
 		CURLOPT_POST			=> 0, // no post data unless its passed
 	);
 
