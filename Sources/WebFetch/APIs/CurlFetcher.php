@@ -163,11 +163,11 @@ class CurlFetcher extends WebFetchApi
 		// Accept gzip and decode it.
 		CURLOPT_ENCODING        => 'gzip,deflate',
 
-		// Stop curl from verifying the peer's certificate.
-		CURLOPT_SSL_VERIFYPEER  => false,
+		// Verify the peer's certificate.
+		CURLOPT_SSL_VERIFYPEER  => true,
 
-		// Stop curl from verifying the peer's host.
-		CURLOPT_SSL_VERIFYHOST  => 0,
+		// Verify the peer's host.
+		CURLOPT_SSL_VERIFYHOST  => 2,
 
 		// No post data. This will change if some is passed to request().
 		CURLOPT_POST            => false,
