@@ -217,6 +217,19 @@ class PackageUtils
 			$current['data'] = substr($data, ++$offset << 9, $current['size']);
 			$offset += $size;
 
+			// Protect from accidental parent directory writing...
+			do {
+				$prev = $current['filename'];
+				$current['filename'] = strtr($current['filename'], [
+					'../' => '',
+					'/..' => '',
+					'..' . DIRECTORY_SEPARATOR => '',
+					DIRECTORY_SEPARATOR . '..' => '',
+					'..\\' => '',
+					'\\..' => '',
+				]);
+			} while ($prev !== $current['filename']);
+
 			// If hunting for a file in subdirectories, pass to subsequent write test...
 			if ($single_file && $destination !== null && (str_starts_with($destination, '*/'))) {
 				$write_this = true;
@@ -231,19 +244,6 @@ class PackageUtils
 			}
 			// Folder... create.
 			elseif ($destination !== null && !$single_file) {
-				// Protect from accidental parent directory writing...
-				do {
-					$prev = $current['filename'];
-					$current['filename'] = strtr($current['filename'], [
-						'../' => '',
-						'/..' => '',
-						'..' . DIRECTORY_SEPARATOR => '',
-						DIRECTORY_SEPARATOR . '..' => '',
-						'..\\' => '',
-						'\\..' => '',
-					]);
-				} while ($prev !== $current['filename']);
-
 				if (!file_exists($destination . '/' . $current['filename'])) {
 					self::mktree($destination . '/' . $current['filename'], 0777);
 				}
@@ -377,6 +377,19 @@ class PackageUtils
 			}
 
 			$write_this = false;
+
+			// Protect from accidental parent directory writing...
+			do {
+				$prev = $current['filename'];
+				$current['filename'] = strtr($current['filename'], [
+					'../' => '',
+					'/..' => '',
+					'..' . DIRECTORY_SEPARATOR => '',
+					DIRECTORY_SEPARATOR . '..' => '',
+					'..\\' => '',
+					'\\..' => '',
+				]);
+			} while ($prev !== $current['filename']);
 
 			if ($destination !== null) {
 				// If hunting for a file in subdirectories, pass to subsequent write test...
