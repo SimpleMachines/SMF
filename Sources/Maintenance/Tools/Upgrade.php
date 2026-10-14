@@ -776,7 +776,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		// Next, check the custom avatar directory...  Note this is optional in 2.0.
 		if (!empty(Config::$modSettings['custom_avatar_dir']) && !is_dir(Config::$modSettings['custom_avatar_dir'])) {
-				Maintenance::$warnings[] = Lang::getTxt('warning_custom_av_missing', file: 'Maintenance');
+			Maintenance::$warnings[] = Lang::getTxt('warning_custom_av_missing', file: 'Maintenance');
 			$this->logProgress(Lang::getTxt('warning_custom_av_missing', file: 'Maintenance'));
 		}
 

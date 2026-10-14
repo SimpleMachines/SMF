@@ -432,10 +432,10 @@ class Main implements ActionInterface, Routable
 			$this->moderation_areas,
 			function (&$value, $key) {
 				if (\is_string($value)) {
-						$value = strtr($value, [
-							'{scripturl}' => Config::$scripturl,
-							'{boardurl}' => Config::$boardurl,
-						]);
+					$value = strtr($value, [
+						'{scripturl}' => Config::$scripturl,
+						'{boardurl}' => Config::$boardurl,
+					]);
 				}
 			},
 		);
