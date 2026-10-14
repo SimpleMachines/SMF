@@ -1093,7 +1093,7 @@ CREATE TABLE {$db_prefix}members (
 	secret_answer varchar(64) NOT NULL DEFAULT '',
 	id_theme smallint NOT NULL DEFAULT '0',
 	is_activated smallint NOT NULL DEFAULT '1',
-	validation_code varchar(10) NOT NULL DEFAULT '',
+	validation_code varchar(32) NOT NULL DEFAULT '',
 	id_msg_last_visit int NOT NULL DEFAULT '0',
 	additional_groups varchar(255) NOT NULL DEFAULT '',
 	smiley_set varchar(48) NOT NULL DEFAULT '',
