@@ -444,13 +444,13 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		foreach ($data as $dataRow) {
 			if (\count($indexed_columns) !== \count($dataRow)) {
-					$this->error_backtrace(
-						'Invalid insert query.  Requested column count does not match the number of keys on inserted data.',
-						'',
-						E_USER_ERROR,
-						__FILE__,
-						__LINE__,
-					);
+				$this->error_backtrace(
+					'Invalid insert query.  Requested column count does not match the number of keys on inserted data.',
+					'',
+					E_USER_ERROR,
+					__FILE__,
+					__LINE__,
+				);
 			}
 			$insertRows[] = $this->quote($insertData, array_combine($indexed_columns, $dataRow), $connection);
 		}
@@ -1237,24 +1237,24 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				default:
 					$line .= 'KEY `' . $index['name'] . '`';
 					break;
-			 }
+			}
 
-			 $index_columns = [];
+			$index_columns = [];
 
-			 foreach ($index['columns'] as $index_column) {
-				 // A column can be indexed by its first so many characters.
-				 // The count belongs after the name rather than inside it,
-				 // so it has to be left outside the quoting.
-				 if (preg_match('~^(.+)\((\d+)\)$~', $index_column, $matches) === 1) {
-					 $index_columns[] = '`' . $matches[1] . '`(' . $matches[2] . ')';
-				 } else {
-					 $index_columns[] = '`' . $index_column . '`';
-				 }
-			 }
+			foreach ($index['columns'] as $index_column) {
+				// A column can be indexed by its first so many characters.
+				// The count belongs after the name rather than inside it,
+				// so it has to be left outside the quoting.
+				if (preg_match('~^(.+)\((\d+)\)$~', $index_column, $matches) === 1) {
+					$index_columns[] = '`' . $matches[1] . '`(' . $matches[2] . ')';
+				} else {
+					$index_columns[] = '`' . $index_column . '`';
+				}
+			}
 
-			 $line .= ' (' . implode(', ', $index_columns) . ')';
+			$line .= ' (' . implode(', ', $index_columns) . ')';
 
-			 $inner_lines[] = $line;
+			$inner_lines[] = $line;
 		}
 
 		$schema_create .= implode(",\n", $inner_lines) . "\n";
@@ -2807,7 +2807,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 			case 'string':
 			case 'text':
-			// MySQL folds the case of the value in the collation as well.
+				// MySQL folds the case of the value in the collation as well.
 			case 'string_ci':
 				return \sprintf('\'%1$s\'', mysqli_real_escape_string($connection, $this->fix_mb4((string) $replacement)));
 
@@ -2833,7 +2833,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				break;
 
 			case 'array_string':
-			// As above, the collation folds each of these too.
+				// As above, the collation folds each of these too.
 			case 'array_string_ci':
 				if (\is_array($replacement)) {
 					if (empty($replacement)) {

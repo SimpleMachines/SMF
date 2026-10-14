@@ -545,13 +545,13 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 			foreach ($data as $dataRow) {
 				if (\count($indexed_columns) !== \count($dataRow)) {
-						$this->error_backtrace(
-							'Invalid insert query.  Requested column count does not match the number of keys on inserted data.',
-							'',
-							E_USER_ERROR,
-							__FILE__,
-							__LINE__,
-						);
+					$this->error_backtrace(
+						'Invalid insert query.  Requested column count does not match the number of keys on inserted data.',
+						'',
+						E_USER_ERROR,
+						__FILE__,
+						__LINE__,
+					);
 				}
 
 				$insertRows[] = $this->quote($insertData, array_combine($indexed_columns, $dataRow), $connection);
@@ -2747,7 +2747,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			case 'text':
 				return \sprintf('\'%1$s\'', pg_escape_string($this->connection, (string) $replacement));
 
-			// Folded to match a column that {column_ci:} has folded.
+				// Folded to match a column that {column_ci:} has folded.
 			case 'string_ci':
 				return \sprintf('LOWER(\'%1$s\')', pg_escape_string($this->connection, (string) $replacement));
 
@@ -2789,7 +2789,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 				break;
 
-			// Each of these folded to match a column that {column_ci:} has folded.
+				// Each of these folded to match a column that {column_ci:} has folded.
 			case 'array_string_ci':
 				if (\is_array($replacement)) {
 					if (empty($replacement)) {
