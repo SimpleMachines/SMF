@@ -2747,7 +2747,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			case 'text':
 				return \sprintf('\'%1$s\'', pg_escape_string($this->connection, (string) $replacement));
 
-				// Folded to match a column that {column_ci:} has folded.
+			// Folded to match a column that {column_ci:} has folded.
 			case 'string_ci':
 				return \sprintf('LOWER(\'%1$s\')', pg_escape_string($this->connection, (string) $replacement));
 
@@ -2789,7 +2789,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 
 				break;
 
-				// Each of these folded to match a column that {column_ci:} has folded.
+			// Each of these folded to match a column that {column_ci:} has folded.
 			case 'array_string_ci':
 				if (\is_array($replacement)) {
 					if (empty($replacement)) {
