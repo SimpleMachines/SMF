@@ -1091,7 +1091,7 @@ class RecurrenceIterator implements \Iterator
 						}
 					}
 					break;
-			 }
+			}
 
 			$valid &= \in_array($current_value, $allowed_values);
 		}

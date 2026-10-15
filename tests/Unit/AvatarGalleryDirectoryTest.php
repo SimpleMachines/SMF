@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Unit;
@@ -39,11 +50,24 @@ class AvatarGalleryDirectoryTest extends TestCase
 	 ****************/
 
 	/**
+	 * A gallery avatar is looked for in the configured directory.
+	 *
 	 * The admin can move the avatar gallery, and the admin panel offers the
-	 * setting and warns when the directory it names is not there. Profile
-	 * lists the gallery out of that directory and refuses to save a choice
-	 * from anywhere else, so it is the directory a stored avatar is a path
-	 * into, and it is where the file has to be looked for.
+	 * setting and warns when the directory it names is not there. Profile lists
+	 * the gallery out of that directory and refuses to save a choice from
+	 * anywhere else, so it is the directory a stored avatar is a path into, and
+	 * it is where the file has to be looked for.
+	 *
+	 * Expected: with avatar_directory pointing at Themes/default/images, new
+	 *           Avatar(url: 'cake.png', id_member: 1) has the url
+	 *           https://example.com/gallery/cake.png.
+	 * Guards:   the file was looked for under the board directory's avatars
+	 *           directory whatever the setting said, while the address was
+	 *           built from avatar_url. A forum whose admin had moved the
+	 *           gallery showed the default image for every member.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/399ceedb4 Introduced by "Implements SMF\Avatar"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9588
 	 */
 	public function testAGalleryAvatarIsLookedForInTheConfiguredDirectory(): void
 	{
@@ -54,6 +78,19 @@ class AvatarGalleryDirectoryTest extends TestCase
 		$this->assertSame('https://example.com/gallery/cake.png', (string) $avatar->url);
 	}
 
+	/**
+	 * A file in a subdirectory of the configured gallery is found as well.
+	 *
+	 * Expected: with avatar_directory pointing at Themes/default/images, new
+	 *           Avatar(url: 'icons/bell.png', id_member: 1) has the url
+	 *           https://example.com/gallery/icons/bell.png.
+	 * Guards:   the file was looked for under the board directory's avatars
+	 *           directory whatever the setting said, so a gallery that had been
+	 *           moved was never searched, subdirectories included.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/399ceedb4 Introduced by "Implements SMF\Avatar"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9588
+	 */
 	public function testTheSameForAFileInASubdirectoryOfTheGallery(): void
 	{
 		$this->setUpForum(Config::$boarddir . '/Themes/default/images');
@@ -64,8 +101,14 @@ class AvatarGalleryDirectoryTest extends TestCase
 	}
 
 	/**
+	 * The shipped gallery is used when nothing says otherwise.
+	 *
 	 * A forum whose admin never touched the setting keeps the gallery SMF
 	 * ships, so the value the installer would have written is the fallback.
+	 *
+	 * Expected: with no avatar_directory setting, new Avatar(url:
+	 *           'Oxygen/beagle.png', id_member: 1) has the url
+	 *           https://example.com/gallery/Oxygen/beagle.png.
 	 */
 	public function testTheShippedGalleryIsUsedWhenNothingSaysOtherwise(): void
 	{

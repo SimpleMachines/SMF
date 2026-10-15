@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Integration\Http;
@@ -46,6 +57,10 @@ class UnsubscribeLinkTest extends HttpTestCase
 
 	/**
 	 * A token made for one topic does not unsubscribe from another.
+	 *
+	 * Expected: following a link for one topic with a token made for the next
+	 *           topic returns 403 with "does not appear to be valid", and the
+	 *           member's preference for the topic is unchanged.
 	 */
 	public function testATokenForAnotherTopicIsRefused(): void
 	{
@@ -65,10 +80,18 @@ class UnsubscribeLinkTest extends HttpTestCase
 	/**
 	 * Following the link stops the emails and leaves the alerts alone.
 	 *
-	 * None of these situations worked. The token was checked against topic 0
-	 * whatever topic it was made for, so every link was refused as invalid. A
-	 * forum with guest access off, or a topic in a board that guests cannot
-	 * see, sent the member to the login form before the link was looked at.
+	 * Expected: each case in situations() follows a valid unsubscribe link as
+	 *           a guest and sees "has been unsubscribed from new reply
+	 *           notifications". The member's preference for the topic changes
+	 *           from both to alerts only, and nothing is logged.
+	 * Guards:   none of these situations worked. The token was checked against
+	 *           topic 0 whatever topic it was made for, so every link was
+	 *           refused as invalid. A forum with guest access off, or a topic
+	 *           in a board that guests cannot see, sent the member to the login
+	 *           form before the link was looked at.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/4bf14e2a6 Introduced by "Implements SMF\Actions\Notify and sub-classes"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9734
 	 */
 	#[DataProvider('situations')]
 	public function testTheLinkUnsubscribesAMemberWhoIsNotLoggedIn(bool $guest_access, bool $guests_see_board): void

@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Unit;
@@ -19,14 +30,21 @@ class WebFetchResultTest extends TestCase
 	 ****************/
 
 	/**
+	 * result() returns null when nothing has been fetched.
+	 *
 	 * A fetcher that was never asked for anything, or one whose request was
 	 * refused before a connection was attempted, has nothing in $response.
-	 * result() worked out the last index as count() - 1, which is -1, and read
-	 * that. WebFetchApi::fetch() asks for result('success') on exactly that
-	 * path, so every refused fetch emitted two warnings on its way to
-	 * returning false.
-	 *
+	 * WebFetchApi::fetch() asks for result('success') on exactly that path.
 	 * The suite fails on warnings, so this needs no assertion about them.
+	 *
+	 * Expected: result('success'), result('body') and result() on a new
+	 *           CurlFetcher and on a new SocketFetcher all return null.
+	 * Guards:   result() worked out the last index as count() - 1, which is -1,
+	 *           and read that, so every refused fetch emitted two warnings on
+	 *           its way to returning false.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/4846a993a Introduced by "Implements SMF\WebFetch\WebFetchApi and related classes"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9535
 	 */
 	#[DataProvider('fetcherProvider')]
 	public function testResultIsNullWhenNothingWasFetched(string $class): void

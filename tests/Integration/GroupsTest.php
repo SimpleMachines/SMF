@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Integration;
@@ -20,10 +31,17 @@ class GroupsTest extends IntegrationTestCase
 	 ****************/
 
 	/**
-	 * The query had no ORDER BY, so the database chose the order, and with a
-	 * limit it chose which members were listed at all. PostgreSQL returns a
-	 * row it has just rewritten after the others, which MySQL does not, so on
-	 * PostgreSQL the list changed as members' rows were updated.
+	 * Members of a membergroup are listed in the order they joined.
+	 *
+	 * Expected: listMembergroupMembers_Href($members, 1) lists two new
+	 *           administrators in id order, even after the earlier one's row has
+	 *           been rewritten.
+	 * Guards:   the query had no ORDER BY, so the database chose the order. A
+	 *           row that PostgreSQL has just rewritten is returned after the
+	 *           others, so there the list changed as members' rows were
+	 *           updated.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/pull/9721
 	 */
 	public function testMembersAreListedInTheOrderTheyJoined(): void
 	{
@@ -47,6 +65,14 @@ class GroupsTest extends IntegrationTestCase
 
 	/**
 	 * With a limit, the members left out are the ones who joined last.
+	 *
+	 * Expected: listMembergroupMembers_Href($members, 1, $count - 1) returns true
+	 *           for "more" and lists every administrator but the last, in id
+	 *           order.
+	 * Guards:   with no ORDER BY and a limit, the database chose which members
+	 *           were listed at all.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/pull/9721
 	 */
 	public function testALimitKeepsTheMembersWhoJoinedFirst(): void
 	{

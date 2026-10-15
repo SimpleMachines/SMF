@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Unit;
@@ -114,6 +125,11 @@ class QueryCaseFoldingTest extends TestCase
 	 * Public methods
 	 ****************/
 
+	/**
+	 * No new LIKE comparison on user text skips the case folding types.
+	 *
+	 * Expected: scan() returns the per-file counts listed in BASELINE.
+	 */
 	public function testNoNewComparisonSkipsTheCaseFoldingTypes(): void
 	{
 		$found = $this->scan();
@@ -132,6 +148,12 @@ class QueryCaseFoldingTest extends TestCase
 		);
 	}
 
+	/**
+	 * No new comparison folds its column without folding the value.
+	 *
+	 * Expected: scanUnfoldedValues() returns the per-file counts listed in
+	 *           UNFOLDED_VALUES.
+	 */
 	public function testNoNewComparisonFoldsOnlyItsColumn(): void
 	{
 		$found = $this->scanUnfoldedValues();
@@ -148,10 +170,16 @@ class QueryCaseFoldingTest extends TestCase
 		);
 	}
 
+	/**
+	 * Both scans find the forms they are looking for.
+	 *
+	 * Without this, emptying either scan would leave the tests above passing
+	 * against an empty baseline.
+	 *
+	 * Expected: scan() and scanUnfoldedValues() each return a non-empty array.
+	 */
 	public function testTheScansFindTheFormsTheyAreLookingFor(): void
 	{
-		// Without these, emptying either scan would leave the tests above
-		// passing against an empty baseline.
 		$this->assertNotSame([], $this->scan());
 		$this->assertNotSame([], $this->scanUnfoldedValues());
 	}

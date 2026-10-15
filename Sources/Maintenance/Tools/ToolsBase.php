@@ -427,7 +427,7 @@ abstract class ToolsBase
 				if ($ftp->error === false) {
 					// Try it without /home/abc just in case they messed up.
 					if (!$ftp->chdir(Utils::$context['chmod']['path'])) {
-					Utils::$context['chmod']['ftp_error'] = $ftp->last_message;
+						Utils::$context['chmod']['ftp_error'] = $ftp->last_message;
 						$ftp->chdir(preg_replace('~^/home[2]?/[^/]+?~', '', Utils::$context['chmod']['path']));
 					}
 				}

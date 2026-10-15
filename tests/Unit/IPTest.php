@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Unit;
@@ -16,16 +27,33 @@ class IPTest extends TestCase
 	 * Public methods
 	 ****************/
 
+	/**
+	 * An IPv6 address is cast to its shortest, lowercase form.
+	 *
+	 * Expected: (string) new IP('2001:DB8::0001') returns '2001:db8::1'.
+	 */
 	public function testItNormalisesIPv6ToItsShortestForm(): void
 	{
 		$this->assertSame('2001:db8::1', (string) new IP('2001:DB8::0001'));
 	}
 
+	/**
+	 * An IPv4-mapped IPv6 address keeps its dotted tail.
+	 *
+	 * Expected: (string) new IP('::ffff:1.2.3.4') returns '::ffff:1.2.3.4'.
+	 */
 	public function testItKeepsIPv4MappedAddressesIntact(): void
 	{
 		$this->assertSame('::ffff:1.2.3.4', (string) new IP('::ffff:1.2.3.4'));
 	}
 
+	/**
+	 * The flags given to isValid() restrict validation to one address family.
+	 *
+	 * Expected: 1.2.3.4 is valid with FILTER_FLAG_IPV4 but not with
+	 *           FILTER_FLAG_IPV6, and 2001:db8::1 is valid with
+	 *           FILTER_FLAG_IPV6.
+	 */
 	public function testFlagsNarrowValidationToOneFamily(): void
 	{
 		$this->assertTrue((new IP('1.2.3.4'))->isValid(FILTER_FLAG_IPV4));
@@ -33,6 +61,12 @@ class IPTest extends TestCase
 		$this->assertTrue((new IP('2001:db8::1'))->isValid(FILTER_FLAG_IPV6));
 	}
 
+	/**
+	 * An address converts to hex and packed binary and back again.
+	 *
+	 * Expected: for 1.2.3.4, toHex() returns '01020304', toBinary() is four
+	 *           bytes, and an IP built from that binary casts to '1.2.3.4'.
+	 */
 	public function testBinaryAndHexRoundTrip(): void
 	{
 		$ip = new IP('1.2.3.4');
@@ -42,6 +76,11 @@ class IPTest extends TestCase
 		$this->assertSame('1.2.3.4', (string) new IP((string) $ip->toBinary()));
 	}
 
+	/**
+	 * An empty or unparseable value is not a valid address.
+	 *
+	 * Expected: isValid() is false for '', 'abcde' and '999.999.999.999'.
+	 */
 	public function testAnEmptyOrUnparseableValueIsNotValid(): void
 	{
 		$this->assertFalse((new IP(''))->isValid());
@@ -49,11 +88,19 @@ class IPTest extends TestCase
 		$this->assertFalse((new IP('999.999.999.999'))->isValid());
 	}
 
+	/**
+	 * Any four or sixteen byte string is read as a packed address.
+	 *
+	 * The constructor accepts the packed binary form, and it cannot tell that
+	 * apart from a four character string. This is a sharp edge worth pinning
+	 * down: 'nope' is not rejected, it becomes an address.
+	 *
+	 * Expected: (string) new IP('nope') returns '110.111.112.101' and is
+	 *           valid, and a sixteen character string is valid as an IPv6
+	 *           address.
+	 */
 	public function testAnyFourByteStringIsReadAsAPackedAddress(): void
 	{
-		// The constructor accepts the packed binary form, and it cannot tell that
-		// apart from a four character string. This is a sharp edge worth pinning
-		// down: 'nope' is not rejected, it becomes an address.
 		$this->assertSame('110.111.112.101', (string) new IP('nope'));
 		$this->assertTrue((new IP('nope'))->isValid());
 
@@ -61,28 +108,59 @@ class IPTest extends TestCase
 		$this->assertTrue((new IP('not an ip at all'))->isValid());
 	}
 
+	/**
+	 * ip2range() reads a range whose ends are IPv6 addresses.
+	 *
+	 * The two ends of a range are only recognised as ends if they validate as
+	 * addresses of any family.
+	 *
+	 * Expected: IP::ip2range('2001:db8::1-2001:db8::ff') has the low end
+	 *           '2001:db8::1' and the high end '2001:db8::ff'.
+	 * Guards:   the ends were validated as IPv4 only, so neither end of an
+	 *           IPv6 range was one. The range fell through to the "one side is
+	 *           a fragment" path, which read the address itself as a list of
+	 *           octets to walk, and came back as 255.255.255.255.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/d530ce5f5 Introduced by "Implements SMF\IP"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9506
+	 */
 	public function testIp2RangeReadsARangeOfIPv6Addresses(): void
 	{
-		// The two ends of a range are only recognised as ends if they validate
-		// as addresses. Insisting on IPv4 there meant neither end of an IPv6
-		// range was one, so this fell through to the "one side is a fragment"
-		// path and read the address itself as a list of octets to walk.
 		$range = IP::ip2range('2001:db8::1-2001:db8::ff');
 
 		$this->assertSame('2001:db8::1', (string) $range['low']);
 		$this->assertSame('2001:db8::ff', (string) $range['high']);
 	}
 
+	/**
+	 * ip2range() reads an IPv6 range written with nothing elided.
+	 *
+	 * It is the same range as in testIp2RangeReadsARangeOfIPv6Addresses(), so
+	 * the shortening on the way back out is the only difference between the
+	 * two.
+	 *
+	 * Expected: IP::ip2range('2001:db8:0:0:0:0:0:1-2001:db8:0:0:0:0:0:ff') has
+	 *           the low end '2001:db8::1' and the high end '2001:db8::ff'.
+	 * Guards:   the ends were validated as IPv4 only, so neither end of an
+	 *           IPv6 range was recognised as one.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/d530ce5f5 Introduced by "Implements SMF\IP"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9506
+	 */
 	public function testIp2RangeReadsAFullyWrittenIPv6Range(): void
 	{
-		// Same range as above with nothing elided, so the shortening on the way
-		// back out is the only difference between the two.
 		$range = IP::ip2range('2001:db8:0:0:0:0:0:1-2001:db8:0:0:0:0:0:ff');
 
 		$this->assertSame('2001:db8::1', (string) $range['low']);
 		$this->assertSame('2001:db8::ff', (string) $range['high']);
 	}
 
+	/**
+	 * ip2range() still reads a range whose ends are IPv4 addresses.
+	 *
+	 * Expected: IP::ip2range('1.2.3.4-1.2.3.9') has the low end '1.2.3.4' and
+	 *           the high end '1.2.3.9'.
+	 */
 	public function testIp2RangeStillReadsARangeOfIPv4Addresses(): void
 	{
 		$range = IP::ip2range('1.2.3.4-1.2.3.9');
@@ -91,12 +169,24 @@ class IPTest extends TestCase
 		$this->assertSame('1.2.3.9', (string) $range['high']);
 	}
 
+	/**
+	 * isValid() accepts well-formed addresses and rejects everything else.
+	 *
+	 * Expected: each case in validityProvider() has isValid() return the
+	 *           stated boolean.
+	 */
 	#[DataProvider('validityProvider')]
 	public function testValidity(string $input, bool $expected): void
 	{
 		$this->assertSame($expected, (new IP($input))->isValid());
 	}
 
+	/**
+	 * ip2range() fills a wildcard with the lowest and the highest value.
+	 *
+	 * Expected: each case in ip2RangeWildcardProvider() gives the stated low
+	 *           and high ends.
+	 */
 	#[DataProvider('ip2RangeWildcardProvider')]
 	public function testIp2RangeFillsWildcardsWithTheLowestAndHighestValue(
 		string $input,
@@ -109,6 +199,12 @@ class IPTest extends TestCase
 		$this->assertSame($high, (string) $range['high']);
 	}
 
+	/**
+	 * matchToCIDR() says whether an address lies inside a network.
+	 *
+	 * Expected: each case in cidrProvider() has matchToCIDR() return the
+	 *           stated boolean.
+	 */
 	#[DataProvider('cidrProvider')]
 	public function testMatchToCIDR(string $ip, string $cidr, bool $expected): void
 	{

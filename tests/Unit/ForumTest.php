@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Unit;
@@ -26,6 +37,13 @@ class ForumTest extends TestCase
 	 * Public methods
 	 ****************/
 
+	/**
+	 * Executing the forum registers services before the action is preflighted.
+	 *
+	 * Expected: execute() on an action that depends on services, with an
+	 *           integrate_services hook registered, runs the action with its
+	 *           UserRepository and DatabaseConnection injected.
+	 */
 	public function testExecuteRegistersServicesBeforePreflight(): void
 	{
 		$action_called = false;
@@ -58,7 +76,9 @@ class ForumTest extends TestCase
 	}
 
 	/**
-	 * Tests that an unknown action returns null.
+	 * An unknown action resolves to no current action.
+	 *
+	 * Expected: getCurrentAction() returns null for an unregistered action.
 	 */
 	public function testUnknownAction(): void
 	{
@@ -72,7 +92,10 @@ class ForumTest extends TestCase
 	}
 
 	/**
-	 * Tests that an unknown action is handled by the configured fallback action.
+	 * An unknown action is handled by the configured fallback action.
+	 *
+	 * Expected: with integrate_fallback_action set, getCurrentAction() returns an
+	 *           instance of that action for an unregistered action.
 	 */
 	public function testFallbackAction(): void
 	{
@@ -89,7 +112,10 @@ class ForumTest extends TestCase
 	}
 
 	/**
-	 * Tests the implied action selected from the request parameters.
+	 * The request parameters select the implied action.
+	 *
+	 * Expected: each case in provideImpliedActions() makes getCurrentAction() return
+	 *           an instance of the expected action.
 	 */
 	#[DataProvider('provideImpliedActions')]
 	public function testImpliedAction(array $get, string $expected): void
@@ -106,8 +132,10 @@ class ForumTest extends TestCase
 	}
 
 	/**
-	 * Tests that the configured default action takes precedence when no action,
-	 * topic, or board is specified.
+	 * The configured default action wins when nothing else is requested.
+	 *
+	 * Expected: with integrate_default_action set and no action, topic or board,
+	 *           getCurrentAction() returns an instance of the configured action.
 	 */
 	public function testDefaultAction(): void
 	{
