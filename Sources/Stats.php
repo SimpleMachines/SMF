@@ -472,9 +472,6 @@ function DisplayStats()
 	while ($row_members = $smcFunc['db_fetch_assoc']($members_result))
 	{
 		$i = array_search($row_members['id_member'], array_keys($members));
-		// skip all not top 10
-		if ($i > 10)
-			continue;
 
 		$context['stats_blocks']['starters'][$i] = array(
 			'name' => $row_members['real_name'],
@@ -487,8 +484,12 @@ function DisplayStats()
 		if ($max_num < $members[$row_members['id_member']])
 			$max_num = $members[$row_members['id_member']];
 	}
-	ksort($context['stats_blocks']['starters']);
 	$smcFunc['db_free_result']($members_result);
+
+	// Starters with no member to list, such as guests and deleted members,
+	// were counted but not found, so the top ten are the first ten found.
+	ksort($context['stats_blocks']['starters']);
+	$context['stats_blocks']['starters'] = array_slice($context['stats_blocks']['starters'], 0, 10);
 
 	foreach ($context['stats_blocks']['starters'] as $i => $topic)
 	{
