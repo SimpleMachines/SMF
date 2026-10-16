@@ -1,0 +1,516 @@
+<?php
+
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 4
+ */
+
+declare(strict_types=1);
+
+namespace SMF\Maintenance;
+
+use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
+
+/**
+ * Puts a database back the way an upgrade found it.
+ *
+ * Everything this needs was written down while the upgrade was running: what
+ * each table looked like, the functions its indexes call, the rows themselves
+ * in the backup_ tables, and what the settings in Settings.php held. This puts
+ * them back in the order they depend on each other.
+ *
+ * What it does not do is anything outside the database. Files an upgrade
+ * changed are not its business, and a forum that has been put back still has
+ * the newer code on disk.
+ */
+class MigrationRollback
+{
+	/*******************
+	 * Public properties
+	 *******************/
+
+	/**
+	 * @var array
+	 *
+	 * What was done, a line at a time, for whoever asked for this.
+	 */
+	public array $log = [];
+
+	/**
+	 * @var string
+	 *
+	 * Why it stopped, if it did.
+	 */
+	public string $error = '';
+
+	/**
+	 * @var array
+	 *
+	 * Statements the database refused, shortened. A rollback that reports
+	 * itself done while these are not empty did not put everything back.
+	 */
+	public array $failures = [];
+
+	/****************
+	 * Public methods
+	 ****************/
+
+	/**
+	 * Puts the database back to the state a run found it in.
+	 *
+	 * @param string $run The run to undo.
+	 * @return bool Whether it was undone.
+	 */
+	public function rollback(string $run): bool
+	{
+		$definitions = MigrationData::all($run, MigrationData::TYPE_DEFINITION);
+
+		if ($definitions === []) {
+			$this->error = 'that run recorded nothing to put back';
+
+			return false;
+		}
+
+		$backed_up = MigrationData::all($run, MigrationData::TYPE_BACKUP);
+
+		// The rows are what makes this worth doing. Without them the tables
+		// would come back empty, which is worse than leaving things alone.
+		$missing = array_diff(array_keys($definitions), array_keys($backed_up));
+
+		if ($missing !== []) {
+			$this->error = 'no backup was taken of ' . implode(', ', \array_slice($missing, 0, 5));
+
+			return false;
+		}
+
+		// The recorded SQL is the database's own account of itself, and the
+		// checks that keep a query from being assembled out of user input have
+		// nothing to look at here: they refuse the quoting a CREATE TABLE is
+		// full of, and the semicolons inside a function body. The installer and
+		// the migrations turn them off around their own DDL for the same
+		// reason.
+		$checking = Db::$db->disableQueryCheck;
+		Db::$db->disableQueryCheck = true;
+
+		// A prefix that names the database, as `smf`.smf_ does, means nothing
+		// ever selected one: every query says which database it means. The
+		// recorded SQL does not, since the upgrader wrote it while the prefix
+		// was a plain one, so the database has to be chosen before any of it
+		// will run at all.
+		$database = $this->database();
+
+		if ($database !== '') {
+			Db::$db->select($database);
+		}
+
+		foreach ($this->routines($run) as $name => $sql) {
+			$this->execute($sql);
+			$this->log[] = 'function ' . $name;
+		}
+
+		foreach ($definitions as $table => $sql) {
+			$this->execute($sql);
+			$this->refill($table);
+			$this->log[] = 'table ' . $table;
+		}
+
+		foreach ($this->added($definitions) as $table) {
+			Db::$db->drop_table($table);
+			$this->log[] = 'dropped ' . $table;
+		}
+
+		// After the tables, since a table the upgrade added can have an index
+		// built over a function it added alongside it.
+		foreach ($this->addedRoutines($run) as $name => $sql) {
+			$this->execute($sql);
+			$this->log[] = 'dropped function ' . $name;
+		}
+
+		Db::$db->disableQueryCheck = $checking;
+
+		$this->restoreSettings($run);
+
+		MigrationData::recordRollback($run);
+
+		return true;
+	}
+
+	/**
+	 * The runs that could be undone, newest first.
+	 *
+	 * @return array Rows from the migration_runs table.
+	 */
+	public function candidates(): array
+	{
+		if (!MigrationData::exists()) {
+			return [];
+		}
+
+		$runs = [];
+
+		$request = Db::$db->query(
+			'SELECT id_run, version_from, version_to, time_started, time_finished
+			FROM {db_prefix}migration_runs
+			WHERE time_rolled_back = {int:never}
+			ORDER BY time_started DESC',
+			[
+				'never' => 0,
+			],
+		);
+
+		while ($row = Db::$db->fetch_assoc($request)) {
+			$runs[] = $row;
+		}
+
+		Db::$db->free_result($request);
+
+		return $runs;
+	}
+
+	/**
+	 * The run worth offering to undo, if there is one.
+	 *
+	 * An upgrade that finished is not offered: putting a working forum back is
+	 * something an admin should have to go looking for, not something the
+	 * upgrader suggests. One that stopped part way is the other case entirely,
+	 * and the admin standing in front of it has two ways out -- carry on, or
+	 * put things back as they were.
+	 *
+	 * Only a run that took a backup can be offered, since nothing else has the
+	 * rows to put back.
+	 *
+	 * @return array|null The run, or null if there is nothing to offer.
+	 */
+	public function unfinished(): ?array
+	{
+		foreach ($this->candidates() as $run) {
+			if (
+				(int) $run['time_finished'] !== 0
+				|| MigrationData::all($run['id_run'], MigrationData::TYPE_BACKUP) === []
+			) {
+				continue;
+			}
+
+			return $run;
+		}
+
+		return null;
+	}
+
+	/******************
+	 * Internal methods
+	 ******************/
+
+	/**
+	 * The functions a run recorded.
+	 *
+	 * @param string $run The run.
+	 * @return array The SQL that creates each, keyed by its signature.
+	 */
+	private function routines(string $run): array
+	{
+		// A routine recorded by name alone is one the run found but could not
+		// write down. Its name still counts as having been there, which is
+		// what keeps it off the list of things the upgrade added, but there is
+		// no SQL to put back.
+		return array_filter(MigrationData::all($run, MigrationData::TYPE_ROUTINE));
+	}
+
+	/**
+	 * The routines the upgrade added, newest kind first.
+	 *
+	 * An aggregate is dropped before the plain functions are, since it is
+	 * built out of one of them and PostgreSQL will not let the parts go while
+	 * something is made of them.
+	 *
+	 * @param string $run The run.
+	 * @return array The DROP statements, keyed by signature.
+	 */
+	private function addedRoutines(string $run): array
+	{
+		if (Db::$db->title !== POSTGRE_TITLE) {
+			return [];
+		}
+
+		$recorded = MigrationData::all($run, MigrationData::TYPE_ROUTINE);
+
+		if ($recorded === []) {
+			return [];
+		}
+
+		$drops = [];
+
+		$request = Db::$db->query(
+			'SELECT p.oid::regprocedure AS signature, p.prokind
+			FROM pg_proc AS p
+				INNER JOIN pg_namespace AS n ON (n.oid = p.pronamespace)
+			WHERE n.nspname = {string:schema}
+			ORDER BY p.prokind = {string:plain}, signature',
+			[
+				'schema' => 'public',
+				'plain' => 'f',
+			],
+		);
+
+		while ($row = Db::$db->fetch_assoc($request)) {
+			if (isset($recorded[$row['signature']])) {
+				continue;
+			}
+
+			$drops[$row['signature']] = 'DROP ' . ($row['prokind'] === 'a' ? 'AGGREGATE' : 'FUNCTION') . ' ' . $row['signature'];
+		}
+
+		Db::$db->free_result($request);
+
+		return $drops;
+	}
+
+	/**
+	 * The database the prefix names, if it names one.
+	 *
+	 * @return string The database's name, or an empty string if the prefix is
+	 *    a plain one and a database has already been chosen.
+	 */
+	private function database(): string
+	{
+		return preg_match('~^`(.+?)`\.~', Db::$db->prefix, $match) !== 0 ? $match[1] : '';
+	}
+
+	/**
+	 * Tables that are here now and were not when the run started.
+	 *
+	 * The upgrader's own tables are not among them however this is counted:
+	 * they are where the answer is being read from, and a rollback that took
+	 * them with it could not record that it had happened.
+	 *
+	 * @param array $definitions What the run recorded, keyed by table name.
+	 * @return array Names of the tables to drop, with the prefix on them.
+	 */
+	private function added(array $definitions): array
+	{
+		$added = [];
+
+		foreach (Db::$db->list_tables() as $table) {
+			if (
+				isset($definitions[$table])
+				|| str_starts_with($table, 'backup_')
+				|| str_starts_with($table, MigrationData::prefix() . 'migration_')
+				|| !str_starts_with($table, MigrationData::prefix())
+			) {
+				continue;
+			}
+
+			$added[] = $table;
+		}
+
+		return $added;
+	}
+
+	/**
+	 * Puts a table's rows back from its backup.
+	 *
+	 * @param string $table Name of the table, with the prefix on it.
+	 */
+	private function refill(string $table): void
+	{
+		if (Db::$db->list_tables(false, 'backup_' . $table) === []) {
+			return;
+		}
+
+		Db::$db->query(
+			'INSERT INTO {raw:table}
+			SELECT * FROM {raw:backup}',
+			[
+				'table' => $table,
+				'backup' => 'backup_' . $table,
+				'db_error_skip' => true,
+			],
+		);
+	}
+
+	/**
+	 * Puts the settings in Settings.php back.
+	 *
+	 * A setting the run found missing is taken out again rather than written
+	 * as an empty one, which is what the note beside it is for.
+	 *
+	 * @param string $run The run.
+	 */
+	private function restoreSettings(string $run): void
+	{
+		$settings = MigrationData::all($run, MigrationData::TYPE_SETTING);
+
+		if ($settings === []) {
+			return;
+		}
+
+		$put_back = [];
+		$remove = [];
+
+		foreach ($settings as $name => $noted) {
+			$noted = json_decode($noted, true);
+
+			if (!\is_array($noted)) {
+				continue;
+			}
+
+			if (empty($noted['set'])) {
+				$remove[] = $name;
+			} else {
+				$put_back[$name] = $noted['value'];
+			}
+		}
+
+		if ($put_back !== []) {
+			Config::updateSettingsFile($put_back);
+			$this->log[] = 'settings ' . implode(', ', array_keys($put_back));
+		}
+
+		if ($remove !== []) {
+			Config::updateSettingsFile(array_fill_keys($remove, null), rebuild: true);
+			$this->log[] = 'removed ' . implode(', ', $remove);
+		}
+	}
+
+	/**
+	 * Runs SQL that may be more than one statement.
+	 *
+	 * A recorded definition is a small script rather than a single statement,
+	 * and the database layer takes one at a time, so it is split here.
+	 *
+	 * @param string $sql The SQL to run.
+	 */
+	private function execute(string $sql): void
+	{
+		foreach ($this->statements($sql) as $statement) {
+			// These are whole statements rather than something built around
+			// values, so the checks that keep a query from being assembled out
+			// of user input have nothing to look at here and reject the
+			// quoting a CREATE TABLE is full of.
+			$result = Db::$db->query(
+				$statement,
+				[
+					'security_override' => true,
+					'db_error_skip' => true,
+				],
+			);
+
+			// The errors are skipped so that one statement failing does not
+			// end the whole thing, which would leave a forum half put back.
+			// Skipped is not the same as unnoticed, though: what did not run
+			// is the difference between a rollback and the appearance of one.
+			if ($result === false && !$this->positionSequence($statement)) {
+				$this->failures[] = preg_replace('~\s+~', ' ', substr($statement, 0, 120));
+			}
+		}
+	}
+
+	/**
+	 * Puts a sequence where a CREATE SEQUENCE would have started it.
+	 *
+	 * Dropping a table does not drop the sequence feeding it, so a sequence
+	 * being put back is nearly always already there and asking for it again is
+	 * refused. What the statement was for is the number it would have started
+	 * at, and that can still be had.
+	 *
+	 * @param string $statement The statement that was refused.
+	 * @return bool Whether this was a CREATE SEQUENCE that has now been dealt
+	 *    with another way.
+	 */
+	private function positionSequence(string $statement): bool
+	{
+		if (preg_match('~^CREATE SEQUENCE ([^\s]+) START WITH (\d+)~i', trim($statement), $match) !== 1) {
+			return false;
+		}
+
+		// The third argument says the value has not been handed out yet, so
+		// the next id is the one the statement asked to start at.
+		$result = Db::$db->query(
+			'SELECT setval({string:sequence}, {int:start}, false)',
+			[
+				'sequence' => $match[1],
+				'start' => (int) $match[2],
+				'db_error_skip' => true,
+			],
+		);
+
+		return $result !== false;
+	}
+
+	/**
+	 * Splits SQL into the statements it is made of.
+	 *
+	 * Quoting has to be respected while splitting: a function body is one
+	 * string, and the semicolons inside it end nothing.
+	 *
+	 * @param string $sql The SQL.
+	 * @return array The statements, without the semicolons between them.
+	 */
+	private function statements(string $sql): array
+	{
+		$statements = [];
+		$current = '';
+		$quote = '';
+		$length = \strlen($sql);
+
+		for ($i = 0; $i < $length; $i++) {
+			$char = $sql[$i];
+
+			if ($quote !== '') {
+				// Inside a dollar quoted string, only its own tag ends it.
+				if ($quote[0] === '$') {
+					if (substr($sql, $i, \strlen($quote)) === $quote) {
+						$current .= $quote;
+						$i += \strlen($quote) - 1;
+						$quote = '';
+
+						continue;
+					}
+				} elseif ($char === '\\' && $i + 1 < $length) {
+					$current .= $char . $sql[++$i];
+
+					continue;
+				} elseif ($char === $quote) {
+					$quote = '';
+				}
+
+				$current .= $char;
+
+				continue;
+			}
+
+			if ($char === "'" || $char === '"' || $char === '`') {
+				$quote = $char;
+			} elseif ($char === '$' && preg_match('~^\$[A-Za-z_]*\$~', substr($sql, $i), $matches) === 1) {
+				$quote = $matches[0];
+				$current .= $quote;
+				$i += \strlen($quote) - 1;
+
+				continue;
+			} elseif ($char === ';') {
+				if (trim($current) !== '') {
+					$statements[] = trim($current);
+				}
+
+				$current = '';
+
+				continue;
+			}
+
+			$current .= $char;
+		}
+
+		if (trim($current) !== '') {
+			$statements[] = trim($current);
+		}
+
+		return $statements;
+	}
+}
