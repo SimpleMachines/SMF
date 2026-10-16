@@ -192,9 +192,22 @@ final class SectionComments extends AbstractFixer
 		);
 	}
 
+	/**
+	 * Returns the priority of the fixer.
+	 *
+	 * The default priority is 0 and higher priorities are executed first.
+	 *
+	 * Must run before IndentationTypeFixer, NoExtraBlankLinesFixer.
+	 * Must run after ClassAttributesSeparationFixer, OrderedClassElementsFixer.
+	 *
+	 * - IndentationTypeFixer::getPriority() => 50
+	 * - NoExtraBlankLinesFixer::getPriority() => -20
+	 * - ClassAttributesSeparationFixer::getPriority() => 55
+	 * - OrderedClassElementsFixer::getPriority() => 65
+	 */
 	public function getPriority(): int
 	{
-		return -110;
+		return 54;
 	}
 
 	public function isCandidate(Tokens $tokens): bool
