@@ -109,8 +109,10 @@ class Activate implements ActionInterface, Routable
 			return;
 		}
 
+		// We know who, but not the code. This is the link the activation
+		// emails give for typing the code in by hand.
 		if (empty($this->subaction)) {
-			$this->showResendRequest();
+			$this->showRetryInvalidCode();
 
 			return;
 		}
@@ -379,14 +381,15 @@ class Activate implements ActionInterface, Routable
 	 */
 	protected function showRetryInvalidCode(): void
 	{
-		if ($this->member->is_activated !== User::NOT_ACTIVATED) {
+		// Members revalidating a changed email address are UNVALIDATED.
+		if (!\in_array($this->member->is_activated, [User::NOT_ACTIVATED, User::UNVALIDATED], true)) {
 			ErrorHandler::fatalLang('already_activated', false);
 		} elseif ($this->member->validation_code == '') {
 			ErrorHandler::fatal(Lang::getTxt('registration_not_approved', ['url' => Config::$scripturl . '?action=activate;user=' . $this->member->username], file: 'Profile'), false);
 		}
 
 		Utils::$context['sub_template'] = 'retry_activate';
-		Utils::$context['page_title'] = Lang::getTxt('invalid_activation_code', file: 'Login');
+		Utils::$context['page_title'] = Lang::getTxt(empty($_REQUEST['code']) ? 'activate_account' : 'invalid_activation_code', file: 'Login');
 		Utils::$context['member_id'] = $this->member->id;
 	}
 }
