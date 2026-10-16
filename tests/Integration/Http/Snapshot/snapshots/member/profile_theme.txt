@@ -1,0 +1,345 @@
+status 200
+@ title
+title
+  "Profile - Look and Layout"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=profile" itemprop="item"]
+        span [itemprop="name"]
+          "Profile of Snapshot Member"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=profile;area=theme" itemprop="item"]
+        span [itemprop="name"]
+          "Look and Layout"
+      meta [content="#" itemprop="position"]
+@ #content_section
+div#content_section
+  main#main_content_section
+    nav#genericmenu [aria-label=" Menu"]
+      a.mobile_generic_menu_1
+        span.menu_icon
+        span.text_menu
+          "Menu"
+      div#mobile_generic_menu_#.popup_container
+        div.description.popup_window
+          div.popup_heading
+            "Menu"
+            a.hide_popup.main_icons [href="javascript:void(#);"]
+          div.generic_menu
+            ul.dropdown_menu_1.dropmenu
+              li.subsections
+                a [href="{boardurl}/index.php?action=profile;area=summary;u=#"]
+                  "{member}"
+                ul
+                  li
+                    a.administration.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=summary;u=#"]
+                      span.administration.main_icons
+                      "{member}"
+                  li
+                    a.profile_menu_icon.stats [href="{boardurl}/index.php?action=profile;area=statistics;u=#"]
+                      span.main_icons.stats
+                      "Show Stats"
+                  li.subsections
+                    a.posts.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=showposts;u=#"]
+                      span.main_icons.posts
+                      "Show Posts"
+                    ul
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=showposts;sa=messages;u=#"]
+                          "Messages"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=showposts;sa=topics;u=#"]
+                          "Topics"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=showposts;sa=unwatchedtopics;u=#"]
+                          "Unwatched topics"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=showposts;sa=attach;u=#"]
+                          "Attachments"
+                  li
+                    a.drafts.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=showdrafts;u=#"]
+                      span.drafts.main_icons
+                      "Show Drafts"
+                  li
+                    a.alerts.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=showalerts;u=#"]
+                      span.alerts.main_icons
+                      "Show Alerts"
+                  li.subsections
+                    a.logs.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=tracking;u=#"]
+                      span.logs.main_icons
+                      "Track User"
+                    ul
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=tracking;sa=logins;u=#"]
+                          "Logins"
+              li.subsections
+                a.active [href="{boardurl}/index.php?action=profile;area=account;u=#"]
+                  "Forum Profile"
+                ul
+                  li
+                    a.maintain.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=account;u=#"]
+                      span.main_icons.maintain
+                      "Account Settings"
+                  li
+                    a.members.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=forumprofile;u=#"]
+                      span.main_icons.members
+                      "Forum Profile"
+                  li
+                    a.chosen.features.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=theme;u=#"]
+                      span.features.main_icons
+                      "Look and Layout"
+                  li.subsections
+                    a.alerts.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=notification;u=#"]
+                      span.alerts.main_icons
+                      "Notifications"
+                    ul
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=notification;sa=alerts;u=#"]
+                          "Notification Preferences"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=notification;sa=topics;u=#"]
+                          "Watched Topics"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=notification;sa=boards;u=#"]
+                          "Watched Boards"
+                  li.subsections
+                    a.frenemy.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=lists;u=#"]
+                      span.frenemy.main_icons
+                      "Buddies/Ignore List"
+                    ul
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=lists;sa=buddies;u=#"]
+                          "Edit Buddies"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=lists;sa=ignore;u=#"]
+                          "Edit Ignore List"
+              li.subsections
+                a [href="{boardurl}/index.php?action=profile;area=deleteaccount;u=#"]
+                  "Actions"
+                ul
+                  li
+                    a.members_delete.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=deleteaccount;u=#"]
+                      span.main_icons.members_delete
+                      "Delete this account"
+    script
+      | $( ".mobile_generic_menu_#" ).click(function() { $( "#mobile_generic_menu_#" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#" ).hide(); });
+    div#admin_content
+      div#profile_error.errorbox [style="display:none"]
+      form#creator [accept-charset="UTF-#" action="{boardurl}/index.php?action=profile;area=theme;u=#" enctype="multipart/form-data" method="post" name="creator"]
+        div.cat_bar
+          h3.catbg.profile_hd
+            "Profile"
+        p.information
+          "This section allows you to customize the look and layout of the forum."
+        div.roundframe
+          dl.settings
+            dt
+              strong
+                "Current Theme"
+            dd
+              "Forum or Board Default"
+              a.button [href="{boardurl}/index.php?action=themechooser;u=#"]
+                "change"
+          hr
+          dl.settings
+            dt
+              strong
+                label [for="easyformat"]
+                  "Time Format"
+              br
+              a.help [href="{boardurl}/index.php?action=helpadmin;help=time_format" onclick="return reqOverlayDiv(this.href);"]
+                span.help.main_icons [title="Help"]
+              span.smalltext
+                label [for="time_format"]
+                  "The format here will be used to show dates throughout this forum."
+            dd
+              select#easyformat [name="easyformat" onchange="document.forms.creator.time_format.value = this.options[this.selectedIndex].value;"]
+                option [selected value]
+                  "(Forum Default)"
+                option [value="%B %d, %Y, %I:%M:%S %p"]
+                  "Month Day, Year, HH:MM:SS am/pm"
+                option [value="%B %d, %Y, %H:%M:%S"]
+                  "Month Day, Year, HH:MM:SS ({duration})"
+                option [value="%Y-%m-%d, %H:%M:%S"]
+                  "YYYY-MM-DD, HH:MM:SS"
+                option [value="%d %B %Y, %H:%M:%S"]
+                  "DD Month YYYY, HH:MM:SS"
+                option [value="%d-%m-%Y, %H:%M:%S"]
+                  "DD-MM-YYYY, HH:MM:SS"
+                option [disabled value="other"]
+                  "Other"
+              input#time_format [name="time_format" onchange="document.forms.creator.easyformat.value = 'other'" size="#" type="text" value]
+            dt
+              strong
+                label [for="timezone"]
+                  "Time zone"
+            dd
+              snapshot-ignored [selector="#timezone"]
+          hr
+          dl.settings
+            dt
+              strong
+                "Theme Color Mode"
+            dd
+            dt
+              label [for="theme_colormode"]
+                "Select Color Mode"
+            dd
+              select#theme_colormode [name="default_options[theme_colormode]"]
+                option [value="light"]
+                  "Light"
+                option [value="system"]
+                  "System Default"
+                option [value="dark"]
+                  "Dark"
+          hr
+          dl.settings
+            dt
+              strong
+                "Board and Topic display"
+            dd
+            dt
+              label [for="show_children"]
+                "Show sub-boards on every page inside boards, not just the first"
+            dd
+              input [name="default_options[show_children]" type="hidden" value="#"]
+              input#show_children [name="default_options[show_children]" type="checkbox" value="#"]
+            dt
+              label [for="topics_per_page"]
+                "Topics to display per page"
+            dd
+              select#topics_per_page [name="default_options[topics_per_page]"]
+                option [selected value="#"]
+                  "forum default"
+                option [value="#"]
+                  "#"
+            dt
+              label [for="messages_per_page"]
+                "Messages to display per page"
+            dd
+              select#messages_per_page [name="default_options[messages_per_page]"]
+                option [selected value="#"]
+                  "forum default"
+                option [value="#"]
+                  "#"
+            dt
+              label [for="view_newest_first"]
+                "Show most recent posts at the top in topic view"
+            dd
+              input [name="default_options[view_newest_first]" type="hidden" value="#"]
+              input#view_newest_first [name="default_options[view_newest_first]" type="checkbox" value="#"]
+            dt
+              label [for="show_no_avatars"]
+                "Don’t show users’ avatars"
+            dd
+              input [name="default_options[show_no_avatars]" type="hidden" value="#"]
+              input#show_no_avatars [name="default_options[show_no_avatars]" type="checkbox" value="#"]
+            dt
+              label [for="show_no_signatures"]
+                "Don’t show users’ signatures"
+            dd
+              input [name="default_options[show_no_signatures]" type="hidden" value="#"]
+              input#show_no_signatures [name="default_options[show_no_signatures]" type="checkbox" value="#"]
+            dt
+              label [for="posts_apply_ignore_list"]
+                "Hide messages posted by members on my ignore list"
+            dd
+              input [name="default_options[posts_apply_ignore_list]" type="hidden" value="#"]
+              input#posts_apply_ignore_list [name="default_options[posts_apply_ignore_list]" type="checkbox" value="#"]
+          hr
+          dl.settings
+            dt
+              strong
+                "Posting"
+            dd
+            dt
+              label [for="return_to_post"]
+                "Return to topics after posting by default"
+            dd
+              input [name="default_options[return_to_post]" type="hidden" value="#"]
+              input#return_to_post [name="default_options[return_to_post]" type="checkbox" value="#"]
+            dt
+              label [for="no_new_reply_warning"]
+                "Don’t warn on new replies made while posting."
+            dd
+              input [name="default_options[no_new_reply_warning]" type="hidden" value="#"]
+              input#no_new_reply_warning [name="default_options[no_new_reply_warning]" type="checkbox" value="#"]
+            dt
+              label [for="wysiwyg_default"]
+                "Load editor in"
+                abbr [title="What You See Is What You Get"]
+                  "WYSIWYG"
+                "mode by default"
+            dd
+              input [name="default_options[wysiwyg_default]" type="hidden" value="#"]
+              input#wysiwyg_default [name="default_options[wysiwyg_default]" type="checkbox" value="#"]
+            dt
+              label [for="drafts_autosave_enabled"]
+                "Enable automatic saving of drafts"
+            dd
+              input [name="default_options[drafts_autosave_enabled]" type="hidden" value="#"]
+              input#drafts_autosave_enabled [name="default_options[drafts_autosave_enabled]" type="checkbox" value="#"]
+            dt
+              label [for="drafts_show_saved_enabled"]
+                "Enable the selection of drafts from the posting screen"
+            dd
+              input [name="default_options[drafts_show_saved_enabled]" type="hidden" value="#"]
+              input#drafts_show_saved_enabled [name="default_options[drafts_show_saved_enabled]" type="checkbox" value="#"]
+          hr
+          dl.settings
+            dt
+              strong
+                "Moderation"
+            dd
+            dt
+              label [for="display_quick_mod"]
+                "Show quick-moderation as"
+            dd
+              select#display_quick_mod [name="default_options[display_quick_mod]"]
+                option [selected value="#"]
+                  "don’t show"
+                option [value="#"]
+                  "checkboxes"
+                option [value="#"]
+                  "icons"
+          hr
+          dl.settings
+            dt
+              strong
+                "Personal Messages"
+            dd
+            dt
+              label [for="popup_messages"]
+                "Show a popup when I receive new messages."
+            dd
+              input [name="default_options[popup_messages]" type="hidden" value="#"]
+              input#popup_messages [name="default_options[popup_messages]" type="checkbox" value="#"]
+            dt
+              label [for="view_newest_pm_first"]
+                "Show most recent personal messages at top"
+            dd
+              input [name="default_options[view_newest_pm_first]" type="hidden" value="#"]
+              input#view_newest_pm_first [name="default_options[view_newest_pm_first]" type="checkbox" value="#"]
+            dt
+              label [for="pm_remove_inbox_label"]
+                "Remove the inbox label when applying another label"
+            dd
+              input [name="default_options[pm_remove_inbox_label]" type="hidden" value="#"]
+              input#pm_remove_inbox_label [name="default_options[pm_remove_inbox_label]" type="checkbox" value="#"]
+          input.button.floatright [name="save" type="submit" value="Change profile"]
+          input [name="{token_var}" type="hidden" value="{hash}"]
+          input [name="{session_var}" type="hidden" value="{session_id}"]
+          input [name="u" type="hidden" value="#"]
+          input [name="sa" type="hidden" value="theme"]
