@@ -3912,3 +3912,18 @@ foreach($files AS $filename)
 ALTER TABLE {$db_prefix}log_search_results DROP PRIMARY KEY;
 ALTER TABLE {$db_prefix}log_search_results ADD PRIMARY KEY (id_search, id_topic, id_msg);
 ---#
+
+/******************************************************************************/
+--- Widening the report comment column
+/******************************************************************************/
+---# Checking the report comment column
+---{
+$column_info = upgradeGetColumnInfo('{db_prefix}log_reported_comments', 'comment');
+if (stripos($column_info['type'], 'text') !== false)
+	$upcontext['skip_db_substeps'] = true;
+---}
+---#
+
+---# Changing the report comment column to text
+ALTER TABLE {$db_prefix}log_reported_comments CHANGE comment comment TEXT NOT NULL;
+---#
