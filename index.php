@@ -281,7 +281,8 @@ function smf_main()
 			return 'InMaintenance';
 	}
 	// If guest access is off, a guest can only do one of the very few following actions.
-	elseif (empty($modSettings['allow_guestAccess']) && $user_info['is_guest'] && (!isset($_REQUEST['action']) || !in_array($_REQUEST['action'], array('coppa', 'login', 'login2', 'logintfa', 'reminder', 'activate', 'help', 'helpadmin', 'smstats', 'verificationcode', 'signup', 'signup2'))))
+	// An unsubscribe link is let through too, since it carries its own proof of who it is for, which is checked before anything is changed.
+	elseif (empty($modSettings['allow_guestAccess']) && $user_info['is_guest'] && (!isset($_REQUEST['action']) || !in_array($_REQUEST['action'], array('coppa', 'login', 'login2', 'logintfa', 'reminder', 'activate', 'help', 'helpadmin', 'smstats', 'verificationcode', 'signup', 'signup2'))) && !(isset($_REQUEST['action'], $_REQUEST['u'], $_REQUEST['token']) && in_array($_REQUEST['action'], array('notifyannouncements', 'notifyboard', 'notifytopic'))))
 		return 'KickGuest';
 	elseif (empty($_REQUEST['action']))
 	{
