@@ -1,0 +1,110 @@
+status 200
+@ title
+title
+  "Prune Messages"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=pm" itemprop="item"]
+        span [itemprop="name"]
+          "Personal Messages"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=pm;sa=prune" itemprop="item"]
+        span [itemprop="name"]
+          "Prune Messages"
+      meta [content="#" itemprop="position"]
+@ #content_section
+div#content_section
+  main#main_content_section
+    nav#genericmenu [aria-label=" Menu"]
+      a.mobile_generic_menu_1
+        span.menu_icon
+        span.text_menu
+          "Menu"
+      div#mobile_generic_menu_#.popup_container
+        div.description.popup_window
+          div.popup_heading
+            "Menu"
+            a.hide_popup.main_icons [href="javascript:void(#);"]
+          div.generic_menu
+            ul.dropdown_menu_1.dropmenu
+              li.subsections
+                a [href="{boardurl}/index.php?action=pm;f=inbox"]
+                  "Messages"
+                ul
+                  li
+                    a.inbox.pm_menu_icon [href="{boardurl}/index.php?action=pm;f=inbox"]
+                      span.inbox.main_icons
+                      "Inbox"
+                  li
+                    a.pm_menu_icon.send [href="{boardurl}/index.php?action=pm;sa=send"]
+                      span.main_icons.send
+                      "send"
+                  li
+                    a.pm_menu_icon.sent [href="{boardurl}/index.php?action=pm;f=sent"]
+                      span.main_icons.sent
+                      "sent"
+                  li
+                    a.drafts.pm_menu_icon [href="{boardurl}/index.php?action=pm;f=drafts"]
+                      span.drafts.main_icons
+                      "Drafts"
+              li.subsections
+                a.active [href="{boardurl}/index.php?action=pm;sa=search"]
+                  "Actions"
+                ul
+                  li
+                    a.pm_menu_icon.search [href="{boardurl}/index.php?action=pm;sa=search"]
+                      span.main_icons.search
+                      "Search"
+                  li
+                    a.chosen.pm_menu_icon.prune [href="{boardurl}/index.php?action=pm;sa=prune"]
+                      span.main_icons.prune
+                      "prune"
+              li.subsections
+                a [href="{boardurl}/index.php?action=pm;sa=manlabels"]
+                  "Preferences"
+                ul
+                  li
+                    a.manlabels.pm_menu_icon [href="{boardurl}/index.php?action=pm;sa=manlabels"]
+                      span.main_icons.manlabels
+                      "manlabels"
+                  li
+                    a.manrules.pm_menu_icon [href="{boardurl}/index.php?action=pm;sa=manrules"]
+                      span.main_icons.manrules
+                      "manrules"
+                  li
+                    a.pm_menu_icon.settings [href="{boardurl}/index.php?action=pm;sa=settings"]
+                      span.main_icons.settings
+                      "Settings"
+    script
+      | $( ".mobile_generic_menu_#" ).click(function() { $( "#mobile_generic_menu_#" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#" ).hide(); });
+    div#admin_content
+      div#personal_messages
+        div.cat_bar
+          h3.catbg
+            "Prune Messages"
+        div.windowbg
+          form [accept-charset="UTF-#" action="{boardurl}/index.php?action=pm;sa=prune" method="post" onsubmit="return confirm('Are you sure you wish to prune your personal messages? They cannot be recovered!');"]
+            p
+              "Delete all personal messages older than"
+              input [name="age" size="#" type="text" value="#"]
+              "days."
+            input.button [type="submit" value="Delete"]
+            input [name="{session_var}" type="hidden" value="{session_id}"]
+        div.windowbg
+          form [action="{boardurl}/index.php?action=pm;sa=removeall#" method="post" onsubmit="return confirm('Are you absolutely sure you wish to delete all of your personal messages? They cannot be recovered!');"]
+            p
+              "Delete all of your personal messages (this will wipe out your inbox and your outbox)."
+            input.button [type="submit" value="Delete all"]
+            input [name="{session_var}" type="hidden" value="{session_id}"]

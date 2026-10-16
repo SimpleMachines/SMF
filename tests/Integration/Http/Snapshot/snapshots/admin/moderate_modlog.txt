@@ -1,0 +1,73 @@
+status 200
+@ title
+title
+  "Moderation Log"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=moderate" itemprop="item"]
+        span [itemprop="name"]
+          "Moderation Center"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=moderate;area=modlog" itemprop="item"]
+        span [itemprop="name"]
+          "Moderation Log"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      a.help [href="{boardurl}/index.php?action=helpadmin;help=modlog" onclick="return reqOverlayDiv(this.href);"]
+        span.help.main_icons [title="Help"]
+      "Moderation Log"
+  p.information
+    "Below is a list of all the moderation actions that have been carried out by moderators of the forum."
+  form [accept-charset="UTF-#" action="{boardurl}/index.php?action=moderate;area=modlog" method="post"]
+    div.cat_bar
+      h3.catbg
+        "Moderation Log"
+    div.flow_hidden.information
+      div.additional_row
+        "Quick Search (By Member)"
+        input [name="search" size="#" type="text" value]
+        input.button [name="is_search" style="float:none" type="submit" value="Go"]
+        input.button.you_sure [data-confirm="Are you sure you want to delete the selected log entries?" name="remove" type="submit" value="Delete selected"]
+        input.button.you_sure [data-confirm="Are you sure you want to completely clear the log?" name="removeall" type="submit" value="Clear Log"]
+    table#moderation_log_list.table_grid [style="width:#%"]
+      thead
+        tr.title_bar
+          th#header_moderation_log_list_action.action.lefttext [scope="col"]
+            a [href="{boardurl}/index.php?action=moderate;area=modlog;sort=action" rel="nofollow"]
+              "Action"
+          th#header_moderation_log_list_time.lefttext.time [scope="col"]
+            a [href="{boardurl}/index.php?action=moderate;area=modlog;sort=time;desc" rel="nofollow"]
+              "Date"
+              span.main_icons.sort_up
+          th#header_moderation_log_list_moderator.lefttext.moderator [scope="col"]
+            a [href="{boardurl}/index.php?action=moderate;area=modlog;sort=moderator" rel="nofollow"]
+              "Member"
+          th#header_moderation_log_list_position.lefttext.position [scope="col"]
+            a [href="{boardurl}/index.php?action=moderate;area=modlog;sort=position" rel="nofollow"]
+              "Position"
+          th#header_moderation_log_list_ip.ip.lefttext [scope="col"]
+            a [href="{boardurl}/index.php?action=moderate;area=modlog;sort=ip" rel="nofollow"]
+              "IP"
+          th#header_moderation_log_list_delete.centercol.delete [scope="col"]
+            input [name="all" onclick="invertAll(this, this.form);" type="checkbox"]
+      snapshot-ignored [selector="table.table_grid tbody"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]
+    input [name="params" type="hidden" value]
+    input [name="{token_var}" type="hidden" value="{hash}"]
+    input [name="sort" type="hidden" value="time"]
+    input [name="{token_var}" type="hidden" value="{hash}"]
