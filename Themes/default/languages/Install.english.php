@@ -293,7 +293,6 @@ $txt['upgrade_run'] = 'You can choose to either run the upgrade again from the b
 
 $txt['upgrade_completed_table'] = 'Completed Table:';
 $txt['upgrade_current_table'] = 'Current Table:';
-$txt['upgrade_fulltext'] = 'Please note that your fulltext index was dropped to facilitate the conversion and will need to be recreated in the admin area after the upgrade is complete.';
 $txt['upgrade_conversion_proceed'] = 'Conversion Complete! Click Continue to Proceed.';
 $txt['upgrade_convert_datajson'] = 'Converting data from serialize to JSON...';
 $txt['upgrade_json_completed'] = 'Convert to JSON Complete! Click Continue to Proceed.';
