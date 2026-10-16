@@ -724,7 +724,7 @@ CREATE TABLE {$db_prefix}members (
 	secret_answer VARCHAR(64) NOT NULL DEFAULT '',
 	id_theme TINYINT UNSIGNED NOT NULL DEFAULT '0',
 	is_activated TINYINT UNSIGNED NOT NULL DEFAULT '1',
-	validation_code VARCHAR(10) NOT NULL DEFAULT '',
+	validation_code VARCHAR(32) NOT NULL DEFAULT '',
 	id_msg_last_visit INT UNSIGNED NOT NULL DEFAULT '0',
 	additional_groups VARCHAR(255) NOT NULL DEFAULT '',
 	smiley_set VARCHAR(48) NOT NULL DEFAULT '',
