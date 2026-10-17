@@ -1621,6 +1621,10 @@ class Feed implements ActionInterface, Routable
 		// If any control characters slipped in somehow, kill the evil things
 		$profile = filter_var($profile, FILTER_CALLBACK, ['options' => Utils::class . '::cleanXml']);
 
+		// Are they hidden?
+		$member_is_hidden = empty($profile['show_online']);
+		$show_last_login = allowedTo('moderate_forum') || !$member_is_hidden;
+
 		// Create a UUID for this member
 		$uuid = (string) (new Uuid(5, 'member=' . $profile['id']));
 
@@ -1733,7 +1737,7 @@ class Feed implements ActionInterface, Routable
 					],
 					[
 						'tag' => 'updated',
-						'content' => Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', (int) $profile['last_login_timestamp']),
+						'content' => $show_last_login ? Time::gmstrftime('%Y-%m-%dT%H:%M:%SZ', (int) $profile['last_login_timestamp']) : '',
 					],
 					[
 						'tag' => 'id',
@@ -1779,8 +1783,8 @@ class Feed implements ActionInterface, Routable
 				],
 				[
 					'tag' => 'last-login',
-					'attributes' => ['label' => Lang::getTxt('lastLoggedIn', file: 'Profile'), 'UTC' => Time::gmstrftime('%F %T', (int) $profile['last_login_timestamp'])],
-					'content' => Time::create('@' . $profile['last_login_timestamp'], TimeZone::create(Config::$modSettings['default_timezone']))->format(null, false),
+					'attributes' => ['label' => Lang::getTxt('lastLoggedIn', file: 'Profile'), 'UTC' => $show_last_login ? Time::gmstrftime('%F %T', (int) $profile['last_login_timestamp']) : ''],
+					'content' => $show_last_login ? Time::create('@' . $profile['last_login_timestamp'], TimeZone::create(Config::$modSettings['default_timezone']))->format(null, false) : '',
 				],
 				[
 					'tag' => 'registered',
