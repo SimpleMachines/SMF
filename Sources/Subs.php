@@ -1764,6 +1764,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 							$params['{display}'] = 'link';
 					}
 
+					foreach(['alt', 'width', 'height'] as $k) {
+						$params[$k] = $smcFunc['htmlspecialchars']($params[$k], ENT_QUOTES);
+					}
+
 					// Embedded file.
 					if ($params['{display}'] == 'embed')
 					{
@@ -2085,7 +2089,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					'height' => array('optional' => true, 'value' => ' height="$1"', 'match' => '(\d+)'),
 				),
 				'content' => '$1',
-				'validate' => function(&$tag, &$data, $disabled, $params)
+				'validate' => function(&$tag, &$data, $disabled, $params) use ($smcFunc)
 				{
 					$url = iri_to_url(strtr(trim($data), array('<br>' => '', ' ' => '%20')));
 
@@ -2094,8 +2098,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					else
 						$url = get_proxied_url($url);
 
-					$alt = !empty($params['{alt}']) ? ' alt="' . $params['{alt}']. '"' : ' alt=""';
-					$title = !empty($params['{title}']) ? ' title="' . $params['{title}']. '"' : '';
+					$alt = !empty($params['{alt}']) ? ' alt="' . $smcFunc['htmlspecialchars']($params['{alt}'], ENT_QUOTES). '"' : ' alt=""';
+					$title = !empty($params['{title}']) ? ' title="' . $smcFunc['htmlspecialchars']($params['{title}'], ENT_QUOTES). '"' : '';
 
 					$data = isset($disabled[$tag['tag']]) ? $url : '<img src="' . $url . '"' . $alt . $title . $params['{width}'] . $params['{height}'] . ' class="bbc_img' . (!empty($params['{width}']) || !empty($params['{height}']) ? ' resized' : '') . '" loading="lazy">';
 				},
@@ -3450,7 +3454,7 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 						$params['{' . $key . '}'] = $matches[$i + 1];
 
 					// Just to make sure: replace any $ or { so they can't interpolate wrongly.
-					$params['{' . $key . '}'] = $smcFunc['htmlspecialchars'](strtr($params['{' . $key . '}'], array('$' => '&#036;', '{' => '&#123;')), ENT_QUOTES);
+					$params['{' . $key . '}'] = strtr($params['{' . $key . '}'], array('$' => '&#036;', '{' => '&#123;'));
 				}
 
 				foreach ($possible['parameters'] as $p => $info)
