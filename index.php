@@ -283,7 +283,20 @@ function smf_main()
 	// If guest access is off, a guest can only do one of the very few following actions.
 	elseif (empty($modSettings['allow_guestAccess']) && $user_info['is_guest'] && (!isset($_REQUEST['action']) || !in_array($_REQUEST['action'], array('coppa', 'login', 'login2', 'logintfa', 'reminder', 'activate', 'help', 'helpadmin', 'smstats', 'verificationcode', 'signup', 'signup2'))))
 		return 'KickGuest';
-	elseif (empty($_REQUEST['action']))
+
+	$should_log = !is_filtered_request($no_stat_actions, 'action');
+	if ($should_log)
+	{
+		// Log this user as online.
+		writeLog();
+
+		// Track forum statistics and hits...?
+		if (!empty($modSettings['hitStats']))
+			trackStats(array('hits' => '+'));
+	}
+	unset($no_stat_actions);
+
+	if (empty($_REQUEST['action']))
 	{
 		// Action and board are both empty... BoardIndex! Unless someone else wants to do something different.
 		if (empty($board) && empty($topic))
@@ -324,18 +337,6 @@ function smf_main()
 			return 'Display';
 		}
 	}
-
-	$should_log = !is_filtered_request($no_stat_actions, 'action');
-	if ($should_log)
-	{
-		// Log this user as online.
-		writeLog();
-
-		// Track forum statistics and hits...?
-		if (!empty($modSettings['hitStats']))
-			trackStats(array('hits' => '+'));
-	}
-	unset($no_stat_actions);
 
 	// Here's the monstrous $_REQUEST['action'] array - $_REQUEST['action'] => array($file, $function).
 	$actionArray = array(
