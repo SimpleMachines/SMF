@@ -1964,7 +1964,7 @@ class BBCodeParser extends Parser
 					}
 
 					// Just to make sure: replace any $ or { so they can't interpolate wrongly.
-					$params['{' . $key . '}'] = Utils::htmlspecialchars(strtr($params['{' . $key . '}'], ['$' => '&#036;', '{' => '&#123;']), ENT_QUOTES);
+					$params['{' . $key . '}'] = strtr($params['{' . $key . '}'], ['$' => '&#036;', '{' => '&#123;']);
 				}
 
 				foreach ($possible->parameters as $p => $info) {
