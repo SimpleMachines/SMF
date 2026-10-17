@@ -4274,3 +4274,11 @@ foreach($files AS $filename)
 ALTER TABLE {$db_prefix}log_search_results DROP CONSTRAINT {$db_prefix}log_search_results_pkey;
 ALTER TABLE {$db_prefix}log_search_results ADD PRIMARY KEY (id_search, id_topic, id_msg);
 ---#
+
+/******************************************************************************/
+--- Extending validation code
+/******************************************************************************/
+
+---# Updating validation_code
+ALTER TABLE {$db_prefix}members ALTER COLUMN validation_code TYPE varchar(32);
+---#

@@ -3912,3 +3912,12 @@ foreach($files AS $filename)
 ALTER TABLE {$db_prefix}log_search_results DROP PRIMARY KEY;
 ALTER TABLE {$db_prefix}log_search_results ADD PRIMARY KEY (id_search, id_topic, id_msg);
 ---#
+
+/******************************************************************************/
+--- Extending validation code
+/******************************************************************************/
+
+---# Updating validation_code
+ALTER TABLE {$db_prefix}members
+CHANGE `validation_code` `validation_code` VARCHAR(32)
+---#
