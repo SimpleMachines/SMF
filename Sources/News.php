@@ -1797,6 +1797,10 @@ function getXmlProfile($xml_format)
 	// If any control characters slipped in somehow, kill the evil things
 	$profile = filter_var($profile, FILTER_CALLBACK, array('options' => 'cleanXml'));
 
+	// Are they hidden?
+	$member_is_hidden = empty($profile['show_online']);
+	$show_last_login = allowedTo('moderate_forum') || !$member_is_hidden;
+
 	// Create a GUID for this member using the tag URI scheme
 	$guid = 'tag:' . parse_iri($scripturl, PHP_URL_HOST) . ',' . gmdate('Y-m-d', $profile['registered_timestamp']) . ':member=' . $profile['id'];
 
@@ -1914,7 +1918,7 @@ function getXmlProfile($xml_format)
 				),
 				array(
 					'tag' => 'updated',
-					'content' => smf_gmstrftime('%Y-%m-%dT%H:%M:%SZ', $profile['last_login_timestamp']),
+					'content' => $show_last_login ? smf_gmstrftime('%Y-%m-%dT%H:%M:%SZ', $profile['last_login_timestamp']) : '',
 				),
 				array(
 					'tag' => 'id',
@@ -1964,8 +1968,8 @@ function getXmlProfile($xml_format)
 			),
 			array(
 				'tag' => 'last-login',
-				'attributes' => array('label' => $txt['lastLoggedIn'], 'UTC' => smf_gmstrftime('%F %T', $profile['last_login_timestamp'])),
-				'content' => timeformat($profile['last_login_timestamp'], false, 'forum'),
+				'attributes' => array('label' => $txt['lastLoggedIn'], 'UTC' => $show_last_login ? smf_gmstrftime('%F %T', $profile['last_login_timestamp']) : ''),
+				'content' => $show_last_login ? timeformat($profile['last_login_timestamp'], false, 'forum') : '',
 			),
 			array(
 				'tag' => 'registered',
