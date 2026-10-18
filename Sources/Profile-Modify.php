@@ -1306,7 +1306,7 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 				{
 					$value = (int) $value;
 				}
-				elseif (substr($row['mask'], 0, 5) == 'regex' && trim($value) != '' && preg_match(substr($row['mask'], 5), $value) === 0)
+				elseif (substr($row['mask'], 0, 5) == 'regex' && trim($value) != '' && trim(substr($row['mask'], 5)) !== '' && preg_match(substr($row['mask'], 5), $value) === 0)
 				{
 					if ($returnErrors)
 						$errors[] = 'custom_field_regex_fail';
