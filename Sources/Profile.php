@@ -2370,6 +2370,7 @@ class Profile extends User implements \ArrayAccess
 					} elseif (
 						str_starts_with($cf_def['mask'], 'regex')
 						&& trim($value) != ''
+						&& trim(substr($cf_def['mask'], 5)) !== ''
 						&& preg_match(substr($cf_def['mask'], 5), $value) === 0
 					) {
 						$mask_error = 'custom_field_regex_fail';
