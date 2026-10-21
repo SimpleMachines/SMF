@@ -32,20 +32,15 @@ class Tt extends BBCode
 	/**
 	 *
 	 */
-	public ?string $before = '<code class="bbc_tt">';
+	public ?string $type = BBCode::TYPE_UNPARSED_CONTENT;
 
 	/**
 	 *
 	 */
-	public ?string $after = '</code>';
+	public ?string $content = '<code class="bbc_tt">$1</code>';
 
 	/**
 	 *
 	 */
-	public ?string $disabled_before = '';
-
-	/**
-	 *
-	 */
-	public ?string $disabled_after = '';
+	public ?string $disabled_content = '$1';
 }

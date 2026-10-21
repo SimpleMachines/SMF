@@ -3403,7 +3403,6 @@ class MarkdownParser extends Parser
 
 				foreach (BBCodeParser::getCodes() as $code) {
 					if ($code->tag === 'code' && $code->type === $bbc_type) {
-						list($before, $after) = preg_split('/\$1/', $code->content);
 						break;
 					}
 				}
@@ -3411,6 +3410,8 @@ class MarkdownParser extends Parser
 				if (isset($this->disabled[$code->tag])) {
 					$code = $this->disableCode($code);
 				}
+
+				list($before, $after) = preg_split('/\$1/', $code->content);
 
 				$this->rendered .= strtr(
 					$before,
@@ -4179,7 +4180,9 @@ class MarkdownParser extends Parser
 					$code = $this->disableCode($code);
 				}
 
-				$this->rendered .= $code->before;
+				list($before, $after) = preg_split('/\$1/', $code->content);
+
+				$this->rendered .= $before;
 				break;
 
 			default:
@@ -4197,7 +4200,7 @@ class MarkdownParser extends Parser
 				break;
 
 			case self::OUTPUT_HTML:
-				$this->rendered .= $code->after;
+				$this->rendered .= $after;
 				break;
 
 			default:
