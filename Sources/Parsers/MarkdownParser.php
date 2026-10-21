@@ -1143,8 +1143,8 @@ class MarkdownParser extends Parser
 	{
 		$this->findOpen();
 
-		$line_info['indent'] = strspn($line_info['string'], ' ');
-		$line_info['content'] = substr($line_info['string'], $line_info['indent']);
+		$line_info['indent'] = strspn(strtr($line_info['string'], ["\u{2000}" =>  ' ']), ' ');
+		$line_info['content'] = mb_substr($line_info['string'], $line_info['indent']);
 
 		// Figure out which block types this line could open.
 		$line_info['possible_types'] = [];
