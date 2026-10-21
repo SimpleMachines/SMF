@@ -37,7 +37,7 @@ class Maintenance
 	/**
 	 * The lowest PHP version we support.
 	 */
-	public const PHP_MIN_VERSION = '8.4.1';
+	public const PHP_MIN_VERSION = '8.4.27';
 
 	/**
 	 * Tool Types.
