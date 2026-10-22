@@ -224,11 +224,17 @@ function template_print_below()
  */
 function template_print_options()
 {
-	$url_text = Config::$scripturl . '?action=printpage;topic=' . Topic::$topic_id . '.0';
+	$url_text = Config::$scripturl . '?action=printpage;topic=' . Topic::$topic_id . '.' . Utils::$context['start'];
 	$url_images = $url_text . ';images';
 
 	echo '
 		<div class="print_options">';
+
+	// Long topics are printed a page at a time.
+	if (isset(Utils::$context['page_index'])) {
+		echo '
+			<div>', Utils::$context['page_index'], '</div>';
+	}
 
 	// Which option is set, text or text&images
 	if (isset($_REQUEST['images'])) {
