@@ -1,0 +1,117 @@
+status 200
+@ title
+title
+  "Options"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=packages;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Package Manager"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=packages;sa=options;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Options"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      "Package Manager"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "Set various options for how the package manager installs modifications, including backups and FTP access"
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Package Manager Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Package Manager Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a [href="{boardurl}/index.php?action=admin;area=packages;sa=browse;{session_var}={session_id}"]
+                "Browse Packages"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=packages;sa=packageget;get;{session_var}={session_id}"]
+                "Add Packages"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=packages;sa=perms;{session_var}={session_id}"]
+                "File Permissions"
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=packages;sa=options;{session_var}={session_id}"]
+                "Options"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  div.cat_bar
+    h3.catbg
+      "Installation Options"
+  div.information.noup
+    "Using the package manager’s FTP functionality is the easiest way to avoid having to manually chmod the files writable through FTP yourself for the package manager to work."
+    br
+    "Here you can set the default values for some fields."
+  div.noup.windowbg
+    form [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=packages;sa=options" method="post"]
+      dl.settings
+        dt
+          label [for="pack_server"]
+            strong
+              "FTP Server"
+        dd
+          input#pack_server [name="pack_server" size="#" type="text" value="localhost"]
+        dt
+          label [for="pack_port"]
+            strong
+              "Port"
+        dd
+          input#pack_port [name="pack_port" size="#" type="text" value="#"]
+        dt
+          label [for="pack_user"]
+            strong
+              "Username"
+        dd
+          input#pack_user [name="pack_user" size="#" type="text" value]
+        dt
+          label [for="package_make_backups"]
+            "Create Backup versions of replaced files with a tilde (~) on the end of their names."
+        dd
+          input#package_make_backups [checked name="package_make_backups" type="checkbox" value="#"]
+        dt
+          label [for="package_make_full_backups"]
+            "Create a backup of key SMF files whenever a package is installed or uninstalled."
+        dd
+          input#package_make_full_backups [name="package_make_full_backups" type="checkbox" value="#"]
+      input.button [name="save" type="submit" value="Save"]
+      input [name="{session_var}" type="hidden" value="{session_id}"]
