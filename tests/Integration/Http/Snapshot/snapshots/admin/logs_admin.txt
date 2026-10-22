@@ -1,0 +1,121 @@
+status 200
+@ title
+title
+  "Administration Log"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=logs;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Logs"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=logs;sa=adminlog;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Log"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      "Logs"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "Lists administrative tasks that have been performed by admins of your forum."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Logs Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Logs Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a [href="{boardurl}/index.php?action=admin;area=logs;sa=errorlog;desc;{session_var}={session_id}"]
+                "Error Log"
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=logs;sa=adminlog;{session_var}={session_id}"]
+                "Administration Log"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=logs;sa=modlog;{session_var}={session_id}"]
+                "Moderation Log"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=logs;sa=banlog;{session_var}={session_id}"]
+                "Ban Log"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=logs;sa=tasklog;{session_var}={session_id}"]
+                "Task Log"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=logs;sa=settings;{session_var}={session_id}"]
+                "Log Settings"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  form [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=logs;sa=adminlog;type=#" method="post"]
+    div.cat_bar
+      h3.catbg
+        "Administration Log"
+    div.flow_hidden.information
+      div.additional_row
+        "Quick Search (By Member)"
+        input [name="search" size="#" type="text" value]
+        input.button [name="is_search" style="float:none" type="submit" value="Go"]
+        input.button.you_sure [data-confirm="Are you sure you want to delete the selected log entries?" name="remove" type="submit" value="Delete selected"]
+        input.button.you_sure [data-confirm="Are you sure you want to completely clear the log?" name="removeall" type="submit" value="Clear Log"]
+    table#moderation_log_list.table_grid [style="width:#%"]
+      thead
+        tr.title_bar
+          th#header_moderation_log_list_action.action.lefttext [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=logs;sa=adminlog;type=#;sort=action" rel="nofollow"]
+              "Action"
+          th#header_moderation_log_list_time.lefttext.time [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=logs;sa=adminlog;type=#;sort=time;desc" rel="nofollow"]
+              "Date"
+              span.main_icons.sort_up
+          th#header_moderation_log_list_moderator.lefttext.moderator [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=logs;sa=adminlog;type=#;sort=moderator" rel="nofollow"]
+              "Member"
+          th#header_moderation_log_list_position.lefttext.position [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=logs;sa=adminlog;type=#;sort=position" rel="nofollow"]
+              "Position"
+          th#header_moderation_log_list_ip.ip.lefttext [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=logs;sa=adminlog;type=#;sort=ip" rel="nofollow"]
+              "IP"
+          th#header_moderation_log_list_delete.centercol.delete [scope="col"]
+            input [name="all" onclick="invertAll(this, this.form);" type="checkbox"]
+      snapshot-ignored [selector="table.table_grid tbody"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]
+    input [name="params" type="hidden" value]
+    input [name="{token_var}" type="hidden" value="{hash}"]
+    input [name="sort" type="hidden" value="time"]
+    input [name="{token_var}" type="hidden" value="{hash}"]

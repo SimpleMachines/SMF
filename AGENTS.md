@@ -329,7 +329,8 @@ harder than it looks, all of them handled in the base class:
   preview wins, the post is never made, and the response is a perfectly ordinary 200.
 - **Flood control will hit you.** `Security::spamProtection()` allows a moderator one
   login or post every two seconds per IP, and tests are far faster than people.
-  `submitForm()` waits it out once rather than failing at random.
+  `submitForm()` clears `log_floodcontrol` first, so there is nothing to wait out; use
+  it, not `$this->http->submit()`, for anything the forum counts.
 - **Quote `errorText()` in failure messages, not the body.** A fatal error in SMF is a
   normal page, and its first few hundred characters are the menu.
 
@@ -338,6 +339,40 @@ enough to matter. `ModSettingsTest` pins a bug that *passes on MySQL with the bu
 in place*, because MySQL silently coerces text to a number where PostgreSQL refuses.
 On PostgreSQL a failed query also poisons the rest of the transaction, so one swallowed
 error turns every later query in the test into `false`.
+
+#### Template snapshots
+
+`tests/Integration/Http/Snapshot/` records what about 250 pages render today, as a guest,
+a member and an administrator, in `snapshots/<audience>/<page>.txt`. It exists so a
+change to the template layer, such as moving the templates to another engine, can be
+checked page by page: a page that renders differently fails, and the diff says how.
+
+```bash
+.dev/test.sh --engine mysql --testsuite snapshot
+SMF_UPDATE_SNAPSHOTS=1 .dev/test.sh --engine mysql --testsuite snapshot   # re-record
+```
+
+- **What is compared is not the HTML.** `tests/Support/DomSnapshot.php` reduces a page to
+  its elements, attributes and text, with whitespace, comments and attribute order
+  dropped and the forum's own data masked: ids and counts become `#`, dates `{date}`,
+  names and subjects `{member}`, `{board}`, `{subject}`, and identical rows of a list
+  collapse into one. So reflowing a template is not a failure, and neither is somebody
+  posting.
+- **Pages that list content look at fixtures.** `fixture-forum.php` builds a category of
+  boards, topics, members, a poll, a PM and calendar events with pinned dates, once per
+  forum, and the snapshots are scoped to it. Point a new case at a fixture, not at
+  whatever the forum happens to hold.
+- **A snapshot includes what the page logged.** A conversion that renders the same page
+  while logging an undefined index shows up as a diff too.
+- **Re-recording is a decision, not a fix.** Read the diff first. The only diffs that
+  should appear while converting templates are ones you meant to make.
+- **Check a new case is stable** by recording it on a fresh forum, running
+  `perturb-forum.php` (which adds unrelated members, boards and posts, so only on a
+  forum you will throw away), and running the suite again without recording.
+- **Content is masked; configuration is not.** The admin pages show the forum's
+  settings, so compare against a freshly installed forum, as CI does. A dev forum with
+  `securityDisable` switched on differs on the pages that show it, and that is not a
+  regression.
 
 #### Writing one
 
