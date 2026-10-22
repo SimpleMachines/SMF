@@ -1,0 +1,124 @@
+status 200
+@ head
+head
+  meta [charset="UTF-#"]
+  meta [content="noindex" name="robots"]
+  link [href="{boardurl}/index.php?topic=#" rel="canonical"]
+  title
+    "Print Page - Snapshot topic"
+  style
+    | body, a { color: ##; background: #fff; } body, td, .normaltext { font-family: Verdana, arial, helvetica, serif; font-size: small; } h##title { font-size: large; font-weight: bold; } h##linktree { margin: #em # #em #; font-size: small; font-weight: bold; } dl#posts { width: #%; margin: #; padding: #; list-style: none; } div.postheader, #poll_data { border: solid ##; border-width: #px #; padding: #px #; } div.postbody { margin: #em # #em #em; } table { empty-cells: show; } blockquote { margin: # # #px #; padding: #px #px; font-size: small; border: #px solid #d#dfe#; border-left: #px solid #aaa; border-right: #px solid #aaa; } blockquote cite { display: block; border-bottom: #px solid #aaa; font-size: #em; } blockquote cite:before { color: #aaa; font-size: #px; font-style: normal; margin-right: #px; } code { border: #px solid ##; margin: #px; padding: #px; display: block; } code { font: x-small monospace; } .smalltext, .codeheader { font-size: x-small; } .largetext { font-size: large; } .centertext { text-align: center; } hr { height: #px; border: #; color: black; background-color: black; } .voted { font-weight: bold; } #footer { font-family: Verdana, sans-serif; } @media print { .print_options { display: none; } } @media screen { .print_options { margin: #em #; } }
+@ body
+body
+  div.print_options
+    strong
+      a [href="{boardurl}/index.php?action=printpage;topic=#"]
+        "Text only"
+    "|"
+    a [href="{boardurl}/index.php?action=printpage;topic=#;images"]
+      "Text with Images"
+  h1#title
+    "{forum_name}"
+  h2#linktree
+    "Snapshot fixtures ▸ Snapshot board ▸ Started by Snapshot Member, {date}"
+  div#posts
+    div.postheader
+      div
+        strong
+          "Snapshot topic"
+      div
+        "Posted by Snapshot Member, {date}"
+    div.postbody
+      "The first post, with"
+      strong
+        "bold"
+      ","
+      em
+        "italic"
+      ","
+      u
+        "underlined"
+      "and"
+      s
+        "struck"
+      "text."
+      br
+      "A link (https://www.simplemachines.org) and {email}."
+      br
+      blockquote.bbc_standard_quote
+        cite
+          "Quote"
+        "An unattributed quote."
+      div.codeheader
+        "Code"
+      pre.bbc_code [data-expand-txt="Expand" data-select-txt="Select" data-shrink-txt="Shrink"]
+        code
+          "echo \"code\";"
+      ul.bbc_list
+        li
+          "One"
+        li
+          "Two"
+      "Red"
+      span.bbc_size [style="font-size: #pt;"]
+        "Sized"
+      div.centertext
+        "Centred"
+      table.bbc_table
+        thead
+          tr
+            th
+              "A"
+            th
+              "B"
+        tbody
+      span.bbc_inline_spoiler [title="Show or hide spoiler content"]
+        button [tabindex="#" title="Show or hide spoiler content" type="button"]
+        span
+          "Hidden"
+      hr.bbc_hr
+      "Smileys:"
+      img.smiley [alt=":)" src="{boardurl}/Smileys/fugue/smiley.png" title="Smiley"]
+      img.smiley [alt=";)" src="{boardurl}/Smileys/fugue/wink.png" title="Wink"]
+    div.postheader
+      div
+        strong
+          "Re: Snapshot topic"
+      div
+        "Posted by Snapshot Guest, {date}"
+    div.postbody
+      "A reply from a guest."
+    div.postheader
+      div
+        strong
+          "Re: Snapshot topic"
+      div
+        "Posted by Snapshot Admin, {date}"
+    div.postbody
+      blockquote.bbc_standard_quote
+        cite
+          "Quote from: Snapshot Member"
+        "The quoted text."
+      "A reply from an administrator."
+    div.postheader
+      div
+        strong
+          "Re: Snapshot topic"
+      div
+        "Posted by Snapshot Other, {date}"
+    div.postbody
+      "A reply from another member, with a smiley"
+      img.smiley [alt=":)" src="{boardurl}/Smileys/fugue/smiley.png" title="Smiley"]
+  div.print_options
+    strong
+      a [href="{boardurl}/index.php?action=printpage;topic=#"]
+        "Text only"
+    "|"
+    a [href="{boardurl}/index.php?action=printpage;topic=#;images"]
+      "Text with Images"
+  div#footer.smalltext
+    a [href="{boardurl}/index.php?action=credits" rel="noopener" target="_blank" title="License"]
+      "SMF # Alpha(s) #-dev © #"
+    ","
+    a [href="https://www.simplemachines.org" rel="noopener" target="_blank" title="Simple Machines"]
+      "Simple Machines"
