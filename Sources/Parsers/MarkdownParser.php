@@ -1143,8 +1143,8 @@ class MarkdownParser extends Parser
 	{
 		$this->findOpen();
 
-		$line_info['indent'] = strspn($line_info['string'], ' ');
-		$line_info['content'] = substr($line_info['string'], $line_info['indent']);
+		$line_info['indent'] = strspn(strtr($line_info['string'], ["\u{2000}" =>  ' ']), ' ');
+		$line_info['content'] = mb_substr($line_info['string'], $line_info['indent']);
 
 		// Figure out which block types this line could open.
 		$line_info['possible_types'] = [];
@@ -3403,7 +3403,6 @@ class MarkdownParser extends Parser
 
 				foreach (BBCodeParser::getCodes() as $code) {
 					if ($code->tag === 'code' && $code->type === $bbc_type) {
-						list($before, $after) = preg_split('/\$1/', $code->content);
 						break;
 					}
 				}
@@ -3411,6 +3410,8 @@ class MarkdownParser extends Parser
 				if (isset($this->disabled[$code->tag])) {
 					$code = $this->disableCode($code);
 				}
+
+				list($before, $after) = preg_split('/\$1/', $code->content);
 
 				$this->rendered .= strtr(
 					$before,
@@ -4179,7 +4180,9 @@ class MarkdownParser extends Parser
 					$code = $this->disableCode($code);
 				}
 
-				$this->rendered .= $code->before;
+				list($before, $after) = preg_split('/\$1/', $code->content);
+
+				$this->rendered .= $before;
 				break;
 
 			default:
@@ -4197,7 +4200,7 @@ class MarkdownParser extends Parser
 				break;
 
 			case self::OUTPUT_HTML:
-				$this->rendered .= $code->after;
+				$this->rendered .= $after;
 				break;
 
 			default:

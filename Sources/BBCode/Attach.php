@@ -101,6 +101,10 @@ class Attach extends BBCode
 			}
 		}
 
+		foreach (['alt', 'width', 'height'] as $k) {
+			$params[$k] = Utils::htmlspecialchars($params[$k], ENT_QUOTES);
+		}
+
 		// Embedded file.
 		if ($params['{display}'] == 'embed') {
 			$alt = ' alt="' . (!empty($params['{alt}']) ? $params['{alt}'] : $current_attachment['name']) . '"';
