@@ -115,7 +115,7 @@ class SmfSessionHandler extends SessionHandler implements SessionHandlerInterfac
 	 *
 	 * Holds our session data, used for multiple reads/validations to reduce database impact.
 	 */
-	private ?string $data = null;
+	private /*PHP 8.0 ?string*/ $data = null;
 
 	/**
 	 * Implementation of SessionHandler::open() replacing the standard open handler.
