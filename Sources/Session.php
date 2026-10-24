@@ -158,7 +158,7 @@ class SmfSessionHandler extends SessionHandler implements SessionHandlerInterfac
 		if (!$this->isValidSessionID($id))
 			return '';
 
-		if ($this->data === null) {		
+		if ($this->data === null) {
 			// Look for it in the database.
 			$result = $smcFunc['db_query']('', '
 				SELECT data
@@ -171,7 +171,7 @@ class SmfSessionHandler extends SessionHandler implements SessionHandlerInterfac
 			);
 			list ($sess_data) = $smcFunc['db_fetch_row']($result);
 			$smcFunc['db_free_result']($result);
-	
+
 			$this->data = $sess_data;
 		}
 
@@ -276,7 +276,7 @@ class SmfSessionHandler extends SessionHandler implements SessionHandlerInterfac
 	 *
 	 * @internal
 	 * @param string $id The session ID
-	 * @return boolean Whether the string is valid format or not
+	 * @return bool Whether the string is valid format or not
 	 */
 	private function isValidSessionID(string $id): bool
 	{
@@ -284,12 +284,14 @@ class SmfSessionHandler extends SessionHandler implements SessionHandlerInterfac
 	}
 
 	/**
-	 *  Validates a given session ID. A session ID is valid, if a session with that ID already exists. This function is automatically executed when a session is to be started, a session ID is supplied and session.use_strict_mode is enabled. 
+ 	 *  Validates a given session ID. A session ID is valid, if a session with that ID already exists.
+ 	 *  This function is automatically executed when a session is to be started, a session ID is supplied
+	 *  and session.use_strict_mode is enabled.
 	 *
 	 * @interface SessionUpdateTimestampHandlerInterface
 	 * @param string $session_id The session ID
 	 * @return boolean Whether session actually exists or not.
-	 */	 
+	 */
 	public function validateId(string $id): bool
 	{
 		if (!$this->isValidSessionID($id))
@@ -302,15 +304,15 @@ class SmfSessionHandler extends SessionHandler implements SessionHandlerInterfac
 		return $this->data !== '';
 	}
 
-	/** SessionUpdateTimestampHandlerInterface**/ 
-	/**
-	 *  Updates the last modification timestamp of the session. This function is automatically executed when a session is updated. 
-	 *
-	 * @interface SessionUpdateTimestampHandlerInterface
-	 * @param string $id The session ID
-	 * @param string $data The data to write to the session
-	 * @return boolean Whether we updated the timestamp or not.
-	 */	 
+	 /**
+	  *  Updates the last modification timestamp of the session.
+	  *  This function is automatically executed when a session is updated.
+	  *
+	  * @interface SessionUpdateTimestampHandlerInterface
+	  * @param string $id The session ID
+	  * @param string $data The data to write to the session
+	  * @return bool Whether we updated the timestamp or not.
+	  */
 	 public function updateTimestamp(string $id, string $data): bool
 	 {
 		if (!$this->isValidSessionID($id))
