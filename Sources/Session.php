@@ -108,12 +108,20 @@ function loadSession()
  * Note: To support PHP 7.x, we do not use type hints as SessionHandlerInterface
  * does not have them.
  */
-class SmfSessionHandler extends SessionHandler implements SessionHandlerInterface, SessionIdInterface
+class SmfSessionHandler extends SessionHandler implements SessionHandlerInterface, SessionIdInterface, SessionUpdateTimestampHandlerInterface
 {
+	/**
+	 * @var string
+	 *
+	 * Holds our session data, used for multiple reads/validations to reduce database impact.
+	 */
+	private ?string $data = null;
+
 	/**
 	 * Implementation of SessionHandler::open() replacing the standard open handler.
 	 * It simply returns true.
 	 *
+	 * @interface SessionHandlerInterface
 	 * @param string $path The path to save the session to
 	 * @param string $name The name of the session
 	 * @return boolean Always returns true
@@ -127,6 +135,7 @@ class SmfSessionHandler extends SessionHandler implements SessionHandlerInterfac
 	 * Implementation of SessionHandler::close() replacing the standard close handler.
 	 * It simply returns true.
 	 *
+	 * @interface SessionHandlerInterface
 	 * @return boolean Always returns true
 	 */
 	public function close(): bool
@@ -137,6 +146,7 @@ class SmfSessionHandler extends SessionHandler implements SessionHandlerInterfac
 	/**
 	 * Implementation of SessionHandler::read() replacing the standard read handler.
 	 *
+	 * @interface SessionHandlerInterface
 	 * @param string $id The session ID
 	 * @return string The session data
 	 */
@@ -148,25 +158,30 @@ class SmfSessionHandler extends SessionHandler implements SessionHandlerInterfac
 		if (!$this->isValidSessionID($id))
 			return '';
 
-		// Look for it in the database.
-		$result = $smcFunc['db_query']('', '
-			SELECT data
-			FROM {db_prefix}sessions
-			WHERE session_id = {string:session_id}
-			LIMIT 1',
-			array(
-				'session_id' => $id,
-			)
-		);
-		list ($sess_data) = $smcFunc['db_fetch_row']($result);
-		$smcFunc['db_free_result']($result);
+		if ($this->data === null) {
+			// Look for it in the database.
+			$result = $smcFunc['db_query']('', '
+				SELECT data
+				FROM {db_prefix}sessions
+				WHERE session_id = {string:session_id}
+				LIMIT 1',
+				array(
+					'session_id' => $id,
+				)
+			);
+			list ($sess_data) = $smcFunc['db_fetch_row']($result);
+			$smcFunc['db_free_result']($result);
 
-		return $sess_data != null ? $sess_data : '';
+			$this->data = $sess_data;
+		}
+
+		return $this->data != null ? $this->data : '';
 	}
 
 	/**
 	 * Implementation of SessionHandler::write() replacing the standard write handler.
 	 *
+	 * @interface SessionHandlerInterface
 	 * @param string $id The session ID
 	 * @param string $data The data to write to the session
 	 * @return boolean Whether the info was successfully written
@@ -204,6 +219,7 @@ class SmfSessionHandler extends SessionHandler implements SessionHandlerInterfac
 	/**
 	 * Implementation of SessionHandler::destroy() replacing the standard destroy handler.
 	 *
+	 * @interface SessionHandlerInterface
 	 * @param string $session_id The session ID
 	 * @return boolean Whether the session was successfully destroyed
 	 */
@@ -230,6 +246,7 @@ class SmfSessionHandler extends SessionHandler implements SessionHandlerInterfac
 	 * Implementation of SessionHandler::GC() replacing the standard gc handler.
 	 * Callback for garbage collection.
 	 *
+	 * @interface SessionHandlerInterface
 	 * @param int $max_lifetime The maximum lifetime (in seconds) - prevents deleting of sessions older than this
 	 * @return boolean Whether the option was successful
 	 */
@@ -257,13 +274,58 @@ class SmfSessionHandler extends SessionHandler implements SessionHandlerInterfac
 	/**
 	 * Validates a given string conforms to our testing for a valid session id.
 	 *
+	 * @internal
 	 * @param string $id The session ID
-	 * @return boolean Whether the string is valid format or not
+	 * @return bool Whether the string is valid format or not
 	 */
 	private function isValidSessionID(string $id): bool
 	{
 		return preg_match('~^[A-Za-z0-9,-]{16,64}$~', $id) === 1;
 	}
+
+	/**
+ 	 *  Validates a given session ID. A session ID is valid, if a session with that ID already exists.
+ 	 *  This function is automatically executed when a session is to be started, a session ID is supplied
+	 *  and session.use_strict_mode is enabled.
+	 *
+	 * @interface SessionUpdateTimestampHandlerInterface
+	 * @param string $session_id The session ID
+	 * @return boolean Whether session actually exists or not.
+	 */
+	public function validateId(string $id): bool
+	{
+		if (!$this->isValidSessionID($id))
+			return false;
+
+		if ($this->data === null) {
+			$this->read($id);
+		}
+
+		return $this->data !== '';
+	}
+
+	 /**
+	  *  Updates the last modification timestamp of the session.
+	  *  This function is automatically executed when a session is updated.
+	  *
+	  * @interface SessionUpdateTimestampHandlerInterface
+	  * @param string $id The session ID
+	  * @param string $data The data to write to the session
+	  * @return bool Whether we updated the timestamp or not.
+	  */
+	 public function updateTimestamp(string $id, string $data): bool
+	 {
+		if (!$this->isValidSessionID($id))
+			return false;
+
+		// Unless data has changed, lets not force this.
+		if (strcmp($this->data, $data) === 0) {
+			return false;
+		}
+
+		// Just call the write.
+		return $this->write($id, data);
+	 }
 }
 
 ?>
