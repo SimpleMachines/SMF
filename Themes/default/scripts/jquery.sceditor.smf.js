@@ -306,7 +306,23 @@ sceditor.command.set(
 
 sceditor.command.set(
 	'maximize', {
-		shortcut: ''
+		shortcut: '',
+		exec: function (caller)
+		{		
+			if (this.editorMainWrapper.style.height == '') {
+				this.height(this.editorMainWrapper.offsetHeight, this.editorMainWrapper.offsetHeight);
+			}
+			this.maximize(!this.maximize());
+			this.focus();
+		},
+		txtExec: function (caller)
+		{		
+			if (this.editorMainWrapper.style.height == '') {
+				this.height(this.editorMainWrapper.offsetHeight, this.editorMainWrapper.offsetHeight);
+			}
+			this.maximize(!this.maximize());
+			this.focus();
+		}
 	}
 );
 
