@@ -534,7 +534,7 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 					if (empty($modSettings['disallow_sendBody']) && !empty($this->prefs[$member_id]['msg_receive_body']))
 						$message_type .= '_body';
 
-					if (!empty($frequency))
+					if ($frequency == self::FREQUENCY_FIRST_UNREAD_MSG)
 						$message_type .= '_once';
 				}
 
