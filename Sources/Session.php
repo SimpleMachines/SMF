@@ -320,7 +320,7 @@ class SmfSessionHandler extends SessionHandler implements SessionHandlerInterfac
 
 		// Unless data has changed, lets not force this.
 		if (strcmp($this->data, $data) === 0) {
-			return false;
+			return true;
 		}
 
 		// Just call the write.
