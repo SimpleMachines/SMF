@@ -157,7 +157,9 @@ class fulltext_search extends search_api
 		}
 
 		$fulltextWord = count($subwords) === 1 ? $word : '"' . $word . '"';
-		$wordsSearch['indexed_words'][] = $fulltextWord;
+		// InnoDB full-text search does not support the use of multiple operators on a single search word, as in this example: '++apple'. Use of multiple operators on a single search word returns a syntax error to standard out. MyISAM full-text search successfully processes the same search, ignoring all operators except for the operator immediately adjacent to the search word.
+		// InnoDB full-text search only supports leading plus or minus signs. For example, InnoDB supports '+apple' but does not support 'apple+'. Specifying a trailing plus or minus sign causes InnoDB to report a syntax error.
+		$wordsSearch['indexed_words'][] = rtrim(rtrim(ltrim(ltrim($fulltextWord, '++'), '--'), '+'), '-');
 		if ($isExcluded)
 			$wordsExclude[] = $fulltextWord;
 	}
