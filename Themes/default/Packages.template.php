@@ -70,7 +70,7 @@ function template_view_package()
 			echo '
 			<tr>
 				<td>', $context['package_servers'][$id_server]['name'], '</td>
-				<td>', $txt[isset($result[$context['package_sha256_hash']]) ? $result[$context['package_sha256_hash']] : 'package_validation_status_unknown'], '</td>
+				<td>', $txt[isset($context['package_sha256_hash'], $result[$context['package_sha256_hash']]) ? $result[$context['package_sha256_hash']] : 'package_validation_status_unknown'], '</td>
 			</tr>';
 		}
 
