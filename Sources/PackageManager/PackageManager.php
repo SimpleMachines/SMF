@@ -1404,7 +1404,7 @@ class PackageManager
 
 		foreach (['css_files', 'javascript_files'] as $file_type) {
 			foreach (Utils::$context[$file_type] as $id => $file) {
-				if (isset($file['filePath']) && !file_exists($file['filePath'])) {
+				if (isset($file['filePath']) && !file_exists($file['filePath']) && empty($file['options']['external'])) {
 					unset(Utils::$context[$file_type][$id]);
 				}
 			}
