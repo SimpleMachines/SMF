@@ -280,7 +280,7 @@ class BBCodeParser extends Parser
 		['class' => \SMF\BBCode\Iurl1::class],
 		['class' => \SMF\BBCode\Iurl2::class],
 		['class' => \SMF\BBCode\Justify::class],
-		['class' => \SMF\BBCode\Right::class],
+		['class' => \SMF\BBCode\Left::class],
 		['class' => \SMF\BBCode\Li::class],
 		['class' => \SMF\BBCode\List1::class],
 		['class' => \SMF\BBCode\List2::class],
