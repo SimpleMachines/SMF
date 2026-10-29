@@ -384,7 +384,7 @@ class BBCodeParser extends Parser
 					return $tag_compare;
 				}
 
-				return count($b->parameters ?? []) <=> count($a->parameters ?? []);
+				return \count($b->parameters ?? []) <=> \count($a->parameters ?? []);
 			},
 		);
 	}
