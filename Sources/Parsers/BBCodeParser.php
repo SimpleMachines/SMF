@@ -377,7 +377,15 @@ class BBCodeParser extends Parser
 
 		usort(
 			self::$codes,
-			fn($a, $b) => $a->tag <=> $b->tag,
+			static function ($a, $b): int {
+				$tag_compare = $a->tag <=> $b->tag;
+
+				if ($tag_compare !== 0) {
+					return $tag_compare;
+				}
+
+				return count($b->parameters ?? []) <=> count($a->parameters ?? []);
+			},
 		);
 	}
 
@@ -1890,22 +1898,6 @@ class BBCodeParser extends Parser
 
 			$this->pos1 = $this->pos + 1 + $pt_strlen + 1;
 
-			// Quotes can have alternate styling, we do this php-side due to all the permutations of quotes.
-			if ($possible->tag == 'quote') {
-				// Start with standard
-				$quote_alt = false;
-
-				foreach ($this->open_bbc as $open_quote) {
-					// Every parent quote this quote has flips the styling
-					if ($open_quote->tag == 'quote') {
-						$quote_alt = !$quote_alt;
-					}
-				}
-
-				// Add a class to the quote to style alternating blockquotes
-				$possible->before = strtr($possible->before, ['<blockquote>' => '<blockquote class="bbc_' . ($quote_alt ? 'alternate' : 'standard') . '_quote">']);
-			}
-
 			// This is long, but it makes things much easier and cleaner.
 			if (!empty($possible->parameters)) {
 				// Build a regular expression for each parameter for the current BBCode.
@@ -2000,6 +1992,22 @@ class BBCodeParser extends Parser
 			} else {
 				$bbc = clone $possible;
 				$params = [];
+			}
+
+			// Quotes can have alternate styling, we do this php-side due to all the permutations of quotes.
+			if ($possible->tag == 'quote') {
+				// Start with standard
+				$quote_alt = false;
+
+				foreach ($this->open_bbc as $open_quote) {
+					// Every parent quote this quote has flips the styling
+					if ($open_quote->tag == 'quote') {
+						$quote_alt = !$quote_alt;
+					}
+				}
+
+				// Add a class to the quote to style alternating blockquotes
+				$bbc->before = strtr($bbc->before, ['<blockquote>' => '<blockquote class="bbc_' . ($quote_alt ? 'alternate' : 'standard') . '_quote">']);
 			}
 			break;
 		}
