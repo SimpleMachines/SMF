@@ -261,7 +261,15 @@ function checkSvgContents($fileName)
 	// XML defaults to UTF-8. Reject a declaration that names another encoding,
 	// because the patterns cannot see markup encoded another way.
 	if (preg_match('/^(?:\xEF\xBB\xBF)?\s*<\?xml\s[^>]*\bencoding\s*=\s*(["\'])([^"\']+)\1/i', $head, $matches)
-		&& !in_array(strtolower($matches[2]), array('utf-8', 'us-ascii', 'ascii')))
+		&& !in_array(trim(strtolower($matches[2])), array('utf-8', 'us-ascii', 'ascii')))
+	{
+		fclose($fp);
+		return false;
+	}
+
+	// A declaration that does not end in the first chunk could hide its
+	// encoding attribute from the check above.
+	if (preg_match('/^(?:\xEF\xBB\xBF)?\s*<\?xml\s/i', $head) && strpos($head, '?>') === false)
 	{
 		fclose($fp);
 		return false;
