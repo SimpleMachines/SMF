@@ -249,6 +249,26 @@ function checkSvgContents($fileName)
 	if (!$fp)
 		fatal_lang_error('attach_timeout');
 
+	// The patterns below match UTF-8 and ASCII bytes. UTF-16 and UTF-32
+	// encode ASCII characters with NUL bytes, so the markup would not match.
+	$head = fread($fp, 8192);
+	if ($head === false || strpos($head, "\0") !== false)
+	{
+		fclose($fp);
+		return false;
+	}
+
+	// XML defaults to UTF-8. Reject a declaration that names another encoding,
+	// because the patterns cannot see markup encoded another way.
+	if (preg_match('/^(?:\xEF\xBB\xBF)?\s*<\?xml\s[^>]*\bencoding\s*=\s*(["\'])([^"\']+)\1/i', $head, $matches)
+		&& !in_array(strtolower($matches[2]), array('utf-8', 'us-ascii', 'ascii')))
+	{
+		fclose($fp);
+		return false;
+	}
+
+	rewind($fp);
+
 	$patterns = array(
 		// No external or embedded scripts allowed.
 		'/<(\S*:)?script\b/i',
@@ -284,6 +304,11 @@ function checkSvgContents($fileName)
 	while (!feof($fp))
 	{
 		$cur_chunk = fread($fp, 8192);
+		if ($cur_chunk === false || strpos($cur_chunk, "\0") !== false)
+		{
+			fclose($fp);
+			return false;
+		}
 
 		foreach ($patterns as $pattern)
 		{
