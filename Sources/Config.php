@@ -1651,7 +1651,7 @@ class Config
 		$neg_index = -1;
 		$substitutions = [
 			$neg_index-- => [
-				'search_pattern' => '~^\s*<\?(php\b)?\n?~',
+				'search_pattern' => '~^\s*<\?(php\b)?\n?~i',
 				'placeholder' => '',
 				'replace_pattern' => '~^~',
 				'replacement' => '<' . "?php\n",
@@ -1935,14 +1935,14 @@ class Config
 		$settingsText = trim(strtr(file_get_contents($settingsFile), ["\r\n" => "\n", "\r" => "\n"]));
 
 		// If Settings.php is empty or corrupt for some reason, see if we can recover.
-		if ($settingsText == '' || substr($settingsText, 0, 5) !== '<' . '?php') {
+		if ($settingsText == '' || strncasecmp($settingsText, '<' . '?php', 5) === 0) {
 			// Try restoring from the backup.
 			if (file_exists($backupFile)) {
 				$settingsText = strtr(file_get_contents($backupFile), ["\r\n" => "\n", "\r" => "\n"]);
 			}
 
 			// Backup is bad too? Our only option is to create one from scratch.
-			if ($settingsText == '' || substr($settingsText, 0, 5) !== '<' . '?php') {
+			if ($settingsText == '' || strncasecmp($settingsText, '<' . '?php', 5) === 0) {
 				$settingsText = '<' . "?php\n";
 
 				foreach ($settings_defs as $var => $setting_def) {
@@ -2492,7 +2492,7 @@ class Config
 		// Strip out opening and closing PHP tags.
 		$settingsText = trim(file_get_contents($settingsFile));
 
-		if (substr($settingsText, 0, 5) == '<' . '?php') {
+		if (strncasecmp($settingsText, '<' . '?php', 5) === 0) {
 			$settingsText = substr($settingsText, 5);
 		}
 
