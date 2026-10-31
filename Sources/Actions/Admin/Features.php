@@ -942,7 +942,7 @@ class Features implements ActionInterface
 			$request = Db::$db->query(
 				'SELECT
 					id_field, col_name, field_name, field_desc, field_type, field_order, field_length, field_options,
-					show_reg, show_display, show_mlist, show_profile, private, active, default_value, can_search,
+					show_reg, show_display, show_mlist, show_blist, show_profile, private, active, default_value, can_search,
 					bbc, mask, enclose, placement
 				FROM {db_prefix}custom_fields
 				WHERE id_field = {int:current_field}',
@@ -967,6 +967,7 @@ class Features implements ActionInterface
 					'reg' => $row['show_reg'],
 					'display' => $row['show_display'],
 					'mlist' => $row['show_mlist'],
+					'blist' => $row['show_blist'],
 					'type' => $row['field_type'],
 					'order' => $row['field_order'],
 					'max_length' => $row['field_length'],
@@ -998,6 +999,7 @@ class Features implements ActionInterface
 				'reg' => false,
 				'display' => false,
 				'mlist' => false,
+				'blist' => false,
 				'type' => 'text',
 				'order' => 0,
 				'max_length' => 255,
@@ -1091,6 +1093,7 @@ class Features implements ActionInterface
 			$show_reg = isset($_POST['reg']) ? (int) $_POST['reg'] : 0;
 			$show_display = isset($_POST['display']) ? 1 : 0;
 			$show_mlist = isset($_POST['mlist']) ? 1 : 0;
+			$show_blist = isset($_POST['blist']) ? 1 : 0;
 			$bbc = isset($_POST['bbc']) ? 1 : 0;
 			$show_profile = $_POST['profile_area'];
 			$active = isset($_POST['active']) ? 1 : 0;
@@ -1265,7 +1268,8 @@ class Features implements ActionInterface
 						field_name = {string:field_name}, field_desc = {string:field_desc},
 						field_type = {string:field_type}, field_length = {int:field_length},
 						field_options = {string:field_options}, show_reg = {int:show_reg},
-						show_display = {int:show_display}, show_mlist = {int:show_mlist}, show_profile = {string:show_profile},
+						show_display = {int:show_display}, show_mlist = {int:show_mlist},
+						show_blist = {int:show_blist}, show_profile = {string:show_profile},
 						private = {int:private}, active = {int:active}, default_value = {string:default_value},
 						can_search = {int:can_search}, bbc = {int:bbc}, mask = {string:mask},
 						enclose = {string:enclose}, placement = {int:placement}
@@ -1275,6 +1279,7 @@ class Features implements ActionInterface
 						'show_reg' => $show_reg,
 						'show_display' => $show_display,
 						'show_mlist' => $show_mlist,
+						'show_blist' => $show_blist,
 						'private' => $private,
 						'active' => $active,
 						'can_search' => $can_search,
@@ -1324,6 +1329,7 @@ class Features implements ActionInterface
 						'show_reg' => 'int',
 						'show_display' => 'int',
 						'show_mlist' => 'int',
+						'show_blist' => 'int',
 						'show_profile' => 'string',
 						'private' => 'int',
 						'active' => 'int',
@@ -1346,6 +1352,7 @@ class Features implements ActionInterface
 							$show_reg,
 							$show_display,
 							$show_mlist,
+							$show_blist,
 							$show_profile,
 							$private,
 							$active,
@@ -1403,7 +1410,7 @@ class Features implements ActionInterface
 
 			$fields = [];
 			$request = Db::$db->query(
-				'SELECT col_name, field_name, field_type, field_order, bbc, enclose, placement, show_mlist, field_options
+				'SELECT col_name, field_name, field_type, field_order, bbc, enclose, placement, show_mlist, show_blist, field_options
 				FROM {db_prefix}custom_fields
 				WHERE show_display = {int:is_displayed}
 					AND active = {int:active}
@@ -1428,6 +1435,7 @@ class Features implements ActionInterface
 					'placement' => !empty($row['placement']) ? $row['placement'] : '0',
 					'enclose' => !empty($row['enclose']) ? $row['enclose'] : '',
 					'mlist' => $row['show_mlist'],
+					'blist' => $row['show_blist'],
 					'options' => (!empty($row['field_options']) ? explode(',', $row['field_options']) : []),
 				];
 			}
