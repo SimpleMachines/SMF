@@ -491,14 +491,12 @@ abstract class Notify implements ActionInterface
 			// while leaving the alert preference unchanged.
 			case self::MODE_NO_EMAIL:
 				// Use bitwise operator to turn off the email part of the setting.
-				$perfs = self::getNotifyPrefs((int) self::$member_info['id'], [$this->type . '_notify_' . $this->id], true);
-				$this->alert_pref = ((int) $perfs[(int) self::$member_info['id']][$this->type . '_notify_' . $this->id]) & self::PREF_ALERT;
+				$this->alert_pref = $this->getCurrentPref() & self::PREF_ALERT;
 				break;
 
 			// And its mirror image: turn off the alerts and keep the emails.
 			case self::MODE_NO_ALERT:
-				$perfs = self::getNotifyPrefs((int) self::$member_info['id'], [$this->type . '_notify_' . $this->id], true);
-				$this->alert_pref = ((int) $perfs[(int) self::$member_info['id']][$this->type . '_notify_' . $this->id]) & self::PREF_EMAIL;
+				$this->alert_pref = $this->getCurrentPref() & self::PREF_EMAIL;
 				break;
 
 			// $this->mode comes straight from the query string, so it can be
@@ -509,6 +507,24 @@ abstract class Notify implements ActionInterface
 				$this->alert_pref = self::PREF_NONE;
 				break;
 		}
+	}
+
+	/**
+	 * Gets the member's current notification preference for the board or topic.
+	 *
+	 * A member watching because they posted with "notify me" ticked has no
+	 * preference for this board or topic of their own, and is notified
+	 * according to their general one, so that is the one in force.
+	 *
+	 * @return int The preference.
+	 */
+	protected function getCurrentPref(): int
+	{
+		$member = (int) self::$member_info['id'];
+
+		$prefs = self::getNotifyPrefs($member, [$this->type . '_notify_' . $this->id, $this->type . '_notify'], true)[$member] ?? [];
+
+		return (int) (!empty($prefs[$this->type . '_notify_' . $this->id]) ? $prefs[$this->type . '_notify_' . $this->id] : ($prefs[$this->type . '_notify'] ?? 0));
 	}
 
 	/**
