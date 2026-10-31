@@ -1266,7 +1266,7 @@ function PackageInstall()
 	{
 		foreach ($context[$file_type] as $id => $file)
 		{
-			if (isset($file['filePath']) && !file_exists($file['filePath']))
+			if (isset($file['filePath']) && !file_exists($file['filePath']) && empty($file['options']['external']))
 				unset($context[$file_type][$id]);
 		}
 	}
