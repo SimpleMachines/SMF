@@ -833,7 +833,10 @@ function smf_db_error_backtrace($error_message, $log_message = '', $error_type =
 		exit;
 	}
 	elseif ($error_type)
-		trigger_error($error_message . ($line !== null ? '<em>(' . basename($file) . '-' . $line . ')</em>' : ''), $error_type);
+	{
+		// Throw here as PHP 8.4 deprecated using trigger_error with E_USER_ERROR
+		throw new Exception($error_message . ($line !== null ? '<em>(' . basename($file) . '-' . $line . ')</em>' : ''), $error_type);
+	}
 	else
 		trigger_error($error_message . ($line !== null ? '<em>(' . basename($file) . '-' . $line . ')</em>' : ''));
 }
