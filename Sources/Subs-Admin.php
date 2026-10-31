@@ -1023,7 +1023,7 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	$neg_index = -1;
 	$substitutions = array(
 		$neg_index-- => array(
-			'search_pattern' => '~^\s*<\?(php\b)?\n?~',
+			'search_pattern' => '~^\s*<\?(php\b)?\n?~i',
 			'placeholder' => '',
 			'replace_pattern' => '~^~',
 			'replacement' => '<' . "?php\n",
@@ -1300,14 +1300,14 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	$settingsText = trim(strtr(file_get_contents($settingsFile), array("\r\n" => "\n", "\r" => "\n")));
 
 	// If Settings.php is empty or corrupt for some reason, see if we can recover.
-	if ($settingsText == '' || substr($settingsText, 0, 5) !== '<' . '?php')
+	if ($settingsText == '' || strncasecmp($settingsText, '<' . '?php', 5) === 0)
 	{
 		// Try restoring from the backup.
 		if (file_exists(dirname($settingsFile) . '/Settings_bak.php'))
 			$settingsText = strtr(file_get_contents(dirname($settingsFile) . '/Settings_bak.php'), array("\r\n" => "\n", "\r" => "\n"));
 
 		// Backup is bad too? Our only option is to create one from scratch.
-		if ($settingsText == '' || substr($settingsText, 0, 5) !== '<' . '?php' || substr($settingsText, -2) !== '?' . '>')
+		if ($settingsText == '' || strncasecmp($settingsText, '<' . '?php', 5) === 0 || substr($settingsText, -2) !== '?' . '>')
 		{
 			$settingsText = '<' . "?php\n";
 			foreach ($settings_defs as $var => $setting_def)
@@ -1788,7 +1788,7 @@ function get_current_settings($mtime = null, $settingsFile = null)
 
 	// Strip out opening and closing PHP tags.
 	$settingsText = trim(file_get_contents($settingsFile));
-	if (substr($settingsText, 0, 5) == '<' . '?php')
+	if (strncasecmp($settingsText, '<' . '?php', 5) === 0)
 		$settingsText = substr($settingsText, 5);
 	if (substr($settingsText, -2) == '?' . '>')
 		$settingsText = substr($settingsText, 0, -2);
