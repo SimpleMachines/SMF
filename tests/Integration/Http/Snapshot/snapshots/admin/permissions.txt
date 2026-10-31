@@ -1,0 +1,338 @@
+status 200
+@ title
+title
+  "Manage Permissions"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=permissions;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Permissions"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=permissions;sa=index;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "General permissions"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      a.help [href="{boardurl}/index.php?action=helpadmin;help=permissions" onclick="return reqOverlayDiv(this.href);"]
+        span.help.main_icons [title="Help"]
+      "Manage Permissions"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "General permissions"
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Manage Permissions Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Manage Permissions Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=permissions;sa=index;{session_var}={session_id}"]
+                "General permissions"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=permissions;sa=board;{session_var}={session_id}"]
+                "Board permissions"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=permissions;sa=profiles;{session_var}={session_id}"]
+                "Edit profiles"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=permissions;sa=postmod;{session_var}={session_id}"]
+                "Post moderation"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=permissions;sa=settings;{session_var}={session_id}"]
+                "Settings"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  div#admin_form_wrapper
+    form#permissionForm [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=permissions;sa=quick" method="post" name="permissionForm"]
+      div.cat_bar
+        h3.catbg
+          "Manage Permissions"
+      table.table_grid
+        thead
+          tr.title_bar
+            th
+              "Name"
+            th.small_table
+              "Members"
+            th.small_table
+              "Permissions"
+            th.small_table
+              "Modify"
+            th.centercol.table_icon
+              input [onclick="invertAll(this, this.form, 'group');" type="checkbox"]
+        tbody
+          tr.windowbg
+            td
+              a.help [href="{boardurl}/index.php?action=helpadmin;help=membergroup_guests" onclick="return reqOverlayDiv(this.href);"]
+                span.help.main_icons [title="Help"]
+              span
+                "Guests"
+            td
+              "N/A"
+            td
+              "#"
+            td
+              a [href="{boardurl}/index.php?action=admin;area=permissions;sa=modify;group=-#"]
+                "Modify"
+            td.centercol
+              input [name="group[]" type="checkbox" value="-#"]
+          tr.windowbg
+            td
+              a.help [href="{boardurl}/index.php?action=helpadmin;help=membergroup_regular_members" onclick="return reqOverlayDiv(this.href);"]
+                span.help.main_icons [title="Help"]
+              span
+                "Regular Members"
+            td
+              "#"
+            td
+              a [href="{boardurl}/index.php?action=admin;area=permissions;sa=modify;group=#"]
+                "Modify"
+            td.centercol
+              input [name="group[]" type="checkbox" value="#"]
+          tr.windowbg
+            td
+              a.help [href="{boardurl}/index.php?action=helpadmin;help=membergroup_administrator" onclick="return reqOverlayDiv(this.href);"]
+                span.help.main_icons [title="Help"]
+              span
+                "Administrator"
+            td
+              a [href="{boardurl}/index.php?action=moderate;area=viewgroups;sa=members;group=#"]
+                "#"
+            td
+              "(all)"
+            td
+            td.centercol
+          tr.windowbg
+            td
+              img.icon [alt="Help" src="{boardurl}/Themes/default/images/blank.png"]
+              span
+                "Global Moderator"
+            td
+              a [href="{boardurl}/index.php?action=moderate;area=viewgroups;sa=members;group=#"]
+                "#"
+            td
+              "#"
+            td
+              a [href="{boardurl}/index.php?action=admin;area=permissions;sa=modify;group=#"]
+                "Modify"
+            td.centercol
+              input [name="group[]" type="checkbox" value="#"]
+          tr.windowbg
+            td
+              a.help [href="{boardurl}/index.php?action=helpadmin;help=membergroup_moderator" onclick="return reqOverlayDiv(this.href);"]
+                span.help.main_icons [title="Help"]
+              span
+                "Moderator"
+            td
+              "N/A"
+            td
+              "#"
+            td
+              a [href="{boardurl}/index.php?action=admin;area=permissions;sa=modify;group=#"]
+                "Modify"
+            td.centercol
+              input [name="group[]" type="checkbox" value="#"]
+      br
+      div.cat_bar
+        h3.catbg
+          a#permissions_panel_link [href="#"]
+            "Advanced Options"
+        span#permissions_panel_toggle.toggle_up [style="display: none;"]
+      div#permissions_panel_advanced.windowbg
+        fieldset
+          legend
+            "With selection"
+          dl.settings
+            dt
+              a.help [href="{boardurl}/index.php?action=helpadmin;help=permissions_quickgroups" onclick="return reqOverlayDiv(this.href);"]
+                span.help.main_icons [title="Help"]
+              "Apply pre-defined permission set"
+            dd
+              select [name="predefined"]
+                option [value]
+                  "(Select a pre-defined profile)"
+                option [value="restrict"]
+                  "Restrictive"
+                option [value="standard"]
+                  "Standard"
+                option [value="moderator"]
+                  "Moderator"
+                option [value="maintenance"]
+                  "Maintenance"
+            dt
+              "Set permissions like this group"
+            dd
+              select [name="copy_from"]
+                option [value="empty"]
+                  "(Select a membergroup)"
+                option [value="-#"]
+                  "Guests"
+                option [value="#"]
+                  "Regular Members"
+                option [value="#"]
+                  "Global Moderator"
+                option [value="#"]
+                  "Moderator"
+            dt
+              select [name="add_remove"]
+                option [value="add"]
+                  "Add permission..."
+                option [value="clear"]
+                  "Clear permission..."
+            dd [style="overflow:auto;"]
+              select [name="permissions"]
+                option [value]
+                  "(Select a permission)"
+                option [disabled value]
+                  "[General]"
+                option [value="global/search_posts"]
+                  "Search for posts and topics"
+                option [value="global/view_mlist"]
+                  "View the memberlist and groups"
+                option [value="global/view_stats"]
+                  "View forum statistics"
+                option [value="global/who_view"]
+                  "View Who’s Online page"
+                option [disabled value]
+                  "[Forum administration]"
+                option [value="global/access_mod_center"]
+                  "Access the moderation center"
+                option [value="global/edit_news"]
+                  "Edit news"
+                option [value="global/manage_attachments"]
+                  "Manage attachments and avatars"
+                option [value="global/manage_boards"]
+                  "Manage boards and categories"
+                option [value="global/manage_smileys"]
+                  "Manage smileys and message icons"
+                option [value="global/admin_forum"]
+                  "Administrate forum and database"
+                option [disabled value]
+                  "[Member administration]"
+                option [value="global/issue_warning"]
+                  "Issue warnings to members"
+                option [value="global/manage_bans"]
+                  "Manage ban list"
+                option [value="global/manage_permissions"]
+                  "Manage permissions"
+                option [value="global/moderate_forum"]
+                  "Moderate forum members"
+                option [value="global/send_mail"]
+                  "Send a forum email to members"
+                option [value="global/manage_membergroups"]
+                  "Manage and assign membergroups"
+                option [disabled value]
+                  "[Personal Messaging]"
+                option [value="global/pm_draft"]
+                  "Save drafts of personal messages"
+                option [value="global/pm_read"]
+                  "Read personal messages"
+                option [value="global/pm_send"]
+                  "Send personal messages"
+                option [disabled value]
+                  "[Member Profiles]"
+                option [value="global/profile_blurb_own"]
+                  "Edit personal text (Own profile)"
+                option [value="global/profile_blurb_any"]
+                  "Edit personal text (Any profile)"
+                option [value="global/profile_extra_own"]
+                  "Edit additional profile settings (Own profile)"
+                option [value="global/profile_extra_any"]
+                  "Edit additional profile settings (Any profile)"
+                option [value="global/profile_forum_own"]
+                  "Allow Forum Profile edits (Own profile)"
+                option [value="global/profile_forum_any"]
+                  "Allow Forum Profile edits (Any profile)"
+                option [value="global/profile_gravatar"]
+                  "Choose a Gravatar"
+                option [value="global/profile_remote_avatar"]
+                  "Choose a remotely stored avatar"
+                option [value="global/profile_server_avatar"]
+                  "Select an avatar from the server"
+                option [value="global/profile_signature_own"]
+                  "Edit signature (Own signature)"
+                option [value="global/profile_signature_any"]
+                  "Edit signature (Any signature)"
+                option [value="global/profile_title_own"]
+                  "Edit custom title (Own profile)"
+                option [value="global/profile_title_any"]
+                  "Edit custom title (Any profile)"
+                option [value="global/profile_upload_avatar"]
+                  "Upload an avatar to the server"
+                option [value="global/profile_view"]
+                  "View other members’ profile summary and stats pages"
+                option [value="global/profile_website_own"]
+                  "Edit website (Own profile)"
+                option [value="global/profile_website_any"]
+                  "Edit website (Any profile)"
+                option [value="global/report_user"]
+                  "Report users’ profiles"
+                option [disabled value]
+                  "[Member Accounts]"
+                option [value="global/profile_displayed_name_own"]
+                  "Edit displayed name (Own displayed name)"
+                option [value="global/profile_displayed_name_any"]
+                  "Edit displayed name (Any displayed name)"
+                option [value="global/profile_identity_own"]
+                  "Edit account settings (Own profile)"
+                option [value="global/profile_identity_any"]
+                  "Edit account settings (Any profile)"
+                option [value="global/profile_password_own"]
+                  "Change password (Own profile)"
+                option [value="global/profile_password_any"]
+                  "Change password (Any profile)"
+                option [value="global/profile_remove_own"]
+                  "Delete account (Own account)"
+                option [value="global/profile_remove_any"]
+                  "Delete account (Any account)"
+                option [value="global/view_warning_own"]
+                  "View warning status (Own account)"
+                option [value="global/view_warning_any"]
+                  "View warning status (Any account)"
+                option [disabled value]
+                  "[BBCode]"
+                option [value="global/bbc_html"]
+                  "Use the [html] BBCode"
+        input.button [onclick="return checkSubmit();" type="submit" value="Set permissions"]
+      script
+        | var oPermissionsPanelToggle = new smc_Toggle({ bToggleEnabled: true, bCurrentlyCollapsed: false, aSwappableContainers: [ 'permissions_panel_advanced' ], aSwapImages: [ { sId: 'permissions_panel_toggle', altExpanded: 'Hide', altCollapsed: 'Show' } ], aSwapLinks: [ { sId: 'permissions_panel_link', msgExpanded: 'Advanced Options', msgCollapsed: 'Advanced Options' } ], oThemeOptions: { bUseThemeSettings: true, sOptionName: 'admin_preferences', sSessionVar: smf_session_var, sSessionId: smf_session_id, sThemeId: '#', sAdditionalVars: ';admin_key=app' } }); function checkSubmit() { if ((document.forms.permissionForm.predefined.value != "" && (document.forms.permissionForm.copy_from.value != "empty" || document.forms.permissionForm.permissions.value != "")) || (document.forms.permissionForm.copy_from.value != "empty" && document.forms.permissionForm.permissions.value != "")) { alert("You can only select one action to modify the permissions"); return false; } if (document.forms.permissionForm.predefined.value == "" && document.forms.permissionForm.copy_from.value == "" && document.forms.permissionForm.permissions.value == "") { alert("No action selected"); return false; } if (document.forms.permissionForm.permissions.value != "" && document.forms.permissionForm.add_remove.value == "deny") return confirm("You are about to deny one or more permissions.\nThis can be dangerous and cause unexpected results if you have not made sure no one is accidentally in the group or groups you are denying permissions to.\n\nAre you sure you want to continue?"); return true; }
+      input [name="{session_var}" type="hidden" value="{session_id}"]
+      input [name="{token_var}" type="hidden" value="{hash}"]

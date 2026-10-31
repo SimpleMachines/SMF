@@ -1,0 +1,343 @@
+status 200
+@ title
+title
+  "Profile - Forum Profile"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=profile" itemprop="item"]
+        span [itemprop="name"]
+          "Profile of Snapshot Member"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=profile;area=forumprofile" itemprop="item"]
+        span [itemprop="name"]
+          "Forum Profile"
+      meta [content="#" itemprop="position"]
+@ #content_section
+div#content_section
+  main#main_content_section
+    nav#genericmenu [aria-label=" Menu"]
+      a.mobile_generic_menu_1
+        span.menu_icon
+        span.text_menu
+          "Menu"
+      div#mobile_generic_menu_#.popup_container
+        div.description.popup_window
+          div.popup_heading
+            "Menu"
+            a.hide_popup.main_icons [href="javascript:void(#);"]
+          div.generic_menu
+            ul.dropdown_menu_1.dropmenu
+              li.subsections
+                a [href="{boardurl}/index.php?action=profile;area=summary;u=#"]
+                  "{member}"
+                ul
+                  li
+                    a.administration.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=summary;u=#"]
+                      span.administration.main_icons
+                      "{member}"
+                  li
+                    a.profile_menu_icon.stats [href="{boardurl}/index.php?action=profile;area=statistics;u=#"]
+                      span.main_icons.stats
+                      "Show Stats"
+                  li.subsections
+                    a.posts.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=showposts;u=#"]
+                      span.main_icons.posts
+                      "Show Posts"
+                    ul
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=showposts;sa=messages;u=#"]
+                          "Messages"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=showposts;sa=topics;u=#"]
+                          "Topics"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=showposts;sa=unwatchedtopics;u=#"]
+                          "Unwatched topics"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=showposts;sa=attach;u=#"]
+                          "Attachments"
+                  li
+                    a.drafts.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=showdrafts;u=#"]
+                      span.drafts.main_icons
+                      "Show Drafts"
+                  li
+                    a.alerts.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=showalerts;u=#"]
+                      span.alerts.main_icons
+                      "Show Alerts"
+                  li.subsections
+                    a.logs.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=tracking;u=#"]
+                      span.logs.main_icons
+                      "Track User"
+                    ul
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=tracking;sa=logins;u=#"]
+                          "Logins"
+              li.subsections
+                a.active [href="{boardurl}/index.php?action=profile;area=account;u=#"]
+                  "Forum Profile"
+                ul
+                  li
+                    a.maintain.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=account;u=#"]
+                      span.main_icons.maintain
+                      "Account Settings"
+                  li
+                    a.chosen.members.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=forumprofile;u=#"]
+                      span.main_icons.members
+                      "Forum Profile"
+                  li
+                    a.features.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=theme;u=#"]
+                      span.features.main_icons
+                      "Look and Layout"
+                  li.subsections
+                    a.alerts.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=notification;u=#"]
+                      span.alerts.main_icons
+                      "Notifications"
+                    ul
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=notification;sa=alerts;u=#"]
+                          "Notification Preferences"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=notification;sa=topics;u=#"]
+                          "Watched Topics"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=notification;sa=boards;u=#"]
+                          "Watched Boards"
+                  li.subsections
+                    a.frenemy.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=lists;u=#"]
+                      span.frenemy.main_icons
+                      "Buddies/Ignore List"
+                    ul
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=lists;sa=buddies;u=#"]
+                          "Edit Buddies"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=lists;sa=ignore;u=#"]
+                          "Edit Ignore List"
+              li.subsections
+                a [href="{boardurl}/index.php?action=profile;area=deleteaccount;u=#"]
+                  "Actions"
+                ul
+                  li
+                    a.members_delete.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=deleteaccount;u=#"]
+                      span.main_icons.members_delete
+                      "Delete this account"
+    script
+      | $( ".mobile_generic_menu_#" ).click(function() { $( "#mobile_generic_menu_#" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#" ).hide(); });
+    div#admin_content
+      div#profile_error.errorbox [style="display:none"]
+      form#creator [accept-charset="UTF-#" action="{boardurl}/index.php?action=profile;area=forumprofile;u=#" enctype="multipart/form-data" method="post" name="creator"]
+        div.cat_bar
+          h3.catbg.profile_hd
+            "Profile"
+        p.information
+          "You can change your personal information on this page. This information will be displayed throughout {forum_name}. If you are not comfortable with sharing some information, simply skip it - nothing here is required."
+        div.roundframe
+          dl.settings
+            dt
+              strong#personal_picture
+                label [for="avatar_upload_box"]
+                  "Personalized picture"
+              input#avatar_choice_none [checked="checked" name="avatar_choice" type="radio" value="none"]
+              label [for="avatar_choice_none"]
+                "No avatar"
+              br
+              input#avatar_choice_server_stored [name="avatar_choice" type="radio" value="server_stored"]
+              label [for="avatar_choice_server_stored"]
+                "Choose avatar from gallery"
+              br
+              input#avatar_choice_external [name="avatar_choice" type="radio" value="external"]
+              label [for="avatar_choice_external"]
+                "Specify avatar by URL"
+              br
+              input#avatar_choice_upload [name="avatar_choice" type="radio" value="upload"]
+              label [for="avatar_choice_upload"]
+                "Upload an avatar"
+              br
+            dd
+              div#avatar_server_stored [data-avatar-choice="server_stored"]
+                div
+                  select#cat [data-avatardir="{boardurl}/avatars/" name="cat" size="#"]
+                    option [selected value="blank.png"]
+                      "(no pic)"
+                    optgroup [label="[Oxygen]"]
+                      option [value="Oxygen/beagle.png"]
+                        "beagle"
+                      option [value="Oxygen/bug.png"]
+                        "bug"
+                      option [value="Oxygen/cards.png"]
+                        "cards"
+                      option [value="Oxygen/cookie.png"]
+                        "cookie"
+                      option [value="Oxygen/dice.png"]
+                        "dice"
+                      option [value="Oxygen/Earl.png"]
+                        "Earl"
+                      option [value="Oxygen/flish.png"]
+                        "flish"
+                      option [value="Oxygen/game.png"]
+                        "game"
+                      option [value="Oxygen/golf.png"]
+                        "golf"
+                      option [value="Oxygen/hardware.png"]
+                        "hardware"
+                      option [value="Oxygen/invisible-user.png"]
+                        "invisible-user"
+                      option [value="Oxygen/lense.png"]
+                        "lense"
+                      option [value="Oxygen/love.png"]
+                        "love"
+                      option [value="Oxygen/megaphone.png"]
+                        "megaphone"
+                      option [value="Oxygen/pi.png"]
+                        "pi"
+                      option [value="Oxygen/scope.png"]
+                        "scope"
+                      option [value="Oxygen/smiley.png"]
+                        "smiley"
+                      option [value="Oxygen/tea.png"]
+                        "tea"
+                      option [value="Oxygen/wine.png"]
+                        "wine"
+                    option [value="default.png"]
+                      "default"
+                div.edit_avatar_img
+                  img#avatar [alt src="{boardurl}/avatars/blank.png"]
+              div#avatar_external [data-avatar-choice="external"]
+                div.smalltext
+                  "Specify your own avatar by URL. (e.g.:"
+                  em
+                    "https://www.example.com/mypic.png"
+                  ")"
+                input [name="userpicpersonal" size="#" type="text" value="http://"]
+                br
+              div#avatar_upload [data-avatar-choice="upload"]
+                input#avatar_upload_box [accept="image/gif, image/jpeg, image/jpg, image/png, image/svg+xml, image/webp" name="attachment" size="#" type="file" value]
+                div.smalltext
+                  "Max size: #px by #px"
+          hr
+          dl.settings
+            dt
+              strong
+                label [for="personal_text"]
+                  "Personal text"
+            dd
+              input#personal_text [maxlength="#" name="personal_text" size="#" type="text" value="Personal text for Snapshot Member"]
+          hr
+          dl.settings
+            dt
+              strong
+                label [for="birthdate"]
+                  "Date of birth"
+            dd
+              input#birthdate [name="birthdate" size="#" type="date" value]
+            dt#current_signature [style="display:none"]
+              strong
+                "Current signature"
+            dd#current_signature_display [style="display:none"]
+              hr
+            dt#preview_signature [style="display:none"]
+              strong
+                "Signature preview"
+            dd#preview_signature_display [style="display:none"]
+              hr
+            dt
+              label [for="signature"]
+                strong
+                  "Signature"
+              br
+              span.smalltext
+                "Signatures are displayed at the bottom of each post or personal message. BBCode and smileys may be used in your signature."
+              br
+            dd
+              textarea#signature.editor [cols="#" data-max-length="#" name="signature" rows="#"]
+                "A signature with [b]bold[/b] text."
+              br
+              span.smalltext
+                "Max characters: #; characters remaining:"
+                span#signatureLeft
+                  "#"
+              br
+              input#preview_button.button.floatright [name="preview_signature" type="button" value="Preview signature"]
+          hr
+          dl.settings
+            dt
+              strong
+                label [for="website_title"]
+                  "Website title"
+              br
+              span.smalltext
+                "This must be included if you specify a URL below."
+            dd
+              input#website_title [name="website_title" size="#" type="text" value="Example"]
+            dt
+              strong
+                label [for="website_url"]
+                  "Website URL"
+              br
+              span.smalltext
+                "This must be a complete URL."
+            dd
+              input#website_url [name="website_url" size="#" type="url" value="https://www.example.com"]
+          hr
+          dl.settings
+            dt
+              strong
+                "ICQ"
+              br
+              span.smalltext
+                "This is your ICQ number."
+            dd
+              input#customfield[cust_icq] [maxlength="#" name="customfield[cust_icq]" size="#" type="text" value]
+            dt
+              strong
+                "Skype"
+              br
+              span.smalltext
+                "Your Skype username"
+            dd
+              input#customfield[cust_skype] [maxlength="#" name="customfield[cust_skype]" size="#" type="text" value]
+            dt
+              strong
+                "Location"
+              br
+              span.smalltext
+                "Geographic location."
+            dd
+              input#customfield[cust_loca] [maxlength="#" name="customfield[cust_loca]" size="#" type="text" value]
+            dt
+              strong
+                "Gender"
+              br
+              span.smalltext
+                "Your gender."
+            dd
+              fieldset
+                label [for="customfield_cust_gender_#"]
+                  input#customfield_cust_gender_# [checked name="customfield[cust_gender]" type="radio" value="#"]
+                  "None"
+                br
+                label [for="customfield_cust_gender_#"]
+                  input#customfield_cust_gender_# [name="customfield[cust_gender]" type="radio" value="#"]
+                  "Male"
+                br
+                label [for="customfield_cust_gender_#"]
+                  input#customfield_cust_gender_# [name="customfield[cust_gender]" type="radio" value="#"]
+                  "Female"
+                br
+          input.button.floatright [name="save" type="submit" value="Change profile"]
+          input [name="{token_var}" type="hidden" value="{hash}"]
+          input [name="{session_var}" type="hidden" value="{session_id}"]
+          input [name="u" type="hidden" value="#"]
+          input [name="sa" type="hidden" value="forumprofile"]

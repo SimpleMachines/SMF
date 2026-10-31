@@ -1,0 +1,110 @@
+status 200
+@ title
+title
+  "Manage Members"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=viewmembers;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Members"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=viewmembers;sa=all;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "View all Members"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      a.help [href="{boardurl}/index.php?action=helpadmin;help=view_members" onclick="return reqOverlayDiv(this.href);"]
+        span.help.main_icons [title="Help"]
+      "Manage Members"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "Below is a listing of all the members currently registered with your forum."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Manage Members Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Manage Members Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=viewmembers;sa=all;{session_var}={session_id}"]
+                "View all Members"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=viewmembers;sa=search;{session_var}={session_id}"]
+                "Search for Members"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=viewmembers;sa=settings;{session_var}={session_id}"]
+                "Settings"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  form [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=viewmembers" method="post"]
+    div.cat_bar
+      h3.catbg
+        "Members List"
+    table#member_list.table_grid
+      thead
+        tr.title_bar
+          th#header_member_list_id_member.id_member [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=viewmembers;sort=id_member" rel="nofollow"]
+              "ID"
+          th#header_member_list_user_name.user_name [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=viewmembers;sort=user_name;desc" rel="nofollow"]
+              "Username"
+              span.main_icons.sort_up
+          th#header_member_list_display_name.display_name [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=viewmembers;sort=display_name" rel="nofollow"]
+              "Display name"
+          th#header_member_list_email.email [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=viewmembers;sort=email" rel="nofollow"]
+              "Email address"
+          th#header_member_list_ip.ip [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=viewmembers;sort=ip" rel="nofollow"]
+              "IP address"
+          th#header_member_list_last_active.last_active [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=viewmembers;sort=last_active" rel="nofollow"]
+              "Last Online"
+          th#header_member_list_posts.posts [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=viewmembers;sort=posts" rel="nofollow"]
+              "Posts"
+          th#header_member_list_check.centercol.check [scope="col"]
+            input [onclick="invertAll(this, this.form);" type="checkbox"]
+      snapshot-ignored [selector="table.table_grid tbody"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]
+    input [name="sort" type="hidden" value="user_name"]

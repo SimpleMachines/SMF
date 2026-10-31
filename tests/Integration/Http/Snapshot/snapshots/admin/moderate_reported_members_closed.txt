@@ -1,0 +1,81 @@
+status 200
+@ title
+title
+  "Reported Members"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=moderate" itemprop="item"]
+        span [itemprop="name"]
+          "Moderation Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=moderate;area=reportedmembers" itemprop="item"]
+        span [itemprop="name"]
+          "Reported Members"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=moderate;area=reportedmembers;sa=closed" itemprop="item"]
+        span [itemprop="name"]
+          "Old Reports"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      "Reported Members"
+  p.information
+    "Allows you to view a list of all users whose profiles have been reported"
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Reported Members Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Reported Members Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a [href="{boardurl}/index.php?action=moderate;area=reportedmembers;sa=open"]
+                "Active Reports"
+            li
+              a.active [href="{boardurl}/index.php?action=moderate;area=reportedmembers;sa=closed"]
+                "Old Reports"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  form#reported_members [accept-charset="UTF-#" action="{boardurl}/index.php?action=moderate;area=reportedmembers;sa=show;closed;start=#" method="post"]
+    div.cat_bar.cat_bar_round
+      h3.catbg
+        "Old Reports"
+    div.pagesection
+      div.pagelinks
+        span.pages
+          "Pages"
+        span.current_page
+          "#"
+    div.windowbg
+      div.centertext
+        "No Reports Found"
+    div.pagesection
+      div.floatleft.pagelinks
+        span.pages
+          "Pages"
+        span.current_page
+          "#"
+      div.floatright
+    input [name="{session_var}" type="hidden" value="{session_id}"]
