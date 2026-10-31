@@ -278,7 +278,7 @@ class SmfSessionHandler extends SessionHandler implements SessionHandlerInterfac
 	 * @param string $id The session ID
 	 * @return bool Whether the string is valid format or not
 	 */
-	private function isValidSessionID(string $id): bool
+	private function isValidSessionID(/*PHP 8.0 string */$id): bool
 	{
 		return preg_match('~^[A-Za-z0-9,-]{16,64}$~', $id) === 1;
 	}
@@ -292,7 +292,7 @@ class SmfSessionHandler extends SessionHandler implements SessionHandlerInterfac
 	 * @param string $session_id The session ID
 	 * @return boolean Whether session actually exists or not.
 	 */
-	public function validateId(string $id): bool
+	public function validateId(/*PHP 8.0 string */$id): bool
 	{
 		if (!$this->isValidSessionID($id))
 			return false;
@@ -313,7 +313,7 @@ class SmfSessionHandler extends SessionHandler implements SessionHandlerInterfac
 	  * @param string $data The data to write to the session
 	  * @return bool Whether we updated the timestamp or not.
 	  */
-	 public function updateTimestamp(string $id, string $data): bool
+	 public function updateTimestamp(/*PHP 8.0 string */$id, /*PHP 8.0 string */$data): bool
 	 {
 		if (!$this->isValidSessionID($id))
 			return false;
