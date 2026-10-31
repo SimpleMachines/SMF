@@ -625,6 +625,8 @@ class TopicMerge implements ActionInterface, Routable
 					'subject' => $redirect_subject,
 					'body' => $reason,
 					'approved' => 1,
+					// It only points at the merged topic, whose watchers hear about the merge.
+					'send_notifications' => false,
 				];
 
 				$topicOptions = [
