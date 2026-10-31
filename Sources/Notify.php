@@ -32,10 +32,17 @@ function BoardNotify()
 
 	require_once($sourcedir . '/Subs-Notify.php');
 
+	// Unsubscribe links name the board as 'item' rather than 'board', which keeps
+	// loadBoard() away from it. The member following one is often not logged in,
+	// and loadBoard() sends a guest to the login form for any board that guests
+	// cannot see. The token is only good for this one board, so it is all the
+	// permission that is needed.
+	$id_board = isset($_REQUEST['u'], $_REQUEST['token'], $_REQUEST['item']) ? (int) $_REQUEST['item'] : (int) $board;
+
 	// Subscribing or unsubscribing with a token.
 	if (isset($_REQUEST['u']) && isset($_REQUEST['token']))
 	{
-		$member_info = getMemberWithToken('board');
+		$member_info = getMemberWithToken('board', $id_board);
 		$skipCheckSession = true;
 	}
 	// No token, so try with the current user.
@@ -47,7 +54,7 @@ function BoardNotify()
 	}
 
 	// You have to specify a board to turn notifications on!
-	if (empty($board))
+	if (empty($id_board))
 		fatal_lang_error('no_board', false);
 
 	// sa=on/off is used for email subscribe/unsubscribe links
@@ -71,7 +78,7 @@ function BoardNotify()
 				AND id_board = {int:current_board}
 			LIMIT 1',
 			array(
-				'current_board' => $board,
+				'current_board' => $id_board,
 				'current_member' => $member_info['id'],
 			)
 		);
@@ -85,7 +92,7 @@ function BoardNotify()
 			);
 
 		// Set the template variables...
-		$context['board_href'] = $scripturl . '?board=' . $board . '.' . $_REQUEST['start'];
+		$context['board_href'] = $scripturl . '?board=' . $id_board . '.' . $_REQUEST['start'];
 		$context['start'] = $_REQUEST['start'];
 		$context['page_title'] = $txt['notification'];
 		$context['sub_template'] = 'notify_board';
@@ -101,18 +108,18 @@ function BoardNotify()
 
 		// -1 is used to turn off email notifications while leaving the alert pref unchanged.
 		if ($mode == -1)
-			$mode = min(2, getNotifyPrefs($member_info['id'], array('board_notify_' . $board), true));
+			$mode = min(2, getNotifyPrefs($member_info['id'], array('board_notify_' . $id_board), true));
 
 		$alertPref = $mode <= 1 ? 0 : ($mode == 2 ? 1 : 3);
 
-		setNotifyPrefs((int) $member_info['id'], array('board_notify_' . $board => $alertPref));
+		setNotifyPrefs((int) $member_info['id'], array('board_notify_' . $id_board => $alertPref));
 
 		if ($mode > 1)
 			// Turn notification on.  (note this just blows smoke if it's already on.)
 			$smcFunc['db_insert']('ignore',
 				'{db_prefix}log_notify',
 				array('id_member' => 'int', 'id_topic' => 'int', 'id_board' => 'int'),
-				array($user_info['id'], 0, $board),
+				array($user_info['id'], 0, $id_board),
 				array('id_member', 'id_topic', 'id_board')
 			);
 		else
@@ -121,7 +128,7 @@ function BoardNotify()
 				WHERE id_member = {int:current_member}
 					AND id_board = {int:current_board}',
 				array(
-					'current_board' => $board,
+					'current_board' => $id_board,
 					'current_member' => $member_info['id'],
 				)
 			);
@@ -150,7 +157,7 @@ function BoardNotify()
 	}
 	// Back to the board!
 	else
-		redirectexit('board=' . $board . '.' . $_REQUEST['start']);
+		redirectexit('board=' . $id_board . '.' . $_REQUEST['start']);
 }
 
 /**
@@ -167,9 +174,16 @@ function TopicNotify()
 
 	require_once($sourcedir . '/Subs-Notify.php');
 
+	// Unsubscribe links name the topic as 'item' rather than 'topic', which keeps
+	// loadBoard() away from it. The member following one is often not logged in,
+	// and loadBoard() sends a guest to the login form for any board that guests
+	// cannot see. The token is only good for this one topic, so it is all the
+	// permission that is needed.
+	$id_topic = isset($_REQUEST['u'], $_REQUEST['token'], $_REQUEST['item']) ? (int) $_REQUEST['item'] : (int) $topic;
+
 	if (isset($_REQUEST['u']) && isset($_REQUEST['token']))
 	{
-		$member_info = getMemberWithToken('topic');
+		$member_info = getMemberWithToken('topic', $id_topic);
 		$skipCheckSession = true;
 	}
 	else
@@ -179,7 +193,7 @@ function TopicNotify()
 	}
 
 	// Make sure the topic has been specified.
-	if (empty($topic))
+	if (empty($id_topic))
 		fatal_lang_error('not_a_topic', false);
 
 	// sa=on/off is used to toggle email notifications
@@ -204,7 +218,7 @@ function TopicNotify()
 			LIMIT 1',
 			array(
 				'current_member' => $member_info['id'],
-				'current_topic' => $topic,
+				'current_topic' => $id_topic,
 			)
 		);
 		$context['notification_set'] = $smcFunc['db_num_rows']($request) != 0;
@@ -217,7 +231,7 @@ function TopicNotify()
 			);
 
 		// Set the template variables...
-		$context['topic_href'] = $scripturl . '?topic=' . $topic . '.' . $_REQUEST['start'];
+		$context['topic_href'] = $scripturl . '?topic=' . $id_topic . '.' . $_REQUEST['start'];
 		$context['start'] = $_REQUEST['start'];
 		$context['page_title'] = $txt['notification'];
 
@@ -232,7 +246,7 @@ function TopicNotify()
 
 		// Turn off email notifications while leaving the alert pref alone.
 		if ($mode == -1)
-			$mode = min(2, getNotifyPrefs($member_info['id'], array('topic_notify_' . $topic), true));
+			$mode = min(2, getNotifyPrefs($member_info['id'], array('topic_notify_' . $id_topic), true));
 
 		$alertPref = $mode <= 1 ? 0 : ($mode == 2 ? 1 : 3);
 
@@ -243,7 +257,7 @@ function TopicNotify()
 				AND id_topic = {int:current_topic}',
 			array(
 				'current_user' => $member_info['id'],
-				'current_topic' => $topic,
+				'current_topic' => $id_topic,
 			)
 		);
 		$log = $smcFunc['db_fetch_assoc']($request);
@@ -253,7 +267,7 @@ function TopicNotify()
 			$insert = true;
 			$log = array(
 				'id_member' => $member_info['id'],
-				'id_topic' => $topic,
+				'id_topic' => $id_topic,
 				'id_msg' => 0,
 				'unwatched' => empty($mode) ? 1 : 0,
 			);
@@ -320,7 +334,7 @@ function TopicNotify()
 	}
 	// Back to the topic.
 	else
-		redirectexit('topic=' . $topic . '.' . $_REQUEST['start']);
+		redirectexit('topic=' . $id_topic . '.' . $_REQUEST['start']);
 }
 
 /**
