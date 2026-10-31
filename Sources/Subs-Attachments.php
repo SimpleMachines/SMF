@@ -695,7 +695,7 @@ function createAttachment(&$attachmentOptions)
 
 	// If this is an image we need to set a few additional parameters.
 	$size = @getimagesize($attachmentOptions['tmp_name']);
-	list ($attachmentOptions['width'], $attachmentOptions['height']) = $size;
+	list ($attachmentOptions['width'], $attachmentOptions['height']) = $size !== false ? $size : array(0,0);
 
 	if (!empty($attachmentOptions['mime_type']) && $attachmentOptions['mime_type'] === 'image/svg+xml')
 	{

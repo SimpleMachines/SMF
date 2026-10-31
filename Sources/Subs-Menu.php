@@ -302,8 +302,8 @@ function createMenu($menuData, $menuOptions = array())
 	{
 		$menu_context['sections'][$menu_context['current_section']]['selected'] = true;
 		$menu_context['sections'][$menu_context['current_section']]['areas'][$menu_context['current_area']]['selected'] = true;
-		if (!empty($menu_context['sections'][$menu_context['current_section']]['areas'][$menu_context['current_area']]['subsections'][$context['current_subaction']]))
-			$menu_context['sections'][$menu_context['current_section']]['areas'][$menu_context['current_area']]['subsections'][$context['current_subaction']]['selected'] = true;
+		if (!empty($menu_context['sections'][$menu_context['current_section']]['areas'][$menu_context['current_area']]['subsections'][$context['current_subaction'] ?? '']))
+			$menu_context['sections'][$menu_context['current_section']]['areas'][$menu_context['current_area']]['subsections'][$context['current_subaction'] ?? '']['selected'] = true;
 
 		foreach ($menu_context['sections'] as $section_id => $section)
 			foreach ($section['areas'] as $area_id => $area)

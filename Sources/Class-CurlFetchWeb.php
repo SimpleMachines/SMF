@@ -234,7 +234,9 @@ class curl_fetch_web_data
 		$error = (curl_error($cr)) ? curl_error($cr) : false;
 
 		// close this request
-		curl_close($cr);
+		if (version_compare(PHP_VERSION, '8.0.0', '<')) {
+			curl_close($cr);
+		}
 
 		// store this 'loops' data, someone may want all of these :O
 		$this->response[] = array(
