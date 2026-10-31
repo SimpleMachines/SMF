@@ -1375,7 +1375,8 @@ function Post($post_errors = array())
 
 	// Knowing the current board ID might be handy.
 	addInlineJavaScript('
-	var current_board = ' . (empty($context['current_board']) ? 'null' : $context['current_board']) . ';', false);
+	var current_board = ' . (empty($context['current_board']) ? 'null' : $context['current_board']) . ';
+	var current_msg = ' . (empty($_REQUEST['msg']) && ((int) $_REQUEST['msg']) > 0 ? 'null' : ((int) $_REQUEST['msg'])) . ';', false);
 
 	/* Now let's set up the fields for the posting form header...
 

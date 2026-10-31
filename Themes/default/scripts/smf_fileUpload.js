@@ -14,7 +14,7 @@ function smf_fileUpload(oOptions) {
 
 	// Default values in case oOptions isn't defined.
 	var dOptions = {
-		url: smf_prepareScriptUrl(smf_scripturl) + 'action=uploadAttach;sa=add;' + smf_session_var + '=' + smf_session_id + (current_board ? ';board=' + current_board : ''),
+		url: smf_prepareScriptUrl(smf_scripturl) + 'action=uploadAttach;sa=add;' + smf_session_var + '=' + smf_session_id + (current_board ? ';board=' + current_board : '') + (current_msg ? ';msg=' + current_msg : ''),
 		parallelUploads: 1,
 		filesizeBase: 1024,
 		paramName: 'attachment',
