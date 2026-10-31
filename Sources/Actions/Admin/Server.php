@@ -27,6 +27,7 @@ use SMF\Lang;
 use SMF\Menu;
 use SMF\Sapi;
 use SMF\SecurityToken;
+use SMF\Statistics;
 use SMF\Theme;
 use SMF\Url;
 use SMF\User;
@@ -252,12 +253,16 @@ class Server implements ActionInterface
 
 			// Are we saving the stat collection?
 			if (!empty($_POST['enable_sm_stats']) && empty(Config::$modSettings['sm_stats_key'])) {
-				$registerSMStats = $this->registerSMStats();
+				$registerSMStats = Statistics::register();
 
 				// Failed to register, disable it again.
 				if (empty($registerSMStats)) {
 					$_POST['enable_sm_stats'] = 0;
 				}
+			}
+			// Clear the registration.
+			elseif (empty($_POST['enable_sm_stats']) && !empty(Config::$modSettings['sm_stats_key'])) {
+				Statistics::clear();
 			}
 
 			// Ensure all URLs are aligned with the new force_ssl setting
@@ -1605,68 +1610,5 @@ class Server implements ActionInterface
 		$result = strpos($urlpath, $boardurlpath);
 
 		return $result === false || $result != 0 ? false : true;
-	}
-
-	/**
-	 * Registers the site with the Simple Machines Stat collection. This function
-	 * purposely does not use Config::updateModSettings() as it will be called shortly after
-	 * this process completes by the saveSettings() function.
-	 *
-	 * @see SMStats() for more information.
-	 * @link https://www.simplemachines.org/about/stats.php for more info.
-	 * @return bool Returns true if we are registered or successfully registered, otherwise false.
-	 */
-	protected function registerSMStats(): bool
-	{
-		// Already have a key?  Can't register again.
-		if (!empty(Config::$modSettings['sm_stats_key'])) {
-			return true;
-		}
-
-		$fp = @fsockopen('www.simplemachines.org', 443, $errno, $errstr);
-
-		if (!$fp) {
-			$fp = @fsockopen('www.simplemachines.org', 80, $errno, $errstr);
-		}
-
-		if ($fp) {
-			$out = 'GET /smf/stats/register_stats.php?site=' . base64_encode(Config::$boardurl) . ' HTTP/1.1' . "\r\n";
-			$out .= 'Host: www.simplemachines.org' . "\r\n";
-			$out .= 'Connection: Close' . "\r\n\r\n";
-			fwrite($fp, $out);
-
-			$return_data = '';
-
-			while (!feof($fp)) {
-				$return_data .= fgets($fp, 128);
-			}
-
-			fclose($fp);
-
-			// Get the unique site ID.
-			preg_match('~SITE-ID:\s(\w{10})~', $return_data, $ID);
-
-			if (!empty($ID[1])) {
-				Db::$db->insert(
-					'replace',
-					'{db_prefix}settings',
-					[
-						'variable' => 'string',
-						'value' => 'string',
-					],
-					[
-						[
-							'sm_stats_key',
-							$ID[1],
-						],
-					],
-					['variable'],
-				);
-
-				return true;
-			}
-		}
-
-		return false;
 	}
 }
