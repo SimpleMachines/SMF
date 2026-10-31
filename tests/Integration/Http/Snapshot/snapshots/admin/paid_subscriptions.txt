@@ -1,0 +1,60 @@
+status 200
+@ title
+title
+  "Settings"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=paidsubscribe;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Paid Subscriptions"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      "Paid Subscriptions"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "From this section you can add, remove and edit paid subscription methods to your forum."
+  form#admin_form_wrapper [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=paidsubscribe;save;sa=settings" method="post"]
+    div.cat_bar
+      h3.catbg
+        "Paid Subscriptions"
+    div.noup.windowbg
+      dl.settings
+        dt
+          a#setting_paid_enabled
+          span
+            label [for="paid_enabled"]
+              "Enable Paid Subscriptions"
+        dd
+          input#paid_enabled [name="paid_enabled" type="checkbox" value="#"]
+      input.button [type="submit" value="Save"]
+    input [name="{token_var}" type="hidden" value="{hash}"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]
