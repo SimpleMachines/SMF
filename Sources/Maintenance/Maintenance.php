@@ -390,7 +390,7 @@ class Maintenance
 		} else {
 			$settingsText = trim(file_get_contents(SMF_SETTINGS_FILE));
 
-			if (substr($settingsText, 0, 5) == '<' . '?php') {
+			if (strncasecmp($settingsText, '<' . '?php', 5) === 0) {
 				$settingsText = substr($settingsText, 5);
 			}
 
@@ -502,7 +502,7 @@ class Maintenance
 			$valid = (
 				$contents !== false
 				// Must start with an opening PHP tag.
-				&& str_starts_with($contents, '<' . '?php')
+				&& strncasecmp($contents, '<' . '?php', 5) === 0
 				// Must not contain a closing tag.
 				&& !str_contains($contents, '?' . '>')
 				// Does it at least appear to have the expected contents?
