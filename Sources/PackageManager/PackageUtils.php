@@ -217,35 +217,29 @@ class PackageUtils
 			$current['data'] = substr($data, ++$offset << 9, $current['size']);
 			$offset += $size;
 
-			// Protect from accidental parent directory writing...
-			do {
-				$prev = $current['filename'];
-				$current['filename'] = strtr($current['filename'], [
-					'../' => '',
-					'/..' => '',
-					'..' . DIRECTORY_SEPARATOR => '',
-					DIRECTORY_SEPARATOR . '..' => '',
-					'..\\' => '',
-					'\\..' => '',
-				]);
-			} while ($prev !== $current['filename']);
+			// Confine every entry to the extraction directory before touching the filesystem.
+			$safe_filename = self::safeEntryName($current['filename']);
+
+			if ($safe_filename === false) {
+				continue;
+			}
 
 			// If hunting for a file in subdirectories, pass to subsequent write test...
 			if ($single_file && $destination !== null && (str_starts_with($destination, '*/'))) {
 				$write_this = true;
 			}
 			// Not a directory and doesn't exist already...
-			elseif (!str_ends_with($current['filename'], '/') && $destination !== null && !file_exists($destination . '/' . $current['filename'])) {
+			elseif (!str_ends_with($current['filename'], '/') && $destination !== null && !file_exists($destination . '/' . $safe_filename)) {
 				$write_this = true;
 			}
 			// File exists... check if it is newer.
 			elseif (!str_ends_with($current['filename'], '/')) {
-				$write_this = $overwrite || ($destination !== null && filemtime($destination . '/' . $current['filename']) < $current['mtime']);
+				$write_this = $overwrite || ($destination !== null && filemtime($destination . '/' . $safe_filename) < $current['mtime']);
 			}
 			// Folder... create.
 			elseif ($destination !== null && !$single_file) {
-				if (!file_exists($destination . '/' . $current['filename'])) {
-					self::mktree($destination . '/' . $current['filename'], 0777);
+				if (!file_exists($destination . '/' . $safe_filename)) {
+					self::mktree($destination . '/' . $safe_filename, 0777);
 				}
 				$write_this = false;
 			} else {
@@ -253,8 +247,8 @@ class PackageUtils
 			}
 
 			if ($write_this && $destination !== null) {
-				if (str_contains($current['filename'], '/') && !$single_file) {
-					self::mktree($destination . '/' . \dirname($current['filename']), 0777);
+				if (str_contains($safe_filename, '/') && !$single_file) {
+					self::mktree($destination . '/' . \dirname($safe_filename), 0777);
 				}
 
 				// Is this the file we're looking for?
@@ -272,12 +266,12 @@ class PackageUtils
 					continue;
 				}
 
-				self::packagePutContents($destination . '/' . $current['filename'], $current['data']);
+				self::packagePutContents($destination . '/' . $safe_filename, $current['data']);
 			}
 
 			if (!str_ends_with($current['filename'], '/')) {
 				$return[] = [
-					'filename' => $current['filename'],
+					'filename' => $safe_filename,
 					'md5' => md5($current['data']),
 					'preview' => substr($current['data'], 0, 100),
 					'size' => $current['size'],
@@ -378,18 +372,12 @@ class PackageUtils
 
 			$write_this = false;
 
-			// Protect from accidental parent directory writing...
-			do {
-				$prev = $current['filename'];
-				$current['filename'] = strtr($current['filename'], [
-					'../' => '',
-					'/..' => '',
-					'..' . DIRECTORY_SEPARATOR => '',
-					DIRECTORY_SEPARATOR . '..' => '',
-					'..\\' => '',
-					'\\..' => '',
-				]);
-			} while ($prev !== $current['filename']);
+			// Confine every entry to the extraction directory before touching the filesystem.
+			$safe_filename = self::safeEntryName($file_info['filename']);
+
+			if ($safe_filename === false) {
+				continue;
+			}
 
 			if ($destination !== null) {
 				// If hunting for a file in subdirectories, pass to subsequent write test...
@@ -398,14 +386,12 @@ class PackageUtils
 				}
 				// If this is a file, and it doesn't exist.... happy days!
 				elseif ($is_file) {
-					$write_this = !@file_exists($destination . '/' . $file_info['filename']) || $overwrite;
+					$write_this = !@file_exists($destination . '/' . $safe_filename) || $overwrite;
 				}
 				// This is a directory, so we're gonna want to create it. (probably...)
 				elseif (!$single_file) {
-					$file_info['filename'] = strtr($file_info['filename'], ['../' => '', '/..' => '']);
-
-					if (!file_exists($destination . '/' . $file_info['filename'])) {
-						self::mktree($destination . '/' . $file_info['filename'], 0777);
+					if (!file_exists($destination . '/' . $safe_filename)) {
+						self::mktree($destination . '/' . $safe_filename, 0777);
 					}
 				}
 			}
@@ -443,16 +429,16 @@ class PackageUtils
 					continue;
 				}
 
-				if (!$single_file && str_contains($file_info['filename'], '/')) {
-					self::mktree($destination . '/' . \dirname($file_info['filename']), 0777);
+				if (!$single_file && str_contains($safe_filename, '/')) {
+					self::mktree($destination . '/' . \dirname($safe_filename), 0777);
 				}
 
-				self::packagePutContents($destination . '/' . $file_info['filename'], $file_info['data']);
+				self::packagePutContents($destination . '/' . $safe_filename, $file_info['data']);
 			}
 
 			if ($is_file) {
 				$return[] = [
-					'filename' => $file_info['filename'],
+					'filename' => $safe_filename,
 					'md5' => md5($file_info['data']),
 					'preview' => substr($file_info['data'], 0, 100),
 					'size' => $file_info['size'],
@@ -3682,6 +3668,49 @@ class PackageUtils
 	/*************************
 	 * Internal static methods
 	 *************************/
+
+	/**
+	 * Normalizes an archive entry name and confines it to the extraction directory.
+	 *
+	 * @param string $name The entry name from the archive.
+	 * @return string|false The normalized name, or false if it would escape.
+	 */
+	private static function safeEntryName(string $name): string|false
+	{
+		if (str_contains($name, "\0")) {
+			return false;
+		}
+
+		$name = str_replace('\\', '/', $name);
+
+		// A drive-letter prefix is absolute on Windows.
+		if (preg_match('~^[a-z]:~i', $name)) {
+			return false;
+		}
+
+		$parts = [];
+
+		foreach (explode('/', $name) as $part) {
+			if ($part === '' || $part === '.') {
+				continue;
+			}
+
+			if ($part === '..') {
+				if (empty($parts)) {
+					return false;
+				}
+
+				array_pop($parts);
+				continue;
+			}
+
+			$parts[] = $part;
+		}
+
+		$name = implode('/', $parts);
+
+		return $name === '' ? false : $name;
+	}
 
 	/**
 	 * Writes a collection of files to a `.tar` or `.tar.gz` archive.
