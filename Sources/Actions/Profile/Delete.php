@@ -149,7 +149,7 @@ class Delete implements ActionInterface
 					);
 
 					Db::$db->query(
-						'UPDATE {db_prefix}polls
+						'UPDATE {db_prefix}poll_choices
 						SET votes = votes - 1
 						WHERE id_poll IN ({array_int:polls_to_update})',
 						[
