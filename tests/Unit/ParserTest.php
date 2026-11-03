@@ -3127,6 +3127,66 @@ class ParserTest extends TestCase
 				],
 				'Lorem ipsum ' . "\n" . '<a href="https://www.youtube.com/watch?v=76Gopgo-4PY&t={start}s" target="_blank" rel="noopener">https://www.youtube.com/watch?v=76Gopgo-4PY&t={start}s</a>' . "\n" . ' dolor sit amet.',
 			],
+			301 => [
+				'Implied 12 hour postmeridian time: [time]Nov 3, 3033, at 3:33[/time]',
+				Parser::INPUT_BBC | Parser::INPUT_MARKDOWN | Parser::INPUT_SMILEYS,
+				Parser::OUTPUT_HTML,
+				[
+					'hard_breaks' => 0,
+					'for_print' => false,
+				],
+				'<p>Implied 12 hour postmeridian time: <time class="bbc_time" datetime="3033-11-03T15:33:00">Nov 3, 3033, at 3:33</time></p>' . "\n",
+			],
+			302 => [
+				'Implied 12 hour postmeridian time: [time]Nov 3, 3033, at 3:33[/time]',
+				Parser::INPUT_MARKDOWN,
+				Parser::OUTPUT_HTML,
+				[
+					'hard_breaks' => 0,
+					'for_print' => false,
+				],
+				'<p>Implied 12 hour postmeridian time: [time]Nov 3, 3033, at 3:33[/time]</p>' . "\n",
+			],
+			303 => [
+				'Implied 12 hour postmeridian time: [time]Nov 3, 3033, at 3:33[/time]',
+				Parser::INPUT_BBC,
+				Parser::OUTPUT_HTML,
+				[
+					'hard_breaks' => 0,
+					'for_print' => false,
+				],
+				'Implied 12 hour postmeridian time: <time class="bbc_time" datetime="3033-11-03T15:33:00">Nov 3, 3033, at 3:33</time>',
+			],
+			304 => [
+				'[time=Nov 3, 3033, at 3:33]Implied 12 hour postmeridian time[/time]',
+				Parser::INPUT_BBC | Parser::INPUT_MARKDOWN | Parser::INPUT_SMILEYS,
+				Parser::OUTPUT_HTML,
+				[
+					'hard_breaks' => 0,
+					'for_print' => false,
+				],
+				'<p><time class="bbc_time" datetime="3033-11-03T15:33:00">Implied 12 hour postmeridian time</time></p>' . "\n",
+			],
+			305 => [
+				'[time=Nov 3, 3033, at 3:33]Implied 12 hour postmeridian time[/time]',
+				Parser::INPUT_MARKDOWN,
+				Parser::OUTPUT_HTML,
+				[
+					'hard_breaks' => 0,
+					'for_print' => false,
+				],
+				'<p>[time=Nov 3, 3033, at 3:33]Implied 12 hour postmeridian time[/time]</p>' . "\n",
+			],
+			306 => [
+				'[time=Nov 3, 3033, at 3:33]Implied 12 hour postmeridian time[/time]',
+				Parser::INPUT_BBC,
+				Parser::OUTPUT_HTML,
+				[
+					'hard_breaks' => 0,
+					'for_print' => false,
+				],
+				'<time class="bbc_time" datetime="3033-11-03T15:33:00">Implied 12 hour postmeridian time</time>',
+			],
 		];
 	}
 

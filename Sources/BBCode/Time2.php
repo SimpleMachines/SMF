@@ -186,12 +186,12 @@ class Time2 extends BBCode
 					// No explicit AM or PM was given.
 					&& !preg_match('/[AaPp]\.?[Mm]\.?/', $when)
 					// The hour was given with a single digit (no preceeding zero).
-					&& !preg_match('/(?<!:)0' . $parsed['hour'] . '\b/', $when)
+					&& !preg_match('/(?<!:)0' . $parsed['hour'] . ':' . \sprintf('%02d', $parsed['minute']) . '/', $when)
 					// The user's time format normally expects 12-hour time.
 					&& preg_match(Time::isStrftimeFormat(Time::getTimeFormat()) ? '/%[Il]/' : '/[gh]/', Time::getTimeFormat())
 				) {
 					// Update $when to add 12 hours.
-					$when = preg_replace('/(?<!:)' . $parsed['hour'] . '\b/', (string) ($parsed['hour'] + 12), $when);
+					$when = preg_replace('/(?<!:)' . $parsed['hour'] . '(?=:' . \sprintf('%02d', $parsed['minute']) . ')/', (string) ($parsed['hour'] + 12), $when);
 
 					// Re-parse.
 					$parsed = date_parse($when);
