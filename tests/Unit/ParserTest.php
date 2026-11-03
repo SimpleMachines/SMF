@@ -28,6 +28,13 @@ use SMF\User;
 use SMF\UserDataset;
 use SMF\Utils;
 
+/**
+ * Covers how SMF\Parser parses BBCode, Markdown, and smileys.
+ *
+ * In general, the best way to add tests to this class is to add new testable
+ * strings to SMF\Tests\Generators\ParserTestGenerator::$strings and then
+ * run that file on the command line.
+ */
 #[CoversClass(Parser::class)]
 class ParserTest extends TestCase
 {
