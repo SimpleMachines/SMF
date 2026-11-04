@@ -183,6 +183,26 @@ class TimezoneUpdater
 	 */
 	public $new_metazones = array();
 
+	/**
+	 * A list of time zone identifiers that have been renamed.
+	 *
+	 * In most cases, this class's logic can detect renamed tzids by analyzing
+	 * the tzdb data itself. However, it needs some help with Europe/Kyiv in
+	 * particular, and there's no harm in being explicit about the others.
+	 *
+	 * Keys are the new names. Values are the old names.
+	 */
+	public $renamed_tzids = array(
+		'Asia/Kolkata' => 'Asia/Calcutta',
+		'Pacific/Chuuk' => 'Pacific/Truk',
+		'Pacific/Kanton' => 'Pacific/Enderbury',
+		'Pacific/Pohnpei' => 'Pacific/Ponape',
+		'Asia/Yangon' => 'Asia/Rangoon',
+		'America/Nuuk' => 'America/Godthab',
+		'Europe/Busingen' => 'Europe/Zurich',
+		'Europe/Kyiv' => 'Europe/Kiev',
+	);
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -312,6 +332,12 @@ class TimezoneUpdater
 				continue;
 
 			$linked_tzids = array_unique($linked_tzids);
+
+			// Do we already have a preferred option defined?
+			if (count($linked_tzids) > 1 && isset($this->renamed_tzids[$tzid]) && in_array($this->renamed_tzids[$tzid], $linked_tzids))
+			{
+				$linked_tzids = array($this->renamed_tzids[$tzid]);
+			}
 
 			// Try filtering out backzones in order to find to one unambiguous link.
 			if (count($linked_tzids) > 1)
