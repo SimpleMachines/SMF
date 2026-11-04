@@ -2287,7 +2287,7 @@ class TimeZone extends \DateTimeZone
 			$metazone = $this->getMetaZone($when ?? 'now', $allow_fallbacks);
 		}
 
-		$dst_type ??= match ($this->getDstType()) {
+		$dst_type ??= match ($this->getDstType($when ?? 'now')) {
 			self::DST_NEVER => 'standard',
 			self::DST_ALWAYS => 'daylight',
 			default => match (true) {
