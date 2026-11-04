@@ -1905,7 +1905,7 @@ class TimezoneDataUpdater extends UpdaterBase
 				}
 
 				if (isset($this->metazones['labels'][$metazone]['generic']['long'])) {
-					$entry = array_last($this->zones[$tzid]['entries']);
+					$entry = $this->zones[$tzid]['entries'][array_key_last($this->zones[$tzid]['entries'])];
 
 					if ($entry['format'] !== '%z') {
 						$this->metazones['labels'][$metazone]['generic']['short'] ??= \sprintf($entry['format'], '');
