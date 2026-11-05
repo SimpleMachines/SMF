@@ -42,10 +42,6 @@ class Midway extends Pago_Pago
 	 */
 	public array $metazones = [
 		0 => [
-			'ts' => '1970-01-01T00:00:00+0000',
-			'metazone' => 'Bering',
-		],
-		1 => [
 			'ts' => '1983-10-30T12:00:00+0000',
 			'metazone' => 'Samoa',
 		],

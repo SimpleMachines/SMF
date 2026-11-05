@@ -83,7 +83,7 @@ class Eirunepe extends VTimeZone
 		2 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19320401T000000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYMONTHDAY=1;UNTIL=19330401T040000Z',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYMONTHDAY=31;UNTIL=19330401T040000Z',
 			'TZNAME' => 'UTC-05',
 			'TZOFFSETFROM' => '-0400',
 			'TZOFFSETTO' => '-0500',
@@ -113,7 +113,7 @@ class Eirunepe extends VTimeZone
 		6 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19510401T000000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYMONTHDAY=1;UNTIL=19520401T040000Z',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYMONTHDAY=31;UNTIL=19520401T040000Z',
 			'TZNAME' => 'UTC-05',
 			'TZOFFSETFROM' => '-0400',
 			'TZOFFSETTO' => '-0500',
@@ -148,7 +148,7 @@ class Eirunepe extends VTimeZone
 		],
 		11 => [
 			'type' => 'STANDARD',
-			'DTSTART' => '19650331T000000',
+			'DTSTART' => '19650401T000000',
 			'TZNAME' => 'UTC-05',
 			'TZOFFSETFROM' => '-0400',
 			'TZOFFSETTO' => '-0500',
@@ -162,8 +162,7 @@ class Eirunepe extends VTimeZone
 		],
 		13 => [
 			'type' => 'STANDARD',
-			'DTSTART' => '19660301T000000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYMONTHDAY=1;UNTIL=19680301T040000Z',
+			'DTSTART' => '19660301T010000',
 			'TZNAME' => 'UTC-05',
 			'TZOFFSETFROM' => '-0400',
 			'TZOFFSETTO' => '-0500',
@@ -177,48 +176,56 @@ class Eirunepe extends VTimeZone
 			'TZOFFSETTO' => '-0400',
 		],
 		15 => [
+			'type' => 'STANDARD',
+			'DTSTART' => '19670301T000000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYMONTHDAY=1;UNTIL=19680301T040000Z',
+			'TZNAME' => 'UTC-05',
+			'TZOFFSETFROM' => '-0400',
+			'TZOFFSETTO' => '-0500',
+		],
+		16 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19851102T000000',
 			'TZNAME' => 'UTC-04',
 			'TZOFFSETFROM' => '-0500',
 			'TZOFFSETTO' => '-0400',
 		],
-		16 => [
+		17 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19860315T000000',
 			'TZNAME' => 'UTC-05',
 			'TZOFFSETFROM' => '-0400',
 			'TZOFFSETTO' => '-0500',
 		],
-		17 => [
+		18 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19861025T000000',
 			'TZNAME' => 'UTC-04',
 			'TZOFFSETFROM' => '-0500',
 			'TZOFFSETTO' => '-0400',
 		],
-		18 => [
+		19 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19870214T000000',
 			'TZNAME' => 'UTC-05',
 			'TZOFFSETFROM' => '-0400',
 			'TZOFFSETTO' => '-0500',
 		],
-		19 => [
+		20 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19871025T000000',
 			'TZNAME' => 'UTC-04',
 			'TZOFFSETFROM' => '-0500',
 			'TZOFFSETTO' => '-0400',
 		],
-		20 => [
+		21 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19880207T000000',
 			'TZNAME' => 'UTC-05',
 			'TZOFFSETFROM' => '-0400',
 			'TZOFFSETTO' => '-0500',
 		],
-		21 => [
+		22 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19931017T000000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=SU;BYMONTHDAY=11,12,13,14,15,16,17;UNTIL=19951015T050000Z',
@@ -226,7 +233,7 @@ class Eirunepe extends VTimeZone
 			'TZOFFSETFROM' => '-0500',
 			'TZOFFSETTO' => '-0400',
 		],
-		22 => [
+		23 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19940220T000000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=2;BYDAY=3SU;UNTIL=19950219T040000Z',
@@ -234,14 +241,14 @@ class Eirunepe extends VTimeZone
 			'TZOFFSETFROM' => '-0400',
 			'TZOFFSETTO' => '-0500',
 		],
-		23 => [
+		24 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20080624T000000',
 			'TZNAME' => 'UTC-04',
 			'TZOFFSETFROM' => '-0500',
 			'TZOFFSETTO' => '-0400',
 		],
-		24 => [
+		25 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20131110T000000',
 			'TZNAME' => 'UTC-05',

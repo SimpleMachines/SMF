@@ -44,18 +44,14 @@ class Santo_Domingo extends VTimeZone
 	 */
 	public array $metazones = [
 		0 => [
-			'ts' => '1970-01-01T00:00:00+0000',
-			'metazone' => 'Dominican',
-		],
-		1 => [
 			'ts' => '1974-10-27T05:00:00+0000',
 			'metazone' => 'Atlantic',
 		],
-		2 => [
+		1 => [
 			'ts' => '2000-10-29T06:00:00+0000',
 			'metazone' => 'America_Eastern',
 		],
-		3 => [
+		2 => [
 			'ts' => '2000-12-03T06:00:00+0000',
 			'metazone' => 'Atlantic',
 		],

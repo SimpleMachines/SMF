@@ -809,8 +809,6 @@ class TimezoneDataUpdater extends UpdaterBase
 			'region_format_type_standard',
 			'fallback_format',
 			'Etc/UTC',
-			'Europe/Dublin',
-			'Europe/London',
 		];
 
 		// Keys for $tztxt items that take plain strings, not arrays.
@@ -1861,10 +1859,20 @@ class TimezoneDataUpdater extends UpdaterBase
 						continue;
 					}
 
-					$this->metazones['usage'][$tzid][] = [
+					$usage_entry = [
 						'ts' => empty($entry['_from']) ? self::DATE_EPOCH : (new \DateTime($entry['_from'] . ' UTC'))->format('Y-m-d\TH:i:sO'),
 						'metazone' => $entry['_mzone'],
 					];
+
+					if (isset($entry['_stdOffset'])) {
+						$usage_entry['std_offset'] = $entry['_stdOffset'];
+					}
+
+					if (isset($entry['_dstOffset'])) {
+						$usage_entry['dst_offset'] = $entry['_dstOffset'];
+					}
+
+					$this->metazones['usage'][$tzid][] = $usage_entry;
 				}
 			}
 		}
