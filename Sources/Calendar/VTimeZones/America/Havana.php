@@ -347,7 +347,7 @@ class Havana extends VTimeZone
 		38 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20121104T010000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=11;BYDAY=1SU',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=11;BYDAY=1SU;UNTIL=20251102T040000Z',
 			'TZNAME' => 'CST',
 			'TZOFFSETFROM' => '-0400',
 			'TZOFFSETTO' => '-0500',
@@ -355,6 +355,22 @@ class Havana extends VTimeZone
 		39 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '20130310T000000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=2SU;UNTIL=20260308T050000Z',
+			'TZNAME' => 'CDT',
+			'TZOFFSETFROM' => '-0500',
+			'TZOFFSETTO' => '-0400',
+		],
+		40 => [
+			'type' => 'STANDARD',
+			'DTSTART' => '20271107T010000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=11;BYDAY=1SU',
+			'TZNAME' => 'CST',
+			'TZOFFSETFROM' => '-0400',
+			'TZOFFSETTO' => '-0500',
+		],
+		41 => [
+			'type' => 'DAYLIGHT',
+			'DTSTART' => '20280312T000000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYDAY=2SU',
 			'TZNAME' => 'CDT',
 			'TZOFFSETFROM' => '-0500',

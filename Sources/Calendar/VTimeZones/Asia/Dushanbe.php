@@ -44,10 +44,6 @@ class Dushanbe extends VTimeZone
 	 */
 	public array $metazones = [
 		0 => [
-			'ts' => '1970-01-01T00:00:00+0000',
-			'metazone' => 'Dushanbe',
-		],
-		1 => [
 			'ts' => '1991-09-08T21:00:00+0000',
 			'metazone' => 'Tajikistan',
 		],

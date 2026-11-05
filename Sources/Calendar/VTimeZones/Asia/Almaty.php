@@ -44,14 +44,10 @@ class Almaty extends VTimeZone
 	 */
 	public array $metazones = [
 		0 => [
-			'ts' => '1970-01-01T00:00:00+0000',
-			'metazone' => 'Almaty',
-		],
-		1 => [
 			'ts' => '2004-10-30T20:00:00+0000',
 			'metazone' => 'Kazakhstan_Eastern',
 		],
-		2 => [
+		1 => [
 			'ts' => '2024-02-29T18:00:00+0000',
 			'metazone' => 'Kazakhstan',
 		],

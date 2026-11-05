@@ -44,10 +44,6 @@ class Macau extends VTimeZone
 	 */
 	public array $metazones = [
 		0 => [
-			'ts' => '1970-01-01T00:00:00+0000',
-			'metazone' => 'Macau',
-		],
-		1 => [
 			'ts' => '1999-12-19T16:00:00+0000',
 			'metazone' => 'China',
 		],

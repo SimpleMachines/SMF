@@ -268,6 +268,26 @@ class TimezoneDataUpdater extends UpdaterBase
 	 */
 	public array $sorted_tzids = [];
 
+	/**
+	 * A list of time zone identifiers that have been renamed.
+	 *
+	 * In most cases, this class's logic can detect renamed tzids by analyzing
+	 * the tzdb data itself. However, it needs some help with Europe/Kyiv in
+	 * particular, and there's no harm in being explicit about the others.
+	 *
+	 * Keys are the new names. Values are the old names.
+	 */
+	public $renamed_tzids = array(
+		'Asia/Kolkata' => 'Asia/Calcutta',
+		'Pacific/Chuuk' => 'Pacific/Truk',
+		'Pacific/Kanton' => 'Pacific/Enderbury',
+		'Pacific/Pohnpei' => 'Pacific/Ponape',
+		'Asia/Yangon' => 'Asia/Rangoon',
+		'America/Nuuk' => 'America/Godthab',
+		'Europe/Busingen' => 'Europe/Zurich',
+		'Europe/Kyiv' => 'Europe/Kiev',
+	);
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -395,6 +415,11 @@ class TimezoneDataUpdater extends UpdaterBase
 			}
 
 			$linked_tzids = array_unique($linked_tzids);
+
+			// Do we already have a preferred option defined?
+			if (count($linked_tzids) > 1 && isset($this->renamed_tzids[$tzid]) && in_array($this->renamed_tzids[$tzid], $linked_tzids)) {
+				$linked_tzids = [$this->renamed_tzids[$tzid]];
+			}
 
 			// Try filtering out backzones in order to find to one unambiguous link.
 			if (\count($linked_tzids) > 1) {
@@ -646,8 +671,11 @@ class TimezoneDataUpdater extends UpdaterBase
 		// Save the changes we've made so far.
 		file_put_contents(Config::$sourcedir . '/TimeZone.php', $file_contents);
 
-		// Ensure the TimeZone::$preferred_zones array in up to date.
+		// Ensure the TimeZone::$preferred_zones array is up to date.
 		$file_contents = $this->updatePreferredZones($file_contents);
+
+		// Ensure the TimeZone::$cldr_dst array is up to date.
+		$file_contents = $this->updateCldrDstList($file_contents);
 
 		// Extract the $sorted_tzids array and evaluate it.
 		preg_match('/protected static array \K\$sorted_tzids = \[[^;]+;/', $file_contents, $matches);
@@ -742,6 +770,36 @@ class TimezoneDataUpdater extends UpdaterBase
 	}
 
 	/**
+	 * Updates the $preferred_zones array in TimeZone.php.
+	 *
+	 * @param string $file_contents String content of TimeZone.php.
+	 * @return string Modified copy of $file_contents.
+	 */
+	private function updateCldrDstList(string $file_contents): string
+	{
+		$this->buildMetaZones();
+
+		$cldr_dst = [];
+
+		foreach ($this->metazones['usage'] as $tzid => $entries) {
+			foreach ($entries as $entry) {
+				if (isset($entry['dst_offset']) || isset($entry['std_offset'])) {
+					$cldr_dst[] = $tzid;
+					continue 2;
+				}
+			}
+		}
+
+		sort($cldr_dst);
+
+		return preg_replace(
+			'/(\h*protected static array \$cldr_dst)\h*=\h*\[[^;]*;/',
+			'$1 = ' . preg_replace('/^(?!\[)/m', "\t", Config::varExport($cldr_dst)) . ';',
+			$file_contents,
+		);
+	}
+
+	/**
 	 * Updates the contents of the Timezones.php language file with any
 	 * changes required to reflect changes in the TZDB.
 	 *
@@ -784,8 +842,6 @@ class TimezoneDataUpdater extends UpdaterBase
 			'region_format_type_standard',
 			'fallback_format',
 			'Etc/UTC',
-			'Europe/Dublin',
-			'Europe/London',
 		];
 
 		// Keys for $tztxt items that take plain strings, not arrays.
@@ -1836,10 +1892,20 @@ class TimezoneDataUpdater extends UpdaterBase
 						continue;
 					}
 
-					$this->metazones['usage'][$tzid][] = [
+					$usage_entry = [
 						'ts' => empty($entry['_from']) ? self::DATE_EPOCH : (new \DateTime($entry['_from'] . ' UTC'))->format('Y-m-d\TH:i:sO'),
 						'metazone' => $entry['_mzone'],
 					];
+
+					if (isset($entry['_stdOffset'])) {
+						$usage_entry['std_offset'] = $entry['_stdOffset'];
+					}
+
+					if (isset($entry['_dstOffset'])) {
+						$usage_entry['dst_offset'] = $entry['_dstOffset'];
+					}
+
+					$this->metazones['usage'][$tzid][] = $usage_entry;
 				}
 			}
 		}
@@ -1905,7 +1971,7 @@ class TimezoneDataUpdater extends UpdaterBase
 				}
 
 				if (isset($this->metazones['labels'][$metazone]['generic']['long'])) {
-					$entry = array_last($this->zones[$tzid]['entries']);
+					$entry = $this->zones[$tzid]['entries'][array_key_last($this->zones[$tzid]['entries'])];
 
 					if ($entry['format'] !== '%z') {
 						$this->metazones['labels'][$metazone]['generic']['short'] ??= \sprintf($entry['format'], '');

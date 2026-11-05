@@ -44,18 +44,14 @@ class Samara extends VTimeZone
 	 */
 	public array $metazones = [
 		0 => [
-			'ts' => '1970-01-01T00:00:00+0000',
-			'metazone' => 'Kuybyshev',
-		],
-		1 => [
 			'ts' => '1989-03-25T22:00:00+0000',
 			'metazone' => 'Moscow',
 		],
-		2 => [
+		1 => [
 			'ts' => '1991-03-30T23:00:00+0000',
 			'metazone' => 'Europe_Eastern',
 		],
-		3 => [
+		2 => [
 			'ts' => '1991-09-29T00:00:00+0000',
 			'metazone' => 'Samara',
 		],

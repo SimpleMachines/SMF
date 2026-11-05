@@ -48,10 +48,6 @@ class Colombo extends VTimeZone
 			'metazone' => 'India',
 		],
 		1 => [
-			'ts' => '1996-05-24T18:30:00+0000',
-			'metazone' => 'Lanka',
-		],
-		2 => [
 			'ts' => '2006-04-14T18:30:00+0000',
 			'metazone' => 'India',
 		],

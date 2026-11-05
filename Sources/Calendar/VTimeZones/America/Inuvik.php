@@ -50,6 +50,8 @@ class Inuvik extends VTimeZone
 		1 => [
 			'ts' => '1979-04-29T10:00:00+0000',
 			'metazone' => 'America_Mountain',
+			'std_offset' => '-07',
+			'dst_offset' => '-06',
 		],
 	];
 

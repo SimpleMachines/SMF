@@ -44,10 +44,6 @@ class Nome extends VTimeZone
 	 */
 	public array $metazones = [
 		0 => [
-			'ts' => '1970-01-01T00:00:00+0000',
-			'metazone' => 'Bering',
-		],
-		1 => [
 			'ts' => '1983-11-30T09:00:00+0000',
 			'metazone' => 'Alaska',
 		],

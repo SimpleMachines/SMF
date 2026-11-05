@@ -75,7 +75,7 @@ class Cuiaba extends VTimeZone
 		2 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19320401T000000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYMONTHDAY=1;UNTIL=19330401T030000Z',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYMONTHDAY=31;UNTIL=19330401T030000Z',
 			'TZNAME' => 'UTC-04',
 			'TZOFFSETFROM' => '-0300',
 			'TZOFFSETTO' => '-0400',
@@ -105,7 +105,7 @@ class Cuiaba extends VTimeZone
 		6 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19510401T000000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYMONTHDAY=1;UNTIL=19520401T030000Z',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYMONTHDAY=31;UNTIL=19520401T030000Z',
 			'TZNAME' => 'UTC-04',
 			'TZOFFSETFROM' => '-0300',
 			'TZOFFSETTO' => '-0400',
@@ -140,7 +140,7 @@ class Cuiaba extends VTimeZone
 		],
 		11 => [
 			'type' => 'STANDARD',
-			'DTSTART' => '19650331T000000',
+			'DTSTART' => '19650401T000000',
 			'TZNAME' => 'UTC-04',
 			'TZOFFSETFROM' => '-0300',
 			'TZOFFSETTO' => '-0400',
@@ -154,8 +154,7 @@ class Cuiaba extends VTimeZone
 		],
 		13 => [
 			'type' => 'STANDARD',
-			'DTSTART' => '19660301T000000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYMONTHDAY=1;UNTIL=19680301T030000Z',
+			'DTSTART' => '19660301T010000',
 			'TZNAME' => 'UTC-04',
 			'TZOFFSETFROM' => '-0300',
 			'TZOFFSETTO' => '-0400',
@@ -169,118 +168,126 @@ class Cuiaba extends VTimeZone
 			'TZOFFSETTO' => '-0300',
 		],
 		15 => [
+			'type' => 'STANDARD',
+			'DTSTART' => '19670301T000000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYMONTHDAY=1;UNTIL=19680301T030000Z',
+			'TZNAME' => 'UTC-04',
+			'TZOFFSETFROM' => '-0300',
+			'TZOFFSETTO' => '-0400',
+		],
+		16 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19851102T000000',
 			'TZNAME' => 'UTC-03',
 			'TZOFFSETFROM' => '-0400',
 			'TZOFFSETTO' => '-0300',
 		],
-		16 => [
+		17 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19860315T000000',
 			'TZNAME' => 'UTC-04',
 			'TZOFFSETFROM' => '-0300',
 			'TZOFFSETTO' => '-0400',
 		],
-		17 => [
+		18 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19861025T000000',
 			'TZNAME' => 'UTC-03',
 			'TZOFFSETFROM' => '-0400',
 			'TZOFFSETTO' => '-0300',
 		],
-		18 => [
+		19 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19870214T000000',
 			'TZNAME' => 'UTC-04',
 			'TZOFFSETFROM' => '-0300',
 			'TZOFFSETTO' => '-0400',
 		],
-		19 => [
+		20 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19871025T000000',
 			'TZNAME' => 'UTC-03',
 			'TZOFFSETFROM' => '-0400',
 			'TZOFFSETTO' => '-0300',
 		],
-		20 => [
+		21 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19880207T000000',
 			'TZNAME' => 'UTC-04',
 			'TZOFFSETFROM' => '-0300',
 			'TZOFFSETTO' => '-0400',
 		],
-		21 => [
+		22 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19881016T000000',
 			'TZNAME' => 'UTC-03',
 			'TZOFFSETFROM' => '-0400',
 			'TZOFFSETTO' => '-0300',
 		],
-		22 => [
+		23 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19890129T000000',
 			'TZNAME' => 'UTC-04',
 			'TZOFFSETFROM' => '-0300',
 			'TZOFFSETTO' => '-0400',
 		],
-		23 => [
+		24 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19891015T000000',
 			'TZNAME' => 'UTC-03',
 			'TZOFFSETFROM' => '-0400',
 			'TZOFFSETTO' => '-0300',
 		],
-		24 => [
+		25 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19900211T000000',
 			'TZNAME' => 'UTC-04',
 			'TZOFFSETFROM' => '-0300',
 			'TZOFFSETTO' => '-0400',
 		],
-		25 => [
+		26 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19901021T000000',
 			'TZNAME' => 'UTC-03',
 			'TZOFFSETFROM' => '-0400',
 			'TZOFFSETTO' => '-0300',
 		],
-		26 => [
+		27 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19910217T000000',
 			'TZNAME' => 'UTC-04',
 			'TZOFFSETFROM' => '-0300',
 			'TZOFFSETTO' => '-0400',
 		],
-		27 => [
+		28 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19911020T000000',
 			'TZNAME' => 'UTC-03',
 			'TZOFFSETFROM' => '-0400',
 			'TZOFFSETTO' => '-0300',
 		],
-		28 => [
+		29 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19920209T000000',
 			'TZNAME' => 'UTC-04',
 			'TZOFFSETFROM' => '-0300',
 			'TZOFFSETTO' => '-0400',
 		],
-		29 => [
+		30 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19921025T000000',
 			'TZNAME' => 'UTC-03',
 			'TZOFFSETFROM' => '-0400',
 			'TZOFFSETTO' => '-0300',
 		],
-		30 => [
+		31 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19930131T000000',
 			'TZNAME' => 'UTC-04',
 			'TZOFFSETFROM' => '-0300',
 			'TZOFFSETTO' => '-0400',
 		],
-		31 => [
+		32 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19931017T000000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=SU;BYMONTHDAY=11,12,13,14,15,16,17;UNTIL=19951015T040000Z',
@@ -288,7 +295,7 @@ class Cuiaba extends VTimeZone
 			'TZOFFSETFROM' => '-0400',
 			'TZOFFSETTO' => '-0300',
 		],
-		32 => [
+		33 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19940220T000000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=2;BYDAY=3SU;UNTIL=19950219T030000Z',
@@ -296,70 +303,70 @@ class Cuiaba extends VTimeZone
 			'TZOFFSETFROM' => '-0300',
 			'TZOFFSETTO' => '-0400',
 		],
-		33 => [
+		34 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19960211T000000',
 			'TZNAME' => 'UTC-04',
 			'TZOFFSETFROM' => '-0300',
 			'TZOFFSETTO' => '-0400',
 		],
-		34 => [
+		35 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19961006T000000',
 			'TZNAME' => 'UTC-03',
 			'TZOFFSETFROM' => '-0400',
 			'TZOFFSETTO' => '-0300',
 		],
-		35 => [
+		36 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19970216T000000',
 			'TZNAME' => 'UTC-04',
 			'TZOFFSETFROM' => '-0300',
 			'TZOFFSETTO' => '-0400',
 		],
-		36 => [
+		37 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19971006T000000',
 			'TZNAME' => 'UTC-03',
 			'TZOFFSETFROM' => '-0400',
 			'TZOFFSETTO' => '-0300',
 		],
-		37 => [
+		38 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19980301T000000',
 			'TZNAME' => 'UTC-04',
 			'TZOFFSETFROM' => '-0300',
 			'TZOFFSETTO' => '-0400',
 		],
-		38 => [
+		39 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19981011T000000',
 			'TZNAME' => 'UTC-03',
 			'TZOFFSETFROM' => '-0400',
 			'TZOFFSETTO' => '-0300',
 		],
-		39 => [
+		40 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19990221T000000',
 			'TZNAME' => 'UTC-04',
 			'TZOFFSETFROM' => '-0300',
 			'TZOFFSETTO' => '-0400',
 		],
-		40 => [
+		41 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19991003T000000',
 			'TZNAME' => 'UTC-03',
 			'TZOFFSETFROM' => '-0400',
 			'TZOFFSETTO' => '-0300',
 		],
-		41 => [
+		42 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20000227T000000',
 			'TZNAME' => 'UTC-04',
 			'TZOFFSETFROM' => '-0300',
 			'TZOFFSETTO' => '-0400',
 		],
-		42 => [
+		43 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '20001008T000000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=2SU;UNTIL=20011014T040000Z',
@@ -367,7 +374,7 @@ class Cuiaba extends VTimeZone
 			'TZOFFSETFROM' => '-0400',
 			'TZOFFSETTO' => '-0300',
 		],
-		43 => [
+		44 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20010218T000000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=2;BYDAY=3SU;UNTIL=20060219T030000Z',
@@ -375,49 +382,49 @@ class Cuiaba extends VTimeZone
 			'TZOFFSETFROM' => '-0300',
 			'TZOFFSETTO' => '-0400',
 		],
-		44 => [
+		45 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '20021103T000000',
 			'TZNAME' => 'UTC-03',
 			'TZOFFSETFROM' => '-0400',
 			'TZOFFSETTO' => '-0300',
 		],
-		45 => [
+		46 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '20041102T000000',
 			'TZNAME' => 'UTC-03',
 			'TZOFFSETFROM' => '-0400',
 			'TZOFFSETTO' => '-0300',
 		],
-		46 => [
+		47 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '20051016T000000',
 			'TZNAME' => 'UTC-03',
 			'TZOFFSETFROM' => '-0400',
 			'TZOFFSETTO' => '-0300',
 		],
-		47 => [
+		48 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '20061105T000000',
 			'TZNAME' => 'UTC-03',
 			'TZOFFSETFROM' => '-0400',
 			'TZOFFSETTO' => '-0300',
 		],
-		48 => [
+		49 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20070225T000000',
 			'TZNAME' => 'UTC-04',
 			'TZOFFSETFROM' => '-0300',
 			'TZOFFSETTO' => '-0400',
 		],
-		49 => [
+		50 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '20071014T000000',
 			'TZNAME' => 'UTC-03',
 			'TZOFFSETFROM' => '-0400',
 			'TZOFFSETTO' => '-0300',
 		],
-		50 => [
+		51 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20080217T000000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=2;BYDAY=3SU;UNTIL=20110220T030000Z',
@@ -425,7 +432,7 @@ class Cuiaba extends VTimeZone
 			'TZOFFSETFROM' => '-0300',
 			'TZOFFSETTO' => '-0400',
 		],
-		51 => [
+		52 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '20081019T000000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=3SU;UNTIL=20171015T040000Z',
@@ -433,14 +440,14 @@ class Cuiaba extends VTimeZone
 			'TZOFFSETFROM' => '-0400',
 			'TZOFFSETTO' => '-0300',
 		],
-		52 => [
+		53 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20120226T000000',
 			'TZNAME' => 'UTC-04',
 			'TZOFFSETFROM' => '-0300',
 			'TZOFFSETTO' => '-0400',
 		],
-		53 => [
+		54 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20130217T000000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=2;BYDAY=3SU;UNTIL=20140216T030000Z',
@@ -448,14 +455,14 @@ class Cuiaba extends VTimeZone
 			'TZOFFSETFROM' => '-0300',
 			'TZOFFSETTO' => '-0400',
 		],
-		54 => [
+		55 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20150222T000000',
 			'TZNAME' => 'UTC-04',
 			'TZOFFSETFROM' => '-0300',
 			'TZOFFSETTO' => '-0400',
 		],
-		55 => [
+		56 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20160221T000000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=2;BYDAY=3SU;UNTIL=20190217T030000Z',
@@ -463,7 +470,7 @@ class Cuiaba extends VTimeZone
 			'TZOFFSETFROM' => '-0300',
 			'TZOFFSETTO' => '-0400',
 		],
-		56 => [
+		57 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '20181104T000000',
 			'TZNAME' => 'UTC-03',

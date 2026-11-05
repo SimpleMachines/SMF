@@ -54,6 +54,8 @@ class Windhoek extends VTimeZone
 		2 => [
 			'ts' => '1994-03-20T22:00:00+0000',
 			'metazone' => 'Africa_Western',
+			'std_offset' => '+01',
+			'dst_offset' => '+02',
 		],
 		3 => [
 			'ts' => '2017-10-23T22:00:00+0000',

@@ -48,10 +48,6 @@ class Goose_Bay extends VTimeZone
 			'metazone' => 'Atlantic',
 		],
 		1 => [
-			'ts' => '1988-04-03T04:01:00+0000',
-			'metazone' => 'Goose_Bay',
-		],
-		2 => [
 			'ts' => '1988-10-30T02:01:00+0000',
 			'metazone' => 'Atlantic',
 		],
