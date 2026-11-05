@@ -91,6 +91,40 @@ class SendDigests extends ScheduledTask
 			return true;
 		}
 
+		// The preferred way...
+		$prefs = Notify::getNotifyPrefs(
+			array_keys($members),
+			array_merge(
+				['msg_notify_type', 'msg_notify_pref', 'board_notify', 'topic_notify'],
+				array_map(fn($id) => 'board_notify_' . $id, array_keys($notify['boards'] ?? [])),
+				array_map(fn($id) => 'topic_notify_' . $id, array_keys($notify['topics'] ?? [])),
+			),
+			true,
+		);
+
+		// Watching a board or a topic is not on its own a request to be
+		// emailed about it: the alert and the email are separate bits of the
+		// same preference, and a member can ask for one without the other. A
+		// digest is an email, so the members who only wanted an alert do not
+		// belong in the lists that decide who is told about what.
+		foreach (['boards' => 'board', 'topics' => 'topic'] as $key => $type) {
+			foreach ($notify[$key] ?? [] as $id => $watchers) {
+				$notify[$key][$id] = array_values(
+					array_filter(
+						$watchers,
+						function ($mid) use ($prefs, $type, $id) {
+							// A per board or per topic preference of zero means
+							// nothing was chosen for that one in particular, so
+							// the member's general preference decides.
+							$pref = !empty($prefs[$mid][$type . '_notify_' . $id]) ? $prefs[$mid][$type . '_notify_' . $id] : ($prefs[$mid][$type . '_notify'] ?? 0);
+
+							return (bool) ($pref & self::RECEIVE_NOTIFY_EMAIL);
+						},
+					),
+				);
+			}
+		}
+
 		// Just get the board names.
 		$request = Db::$db->query(
 			'SELECT id_board, name
@@ -203,9 +237,6 @@ class SendDigests extends ScheduledTask
 
 			IntegrationHook::call('integrate_daily_digest_lang', [&$langtxt, $lang]);
 		}
-
-		// The preferred way...
-		$prefs = Notify::getNotifyPrefs(array_keys($members), ['msg_notify_type', 'msg_notify_pref'], true);
 
 		// Right - send out the silly things - this will take quite some space!
 		$members_sent = [];
