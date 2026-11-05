@@ -2883,7 +2883,7 @@ class TimeZone extends \DateTimeZone
 	 */
 	public static function getCanonical(string $tzid): string
 	{
-		return Calendar\VTimeZone::CANONICAL_LINKS[$tzid] ?? $tzid;
+		return self::CANONICAL_LINKS[$tzid] ?? $tzid;
 	}
 
 	/*************************
