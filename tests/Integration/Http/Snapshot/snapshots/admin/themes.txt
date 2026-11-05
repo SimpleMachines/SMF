@@ -1,0 +1,180 @@
+status 200
+@ title
+title
+  "Themes and Layout settings"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=theme;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Themes and Layout"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=theme;sa=admin;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Manage and Install"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      "Themes and Layout settings"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "This page allows you to change the default theme, reset members to all use a certain theme, and choose other settings related to theme selection. You are also able to install themes from here."
+    br
+    "Do not forget to look at the theme settings for your themes for layout options."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Themes and Layout settings Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Themes and Layout settings Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=theme;sa=admin;{session_var}={session_id}"]
+                "Manage and Install"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=theme;sa=list;{session_var}={session_id}"]
+                "Theme Settings"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=theme;sa=reset;{session_var}={session_id}"]
+                "Member Options"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=theme;sa=edit;{session_var}={session_id}"]
+                "Modify Themes"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  div.cat_bar
+    h3.catbg
+      a.help [href="{boardurl}/index.php?action=helpadmin;help=themes_manage" onclick="return reqOverlayDiv(this.href);"]
+        span.help.main_icons [title="Help"]
+      "Manage and Install themes"
+  div.information
+    "Themes are the different looks and feels of your forum. These settings affect the selection of themes, and which themes guests and other members use."
+  form [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=theme;sa=admin" method="post"]
+    div.cat_bar
+      h3.catbg
+        "Settings"
+    div.windowbg
+      dl.settings
+        dt
+          label [for="options-theme_allow"]
+            "Allow members to select their own themes."
+        dd
+          input [name="options[theme_allow]" type="hidden" value="#"]
+          input#options-theme_allow [checked name="options[theme_allow]" type="checkbox" value="#"]
+        dt
+          label [for="known_themes_list"]
+            "Themes that the user is able to select"
+        dd
+          div#known_themes_list
+            label [for="options-known_themes_#"]
+              input#options-known_themes_# [checked name="options[known_themes][]" type="checkbox" value="#"]
+              "SMF Default Theme - Curve#"
+            br
+          a#known_themes_link.button.floatnone.hidden [href="javascript:void(#);" onclick="document.getElementById('known_themes_list').classList.remove('hidden'); document.getElementById('known_themes_link').classList.add('hidden'); return false; "]
+            "Show the list of themes"
+          script
+            | document.getElementById("known_themes_list").classList.add('hidden'); document.getElementById("known_themes_link").classList.remove('hidden');
+        dt
+          label [for="theme_guests"]
+            "Overall forum default"
+        dd
+          select#theme_guests [name="options[theme_guests]"]
+            option [selected value="#"]
+              "SMF Default Theme - Curve#"
+          span.pick_theme.smalltext
+            a.button.floatnone [href="{boardurl}/index.php?action=themechooser;u=-#;{session_var}={session_id}"]
+              "choose..."
+        dt
+          label [for="theme_reset"]
+            "Reset everyone to"
+        dd
+          select#theme_reset [name="theme_reset"]
+            option [selected value="-#"]
+              "No change"
+            option [value="#"]
+              "Forum Default"
+            option [value="#"]
+              "SMF Default Theme - Curve#"
+          span.pick_theme.smalltext
+            a.button.floatnone [href="{boardurl}/index.php?action=themechooser;u=#;{session_var}={session_id}"]
+              "choose..."
+      input.button [name="save" type="submit" value="Save"]
+      input [name="{session_var}" type="hidden" value="{session_id}"]
+      input [name="{token_var}" type="hidden" value="{hash}"]
+  div.cat_bar
+    h3.catbg
+      "Obtaining Themes"
+  div.windowbg
+    "You can always find new themes for your forum from the SMF themes area -"
+    strong
+      a [href="https://custom.simplemachines.org/themes/" rel="noopener" target="_blank"]
+        "https://custom.simplemachines.org/themes/"
+    ". You can browse them on the website, read the comments, and download them to your computer and then upload them to your forum from there."
+    br
+    "If you run into any questions with themes, each theme published on simplemachines.org has a dedicated topic about it where support and comments should be directed to."
+  div#admin_form_wrapper
+    div.cat_bar
+      h3.catbg
+        "Install a New Theme"
+    div.windowbg
+      fieldset
+        legend
+          "From an archive (e.g. .zip, .tar.gz)"
+        form.padding [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=theme;sa=install;do=file" enctype="multipart/form-data" method="post"]
+          input [name="{session_var}" type="hidden" value="{session_id}"]
+          input [name="{token_var}" type="hidden" value="{hash}"]
+          input#theme_gz [name="theme_gz" onchange="this.form.copy.disabled = this.value != ''; this.form.theme_dir.disabled = this.value != '';" size="#" type="file" value="theme_gz"]
+          input.button [name="save_file" type="submit" value="Upload"]
+      fieldset
+        legend
+          "Create a copy of Default named"
+        form.padding [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=theme;sa=install;do=copy" method="post"]
+          input [name="{session_var}" type="hidden" value="{session_id}"]
+          input [name="{token_var}" type="hidden" value="{hash}"]
+          input#copy [name="copy" size="#" type="text" value="theme#"]
+          input.button [name="save_copy" type="submit" value="Save"]
+      fieldset
+        legend
+          "From a directory on the server"
+        form.padding [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=theme;sa=install;do=dir" method="post"]
+          input [name="{session_var}" type="hidden" value="{session_id}"]
+          input [name="{token_var}" type="hidden" value="{hash}"]
+          input#theme_dir [name="theme_dir" size="#" type="text" value="{boarddir}/Themes/"]
+          input.button [name="save_dir" type="submit" value="Save"]
+  script
+    | window.smfForum_scripturl = smf_scripturl; window.smfForum_sessionid = smf_session_id; window.smfForum_sessionvar = smf_session_var; window.smfThemes_writable = true;

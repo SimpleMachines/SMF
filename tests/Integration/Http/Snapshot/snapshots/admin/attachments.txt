@@ -1,0 +1,368 @@
+status 200
+@ title
+title
+  "Attachments and Avatars"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=manageattachments;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Attachments and Avatars"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=attachments;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Attachment Settings"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      a.help [href="{boardurl}/index.php?action=helpadmin;help=manage_files" onclick="return reqOverlayDiv(this.href);"]
+        span.help.main_icons [title="Help"]
+      "Attachments and Avatars"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "From here you can administer the attached files on your system. You can delete attachments by size and by date from your system. Statistics on attachments are also displayed below."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Attachments and Avatars Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Attachments and Avatars Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=browse;{session_var}={session_id}"]
+                "Browse Files"
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=attachments;{session_var}={session_id}"]
+                "Attachment Settings"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=avatars;{session_var}={session_id}"]
+                "Avatar Settings"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=attachpaths;{session_var}={session_id}"]
+                "Attachment Directories"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=maintenance;{session_var}={session_id}"]
+                "File Maintenance"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  form#admin_form_wrapper [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=manageattachments;save;sa=attachments" method="post"]
+    div.cat_bar
+      h3.catbg
+        a.help [href="{boardurl}/index.php?action=helpadmin;help=attachment_manager_settings" onclick="return reqOverlayDiv(this.href);"]
+          span.help.main_icons [title="Help"]
+        "Attachment Settings"
+    div.noup.windowbg
+      dl.settings
+        dt
+          a#setting_attachmentEnable_help [href="{boardurl}/index.php?action=helpadmin;help=attachmentEnable" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_attachmentEnable
+          span
+            label [for="attachmentEnable"]
+              "Attachments mode"
+        dd
+          select#attachmentEnable [name="attachmentEnable" size="#"]
+            option [value="#"]
+              "Disable attachments"
+            option [selected value="#"]
+              "Enable all attachments"
+            option [value="#"]
+              "Disable new attachments"
+      hr
+      dl.settings
+        dt
+          a#setting_automanage_attachments_help [href="{boardurl}/index.php?action=helpadmin;help=automanage_attachments" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_automanage_attachments
+          span
+            label [for="automanage_attachments"]
+              "Choose the method for the management of the attachment directories"
+        dd
+          select#automanage_attachments [name="automanage_attachments" size="#"]
+            option [value="#"]
+              "(Manual) SMF default behavior"
+            option [value="#"]
+              "(Auto) When either directory space limit is reached"
+            option [value="#"]
+              "(Auto) Subdivide by years"
+            option [value="#"]
+              "(Auto) Subdivide by years and months"
+            option [value="#"]
+              "(Auto) # random(s) directories"
+        dt
+          a#setting_use_subdirectories_for_attachments_help [href="{boardurl}/index.php?action=helpadmin;help=use_subdirectories_for_attachments" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_use_subdirectories_for_attachments
+          span
+            label [for="use_subdirectories_for_attachments"]
+              "Create new directories within a base directory"
+        dd
+          input#use_subdirectories_for_attachments [checked name="use_subdirectories_for_attachments" type="checkbox" value="#"]
+        dt
+          a#setting_basedirectory_for_attachments
+          span
+            label [for="basedirectory_for_attachments"]
+              "Set a base directory for attachments"
+        dd
+          input#basedirectory_for_attachments [name="basedirectory_for_attachments" size="#" type="text" value="{boarddir}/attachments"]
+        dt
+          a#setting_attachmentUploadDir_path
+          span
+            label [for="attachmentUploadDir_path"]
+              "Attachments directory"
+            br
+            span.smalltext
+              a [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=attachpaths"]
+                "[Manage attachment directories]"
+        dd
+          div#attachmentUploadDir_path
+            "{boarddir}/attachments"
+        dt
+          a#setting_attachmentDirFileLimit_help [href="{boardurl}/index.php?action=helpadmin;help=attachmentDirFileLimit" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_attachmentDirFileLimit
+          span
+            label [for="attachmentDirFileLimit"]
+              "Maximum number of files per directory"
+            br
+            span.smalltext
+              "(# for(s) no limit)"
+        dd
+          input#attachmentDirFileLimit [min="#" name="attachmentDirFileLimit" size="#" type="number" value="#"]
+        dt
+          a#setting_attachmentDirSizeLimit_help [href="{boardurl}/index.php?action=helpadmin;help=attachmentDirSizeLimit" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_attachmentDirSizeLimit
+          span
+            label [for="attachmentDirSizeLimit"]
+              "Max attachment directory space"
+            br
+            span.smalltext
+              "(# for(s) no limit)"
+        dd
+          input#attachmentDirSizeLimit [min="#" name="attachmentDirSizeLimit" size="#" type="number" value="#"]
+          "KB"
+        dt
+          a#setting_dont_show_attach_under_post_help [href="{boardurl}/index.php?action=helpadmin;help=dont_show_attach_under_post" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_dont_show_attach_under_post
+          span
+            label [for="dont_show_attach_under_post"]
+              "Do not show attachments under the post if they are already embedded in it."
+            br
+            span.smalltext
+              "Enable this if you do not want attachments to appear twice. Attachments embedded in the post still count towards attachment limits and can still be treated like normal attachments."
+        dd
+          input#dont_show_attach_under_post [name="dont_show_attach_under_post" type="checkbox" value="#"]
+      hr
+      dl.settings
+        dt
+          a#setting_attachmentPostLimit_help [href="{boardurl}/index.php?action=helpadmin;help=attachmentPostLimit" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_attachmentPostLimit
+          span
+            label [for="attachmentPostLimit"]
+              "Max attachment size per post"
+            br
+            span.smalltext
+              "Maximum allowed by php.ini: # KB(s)"
+        dd
+          input#attachmentPostLimit [max="#" min="#" name="attachmentPostLimit" size="#" type="number" value="#"]
+          "KB"
+        dt
+          a#setting_attachmentSizeLimit_help [href="{boardurl}/index.php?action=helpadmin;help=attachmentSizeLimit" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_attachmentSizeLimit
+          span
+            label [for="attachmentSizeLimit"]
+              "Max size per attachment"
+            br
+            span.smalltext
+              "Maximum allowed by php.ini: # KB(s)"
+        dd
+          input#attachmentSizeLimit [max="#" min="#" name="attachmentSizeLimit" size="#" type="number" value="#"]
+          "KB"
+        dt
+          a#setting_attachmentNumPerPostLimit_help [href="{boardurl}/index.php?action=helpadmin;help=attachmentNumPerPostLimit" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_attachmentNumPerPostLimit
+          span
+            label [for="attachmentNumPerPostLimit"]
+              "Max number of attachments per post"
+            br
+            span.smalltext
+              "(# for(s) no limit)"
+        dd
+          input#attachmentNumPerPostLimit [min="#" name="attachmentNumPerPostLimit" size="#" type="number" value="#"]
+    div.cat_bar
+      h3.catbg
+        "Attachment security settings"
+    div.noup.windowbg
+      dl.settings
+        dt
+          a#setting_attachmentCheckExtensions_help [href="{boardurl}/index.php?action=helpadmin;help=attachmentCheckExtensions" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_attachmentCheckExtensions
+          span
+            label [for="attachmentCheckExtensions"]
+              "Check attachment’s extension"
+        dd
+          input#attachmentCheckExtensions [name="attachmentCheckExtensions" type="checkbox" value="#"]
+        dt
+          a#setting_attachmentExtensions_help [href="{boardurl}/index.php?action=helpadmin;help=attachmentExtensions" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_attachmentExtensions
+          span
+            label [for="attachmentExtensions"]
+              "Allowed attachment extensions"
+        dd
+          input#attachmentExtensions [name="attachmentExtensions" size="#" type="text" value="doc,gif,jpg,mpg,pdf,png,txt,zip"]
+      hr
+      dl.settings
+        dt
+          a#setting_attachment_image_reencode_help [href="{boardurl}/index.php?action=helpadmin;help=attachment_image_reencode" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_attachment_image_reencode
+          span
+            label [for="attachment_image_reencode"]
+              "Re-encode potentially dangerous image attachments"
+        dd
+          input#attachment_image_reencode [checked name="attachment_image_reencode" type="checkbox" value="#"]
+      hr
+      dl.settings
+        dd.alert
+          "The extensive security checks can result in a large number of rejected attachments."
+        dt
+          a#setting_attachment_image_paranoid_help [href="{boardurl}/index.php?action=helpadmin;help=attachment_image_paranoid" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_attachment_image_paranoid
+          span
+            label [for="attachment_image_paranoid"]
+              "Perform extensive security checks on uploaded image attachments"
+        dd
+          input#attachment_image_paranoid [name="attachment_image_paranoid" type="checkbox" value="#"]
+    div.cat_bar
+      h3.catbg
+        "Thumbnail Settings"
+    div.noup.windowbg
+      dl.settings
+        dt
+          a#setting_attachmentShowImages_help [href="{boardurl}/index.php?action=helpadmin;help=attachmentShowImages" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_attachmentShowImages
+          span
+            label [for="attachmentShowImages"]
+              "Display image attachments as pictures under post"
+        dd
+          input#attachmentShowImages [checked name="attachmentShowImages" type="checkbox" value="#"]
+        dt
+          a#setting_attachmentThumbnails_help [href="{boardurl}/index.php?action=helpadmin;help=attachmentThumbnails" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_attachmentThumbnails
+          span
+            label [for="attachmentThumbnails"]
+              "Resize images when showing under posts"
+        dd
+          input#attachmentThumbnails [checked name="attachmentThumbnails" type="checkbox" value="#"]
+        dt
+          a#setting_attachment_thumb_png
+          span
+            label [for="attachment_thumb_png"]
+              "Save thumbnails as PNG"
+        dd
+          input#attachment_thumb_png [checked name="attachment_thumb_png" type="checkbox" value="#"]
+        dt
+          a#setting_attachment_thumb_memory_help [href="{boardurl}/index.php?action=helpadmin;help=attachment_thumb_memory" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_attachment_thumb_memory
+          span
+            label [for="attachment_thumb_memory"]
+              "Adaptive thumbnail memory"
+        dd
+          input#attachment_thumb_memory [name="attachment_thumb_memory" type="checkbox" value="#"]
+        dd.alert
+          "If disabled, memory is limited to # MB(s)"
+        dt
+          a#setting_attachmentThumbWidth_help [href="{boardurl}/index.php?action=helpadmin;help=attachmentThumbWidth" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_attachmentThumbWidth
+          span
+            label [for="attachmentThumbWidth"]
+              "Maximum width of thumbnails"
+        dd
+          input#attachmentThumbWidth [name="attachmentThumbWidth" size="#" type="text" value="#"]
+        dt
+          a#setting_attachmentThumbHeight_help [href="{boardurl}/index.php?action=helpadmin;help=attachmentThumbHeight" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_attachmentThumbHeight
+          span
+            label [for="attachmentThumbHeight"]
+              "Maximum height of thumbnails"
+        dd
+          input#attachmentThumbHeight [name="attachmentThumbHeight" size="#" type="text" value="#"]
+      hr
+      dl.settings
+        dt
+          a#setting_max_image_width_help [href="{boardurl}/index.php?action=helpadmin;help=max_image_width" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_max_image_width
+          span
+            label [for="max_image_width"]
+              "Max display width of posted or attached images"
+            br
+            span.smalltext
+              "(# for(s) no limit)"
+        dd
+          input#max_image_width [min="#" name="max_image_width" size="#" type="number" value="#"]
+        dt
+          a#setting_max_image_height_help [href="{boardurl}/index.php?action=helpadmin;help=max_image_height" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_max_image_height
+          span
+            label [for="max_image_height"]
+              "Max display height of posted or attached images"
+            br
+            span.smalltext
+              "(# for(s) no limit)"
+        dd
+          input#max_image_height [min="#" name="max_image_height" size="#" type="number" value="#"]
+      input.button [type="submit" value="Save"]
+    input [name="{token_var}" type="hidden" value="{hash}"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]
+  script
+    | var storing_type = document.getElementById('automanage_attachments'); var base_dir = document.getElementById('use_subdirectories_for_attachments'); storing_type.addEventListener("change", toggleSubDir, false); base_dir.addEventListener("change", toggleSubDir, false); toggleSubDir();

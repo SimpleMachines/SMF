@@ -1,0 +1,127 @@
+status 200
+@ title
+title
+  "Mail"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=mailqueue;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Mail"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=mailqueue;sa=browse;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Browse Queue"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      "Mail"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "From this page you can configure your mail settings, as well as view and administer the current mail queue."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Mail Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Mail Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=mailqueue;sa=browse;{session_var}={session_id}"]
+                "Browse Queue"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=mailqueue;sa=settings;{session_var}={session_id}"]
+                "Settings"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=mailqueue;sa=test;{session_var}={session_id}"]
+                "Send Test"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  div#manage_mail
+    div#mailqueue_stats
+      div.cat_bar
+        h3.catbg
+          "Mail queue statistics"
+      div.windowbg
+        dl.settings
+          dt
+            strong
+              "Queue length"
+          dd
+            "#"
+          dt
+            strong
+              "Oldest Mail"
+          dd
+            "N/A"
+    form [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=mailqueue" method="post"]
+      div.cat_bar
+        h3.catbg
+          "Browse Queue"
+      div.additional_row
+        input.button.you_sure [data-confirm="Are you sure you want to do this?" name="delete_redirects" type="submit" value="Remove selected"]
+        a.button.you_sure [data-confirm="Are you sure you wish to send the whole mail queue now? This will override any limits you have set." href="{boardurl}/index.php?action=admin;area=mailqueue;sa=clear;{session_var}={session_id}"]
+          "Send mail queue now"
+      table#mail_queue.table_grid
+        thead
+          tr.title_bar
+            th#header_mail_queue_subject.subject [scope="col"]
+              a [href="{boardurl}/index.php?action=admin;area=mailqueue;sort=subject" rel="nofollow"]
+                "Subject"
+            th#header_mail_queue_recipient.recipient [scope="col"]
+              a [href="{boardurl}/index.php?action=admin;area=mailqueue;sort=recipient" rel="nofollow"]
+                "Recipient"
+            th#header_mail_queue_priority.priority [scope="col"]
+              a [href="{boardurl}/index.php?action=admin;area=mailqueue;sort=priority" rel="nofollow"]
+                "Priority"
+            th#header_mail_queue_age.age [scope="col"]
+              a [href="{boardurl}/index.php?action=admin;area=mailqueue;sort=age;desc" rel="nofollow"]
+                "Age"
+                span.main_icons.sort_up
+            th#header_mail_queue_check.check [scope="col"]
+              input [onclick="invertAll(this, this.form);" type="checkbox"]
+        tbody
+          tr.windowbg
+            td.centertext [colspan="#"]
+              "The mail queue is currently empty"
+      div.additional_row
+        input.button.you_sure [data-confirm="Are you sure you want to do this?" name="delete_redirects" type="submit" value="Remove selected"]
+        a.button.you_sure [data-confirm="Are you sure you wish to send the whole mail queue now? This will override any limits you have set." href="{boardurl}/index.php?action=admin;area=mailqueue;sa=clear;{session_var}={session_id}"]
+          "Send mail queue now"
+      input [name="{session_var}" type="hidden" value="{session_id}"]
+      input [name="sort" type="hidden" value="age"]

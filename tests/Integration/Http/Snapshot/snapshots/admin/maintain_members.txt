@@ -1,0 +1,199 @@
+status 200
+@ title
+title
+  "Forum Maintenance"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=maintain;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Forum Maintenance"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=maintain;sa=members;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Members"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      "Forum Maintenance"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "Optimize tables, make backups, check for errors, and prune boards with these tools."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Forum Maintenance Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Forum Maintenance Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a [href="{boardurl}/index.php?action=admin;area=maintain;sa=routine;{session_var}={session_id}"]
+                "Routine"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=maintain;sa=database;{session_var}={session_id}"]
+                "Database"
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=maintain;sa=members;{session_var}={session_id}"]
+                "Members"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=maintain;sa=topics;{session_var}={session_id}"]
+                "Topics"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=maintain;sa=hooks;{session_var}={session_id}"]
+                "Integration Hooks"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  script
+    | var warningMessage = ''; var membersSwap = false; function swapMembers() { membersSwap = !membersSwap; var membersForm = document.getElementById('membersForm'); $("#membersPanel").slideToggle(#); document.getElementById("membersIcon").src = smf_images_url + (membersSwap ? "/selected_open.png" : "/selected.png"); setInnerHTML(document.getElementById("membersText"), membersSwap ? "Selected Groups" : "All Membergroups"); for (var i = #; i < membersForm.length; i++) { if (membersForm.elements[i].type.toLowerCase() == "checkbox") membersForm.elements[i].checked = !membersSwap; } } function checkAttributeValidity() { origText = 'Are you sure you want to attribute all guest posts with %type% of "%find%" to member "%member_to%"?'; valid = true; // Do all the fields! if (!document.getElementById('to').value) valid = false; warningMessage = origText.replace(/%member_to%/, document.getElementById('to').value); if (document.getElementById('type_email').checked) { if (!document.getElementById('from_email').value) valid = false; warningMessage = warningMessage.replace(/%type%/, 'an email address').replace(/%find%/, document.getElementById('from_email').value); } else { if (!document.getElementById('from_name').value) valid = false; warningMessage = warningMessage.replace(/%type%/, 'a username').replace(/%find%/, document.getElementById('from_name').value); } document.getElementById('do_attribute').disabled = valid ? '' : 'disabled'; setTimeout("checkAttributeValidity();", #); return valid; } setTimeout("checkAttributeValidity();", #);
+  div#manage_maintenance
+    div.cat_bar
+      h3.catbg
+        "Reattribute User Posts"
+    div.windowbg
+      form [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=maintain;sa=members;activity=reattribute" method="post"]
+        p
+          strong
+            "Attribute posts made with"
+        dl.settings
+          dt
+            label [for="type_email"]
+              input#type_email [checked name="type" type="radio" value="email"]
+              "Email address of"
+          dd
+            input#from_email [name="from_email" onclick="document.getElementById('type_email').checked = 'checked'; document.getElementById('from_name').value = '';" type="text" value]
+          dt
+            label [for="type_name"]
+              input#type_name [name="type" type="radio" value="name"]
+              "Username of"
+          dd
+            input#from_name [name="from_name" onclick="document.getElementById('type_name').checked = 'checked'; document.getElementById('from_email').value = '';" type="text" value]
+        dl.settings
+          dt
+            label [for="to"]
+              strong
+                "Attribute posts to member"
+          dd
+            input#to [name="to" type="text" value]
+        p.maintain_members
+          input#posts [checked name="posts" type="checkbox"]
+          label [for="posts"]
+            "Add posts to users post count"
+        input#do_attribute.button [onclick="if (!checkAttributeValidity()) return false;\n\t\t\t\treturn confirm(warningMessage);" type="submit" value="Reattribute"]
+        input [name="{session_var}" type="hidden" value="{session_id}"]
+        input [name="{token_var}" type="hidden" value="{hash}"]
+    div.cat_bar
+      h3.catbg
+        a.help [href="{boardurl}/index.php?action=helpadmin;help=maintenance_members" onclick="return reqOverlayDiv(this.href);"]
+          span.help.main_icons [title="Help"]
+        "Remove Inactive Members"
+    div.windowbg
+      form#membersForm [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=maintain;sa=members;activity=purgeinactive" method="post"]
+        div.padding
+          a#membersLink
+          "Remove all members who have not"
+          select [name="del_type"]
+            option [selected value="activated"]
+              "activated their account"
+            option [value="logged"]
+              "logged in"
+          "for"
+          input [name="maxdays" size="#" type="number" value="#"]
+          "days."
+        div.padding
+          label [for="anonymize"]
+            input#anonymize [name="anonymize" type="checkbox" value="#"]
+            "Anonymize personally identifying information when account is deleted"
+        div.padding
+          a [href="#membersLink" onclick="swapMembers();"]
+            img#membersIcon [alt="+" src="{boardurl}/Themes/default/images/selected.png"]
+          a#membersText [href="#membersLink" onclick="swapMembers();" style="font-weight: bold;"]
+            "All Membergroups"
+        div#membersPanel [style="display: none;"]
+          label [for="groups#"]
+            input#groups# [checked name="groups[#]" type="checkbox"]
+            "Ungrouped Members"
+            span.smalltext
+              "(Members with no assigned groups)"
+          br
+          label [for="groups#"]
+            input#groups# [checked name="groups[#]" type="checkbox"]
+            "Administrator"
+          br
+          label [for="groups#"]
+            input#groups# [checked name="groups[#]" type="checkbox"]
+            "Global Moderator"
+          br
+          label [for="groups#"]
+            input#groups# [checked name="groups[#]" type="checkbox"]
+            "Moderator"
+          br
+          label [for="groups#"]
+            input#groups# [checked name="groups[#]" type="checkbox"]
+            "Newbie"
+          br
+          label [for="groups#"]
+            input#groups# [checked name="groups[#]" type="checkbox"]
+            "Jr. Member"
+          br
+          label [for="groups#"]
+            input#groups# [checked name="groups[#]" type="checkbox"]
+            "Full Member"
+          br
+          label [for="groups#"]
+            input#groups# [checked name="groups[#]" type="checkbox"]
+            "Sr. Member"
+          br
+          label [for="groups#"]
+            input#groups# [checked name="groups[#]" type="checkbox"]
+            "Hero Member"
+          br
+        input.button.you_sure [data-confirm="Are you sure you really want to delete these member accounts?-n-This cannot be undone!" type="submit" value="Remove now"]
+        input [name="{session_var}" type="hidden" value="{session_id}"]
+        input [name="{token_var}" type="hidden" value="{hash}"]
+    div.cat_bar
+      h3.catbg
+        "Recount User Posts"
+    div.windowbg
+      form#membersRecountForm [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=maintain;sa=members;activity=recountposts" method="post"]
+        p
+          "Run this maintenance task to update your users total post count. It will recount all (countable) posts made by each user and then update their profile post count totals"
+        input.button [type="submit" value="Run task now"]
+        input [name="{session_var}" type="hidden" value="{session_id}"]
+        input [name="{token_var}" type="hidden" value="{hash}"]
+  script
+    | var oAttributeMemberSuggest = new smc_AutoSuggest({ sSelf: 'oAttributeMemberSuggest', sSessionId: smf_session_id, sSessionVar: smf_session_var, sSuggestId: 'attributeMember', sControlId: 'to', sSearchType: 'member', sTextDeleteItem: 'Delete Item', bItemList: false });

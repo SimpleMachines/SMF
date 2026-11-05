@@ -1,0 +1,129 @@
+status 200
+@ title
+title
+  "News"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=news;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "News and Newsletters"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=news;sa=editnews;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "News"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      a.help [href="{boardurl}/index.php?action=helpadmin;help=edit_news" onclick="return reqOverlayDiv(this.href);"]
+        span.help.main_icons [title="Help"]
+      "News and Newsletters"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "Please place one news item per box."
+    abbr [title="Bulletin Board Code"]
+      "BBC"
+    span [title="Because everyone loves brackets!"]
+      "tags"
+    ", such as"
+    span.monospace
+      "[b]"
+    ","
+    span.monospace
+      "[i]"
+    "and"
+    span.monospace
+      "[u]"
+    ", are allowed in your news, as well as smileys. Clear a news item’s text box to remove it."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "News and Newsletters Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "News and Newsletters Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=news;sa=editnews;{session_var}={session_id}"]
+                "News"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=news;sa=mailingmembers;{session_var}={session_id}"]
+                "Newsletters"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=news;sa=settings;{session_var}={session_id}"]
+                "Settings"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  form [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=news;sa=editnews" method="post"]
+    table#news_lists.table_grid
+      thead
+        tr.title_bar
+          th#header_news_lists_news.half_table.news [scope="col"]
+            "News"
+          th#header_news_lists_preview.half_table.preview [scope="col"]
+            "Preview"
+          th#header_news_lists_check.centercol.check.icon [scope="col"]
+            input [onclick="invertAll(this, this.form);" type="checkbox"]
+      tbody
+        tr#list_news_lists_#.windowbg
+          td.half_table.news
+            textarea#data_#.block.padding [cols="#" name="news[]" rows="#"]
+              "SMF - Just Installed!"
+            div#preview_#.floatleft
+          td.half_table.preview
+            div#box_preview_# [style="overflow: auto; width: #%; min-height: #ex;"]
+              "SMF - Just Installed!"
+          td.centercol.check.icon
+            input [name="remove[]" type="checkbox" value="#"]
+        tr#list_news_lists_last.windowbg
+          td.half_table.news
+            div#moreNewsItems
+            noscript
+              textarea [cols="#" name="news[]" rows="#" style="width: #%;"]
+          td.half_table.preview
+            div#box_preview_last [style="overflow: auto; width: #%; min-height: #ex;"]
+              div#moreNewsItems_preview
+          td.centercol.check.icon
+    div.additional_row
+      span#moreNewsItems_link.floatleft [style="display: none;"]
+        a.button [href="javascript:void(#);" onclick="addNewsItem(); return false;"]
+          "Add another item"
+      input.button [name="save_items" type="submit" value="Save"]
+      input.button.you_sure [data-confirm="Are you sure you want to delete the selected news items?" name="delete_selection" type="submit" value="Remove selected"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]
+  script
+    | document.getElementById('list_news_lists_last').style.display = "none"; document.getElementById("moreNewsItems_link").style.display = ""; var last_preview = #; $(document).ready(function () { $("div[id ^= 'preview_']").each(function () { var preview_id = $(this).attr('id').split('_')[#]; if (last_preview < preview_id) last_preview = preview_id; make_preview_btn(preview_id); }); }); function make_preview_btn (preview_id) { $("#preview_" + preview_id).addClass("button"); $("#preview_" + preview_id).text('Preview').click(function () { $.ajax({ type: "POST", headers: { "X-SMF-AJAX": # }, xhrFields: { withCredentials: typeof allow_xhjr_credentials !== "undefined" ? allow_xhjr_credentials : false }, url: "{boardurl}/index.php?action=xmlhttp;sa=previews;xml", data: {item: "newspreview", news: $("#data_" + preview_id).val()}, context: document.body, success: function(request){ if ($(request).find("error").text() == '') $(document).find("#box_preview_" + preview_id).html($(request).text()); else $(document).find("#box_preview_" + preview_id).text('Nothing written'); }, }); }); } function addNewsItem () { last_preview++; $("#list_news_lists_last").before('\n\t\t\t\t<tr class="windowbg' + (last_preview % # == # ? '' : '#') + '">\n\t\t\t\t\t<td style="width: #%;">\n\t\t\t\t\t\t\t<textarea id="data_' + last_preview + '" rows="#" cols="#" name="news[]" style="width: #%;"><' + '/textarea>\n\t\t\t\t\t\t\t<br>\n\t\t\t\t\t\t\t<div class="floatleft" id="preview_' + last_preview + '"><' + '/div>\n\t\t\t\t\t<' + '/td>\n\t\t\t\t\t<td style="width: #%;">\n\t\t\t\t\t\t<div id="box_preview_' + last_preview + '" style="overflow: auto; width: #%; min-height: #ex;"><' + '/div>\n\t\t\t\t\t<' + '/td>\n\t\t\t\t\t<td><' + '/td>\n\t\t\t\t<' + '/tr>'); make_preview_btn(last_preview); }
