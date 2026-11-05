@@ -1888,6 +1888,27 @@ class TimeZone extends \DateTimeZone
 	/**
 	 * @var array
 	 *
+	 * A list of time zones where the TZDB and the CLDR handle daylight saving
+	 * time changes differently.
+	 *
+	 * This info is used by TimeZone::getDstType() and TimeZone::useDstAtTime()
+	 * to decide whether they need to check the relevant SMF\Calendar\VTimeZone
+	 * class for CLDR-derived DST data in certain situations such as time zones
+	 * that use permanent daylight saving time or, in Europe/Dublin's case, a
+	 * negative daylight saving (daylight losing?) time.
+	 *
+	 * Developers: Do not update the data in this array manually. Instead,
+	 * run "php -f other/update_timezones.php" on the command line.
+	 */
+	protected static array $cldr_dst = [
+		'Africa/Windhoek', 'America/Coyhaique', 'America/Edmonton',
+		'America/Inuvik', 'America/Punta_Arenas', 'America/Vancouver',
+		'America/Winnipeg', 'Europe/Dublin',
+	];
+
+	/**
+	 * @var array
+	 *
 	 * Time zone identifiers sorted into a prioritized list based on the country
 	 * codes in Config::$modSettings['timezone_priority_countries'].
 	 *
@@ -2329,6 +2350,7 @@ class TimeZone extends \DateTimeZone
 
 		if (
 			$cldr
+			&& \in_array(self::getCanonical($this->getName()), self::$cldr_dst)
 			&& Calendar\VTimeZone::exists(self::getCanonical($this->getName()))
 		) {
 			$vtimezone = Calendar\VTimeZone::load(self::getCanonical($this->getName()));

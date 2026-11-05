@@ -671,8 +671,11 @@ class TimezoneDataUpdater extends UpdaterBase
 		// Save the changes we've made so far.
 		file_put_contents(Config::$sourcedir . '/TimeZone.php', $file_contents);
 
-		// Ensure the TimeZone::$preferred_zones array in up to date.
+		// Ensure the TimeZone::$preferred_zones array is up to date.
 		$file_contents = $this->updatePreferredZones($file_contents);
+
+		// Ensure the TimeZone::$cldr_dst array is up to date.
+		$file_contents = $this->updateCldrDstList($file_contents);
 
 		// Extract the $sorted_tzids array and evaluate it.
 		preg_match('/protected static array \K\$sorted_tzids = \[[^;]+;/', $file_contents, $matches);
@@ -762,6 +765,36 @@ class TimezoneDataUpdater extends UpdaterBase
 		return preg_replace(
 			'/(\h*protected static array \$preferred_zones)\h*=\h*\[[^;]*;/',
 			'$1 = ' . preg_replace('/^(?!\[)/m', "\t", Config::varExport($this->preferred_zones)) . ';',
+			$file_contents,
+		);
+	}
+
+	/**
+	 * Updates the $preferred_zones array in TimeZone.php.
+	 *
+	 * @param string $file_contents String content of TimeZone.php.
+	 * @return string Modified copy of $file_contents.
+	 */
+	private function updateCldrDstList(string $file_contents): string
+	{
+		$this->buildMetaZones();
+
+		$cldr_dst = [];
+
+		foreach ($this->metazones['usage'] as $tzid => $entries) {
+			foreach ($entries as $entry) {
+				if (isset($entry['dst_offset']) || isset($entry['std_offset'])) {
+					$cldr_dst[] = $tzid;
+					continue 2;
+				}
+			}
+		}
+
+		sort($cldr_dst);
+
+		return preg_replace(
+			'/(\h*protected static array \$cldr_dst)\h*=\h*\[[^;]*;/',
+			'$1 = ' . preg_replace('/^(?!\[)/m', "\t", Config::varExport($cldr_dst)) . ';',
 			$file_contents,
 		);
 	}
