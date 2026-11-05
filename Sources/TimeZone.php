@@ -1990,7 +1990,7 @@ class TimeZone extends \DateTimeZone
 			list($when, $later) = self::getTimeRange($when);
 
 			foreach ($this->getTransitions($when, $later) as $transition) {
-				$dst_type = $transition['isdst'] ? 'daylight' : 'standard';
+				$dst_type = $this->usesDstAtTime('@' . $transition['ts'], cldr: true) ? 'daylight' : 'standard';
 
 				if (Lang::txtExists([$metazone, $dst_type, 'short'], var: 'tztxt')) {
 					$abbrs[] = Lang::getTxt([$metazone, $dst_type, 'short'], var: 'tztxt');
@@ -2042,9 +2042,9 @@ class TimeZone extends \DateTimeZone
 		// For dates since the Unix Epoch, look it up in the VTimeZone class for this time zone.
 		if (
 			$when->getTimestamp() >= 0
-			&& Calendar\VTimeZone::exists($this->getName())
+			&& Calendar\VTimeZone::exists(self::getCanonical($this->getName()))
 		) {
-			$vtimezone = Calendar\VTimeZone::load($this->getName());
+			$vtimezone = Calendar\VTimeZone::load(self::getCanonical($this->getName()));
 
 			foreach ($vtimezone->metazones as $entry) {
 				if ($when < (new \DateTimeImmutable($entry['ts']))) {
@@ -2177,78 +2177,21 @@ class TimeZone extends \DateTimeZone
 		// The country code might become relevant.
 		$cc = $this->getLocation()['country_code'];
 
-		// A few time zones have special overrides.
-		if (
-			// Special exceptions given in the CLDR data.
-			Lang::txtExists($this->getName(), var: 'tztxt')
-			// Antarctic stations can be weird. To avoid confusion, just label
-			// each as "<station name> Time" and be done with it.
-			|| $cc === 'AQ'
-		) {
-			if ($when === null) {
-				switch ($this->getName()) {
-					case 'Europe/Dublin':
-					case 'Europe/London':
-						return Lang::formatText(
-							Lang::getTxt('region_format', var: 'tztxt'),
-							[
-								Lang::getTxt(
-									['iso3166', $this->getLocation()['country_code']],
-									file: 'Timezones',
-								),
-							],
-						);
-
-					default:
-						$metazone = $this->getName();
-						break;
-				}
-			} else {
-				switch ($this->getName()) {
-					case 'Europe/Dublin':
-						// Note that this is intentionally inverted. Ireland
-						// defines its summer time, IST, as its standard time,
-						// and its winter time, GMT, as a negative daylight
-						// saving (daylight losing?) time. PHP follows Ireland's
-						// legal definition and marks GMT as daylight saving
-						// time and IST as standard time for Europe/Dublin.
-						// However, in CLDR, from which our $tztxt strings are
-						// derived, IST is categorized as daylight time and GMT
-						// as standard time for Europe/Dublin. This discrepancy
-						// means that we need to invert what PHP says in order
-						// to find the right CLDR strings.
-						$dst_type = $when->format('I') ? 'standard' : 'daylight';
-						break;
-
-					case 'Europe/London':
-						$dst_type = $when->format('I') ? 'daylight' : 'standard';
-						break;
-				}
-
-				switch ($this->getName()) {
-					case 'Europe/Dublin':
-					case 'Europe/London':
-						$metazone = Lang::txtExists([$this->getName(), $dst_type], var: 'tztxt') ? $this->getName() : $this->getMetaZone($when, $allow_fallbacks);
-						break;
-
-					default:
-						$metazone = $this->getName();
-						break;
-				}
-			}
-		}
-		// This is the vast majority of cases.
-		else {
+		// Antarctic stations can be weird. To avoid confusion, just label
+		// each as "<station name> Time" and be done with it.
+		if ($cc === 'AQ') {
+			$metazone = $this->getName();
+		} else {
 			$metazone = $this->getMetaZone($when ?? 'now', $allow_fallbacks);
 		}
 
-		$dst_type ??= match ($this->getDstType($when ?? 'now')) {
+		$dst_type ??= match ($this->getDstType($when ?? 'now', cldr: true)) {
 			self::DST_NEVER => 'standard',
 			self::DST_ALWAYS => 'daylight',
 			default => match (true) {
 				$when === null => 'generic',
-				!$when->format('I') => 'standard',
-				(bool) $when->format('I') => 'daylight',
+				$this->usesDstAtTime($when, cldr: true) => 'daylight',
+				!$this->usesDstAtTime($when, cldr: true) => 'standard',
 			},
 		};
 
@@ -2341,9 +2284,12 @@ class TimeZone extends \DateTimeZone
 	 *    interested in. May be an instance of \DateTimeInterface, a Unix
 	 *    timestamp, or any string that strtotime() can understand.
 	 *    Default: 'now'.
+	 * @param bool $cldr If true, answer the question according to CLDR data
+	 *    instead of TZDB data.
+	 *    Default: false.
 	 * @return int One of this class's three DST_* constants.
 	 */
-	public function getDstType(\DateTimeInterface|int|string $when = 'now'): int
+	public function getDstType(\DateTimeInterface|int|string $when = 'now', bool $cldr = false): int
 	{
 		list($when, $later) = self::getTimeRange($when);
 
@@ -2353,11 +2299,54 @@ class TimeZone extends \DateTimeZone
 			return self::DST_SWITCHES;
 		}
 
-		if ($tzinfo[0]['isdst']) {
-			return self::DST_ALWAYS;
+		return $this->usesDstAtTime($when, $cldr) ? self::DST_ALWAYS : self::DST_NEVER;
+	}
+
+	/**
+	 * Returns whether Daylight Saving Time is in effect in this time zone at
+	 * the specified moment.
+	 *
+	 * @param \DateTimeInterface|int|string $when The date/time we are
+	 *    interested in. May be an instance of \DateTimeInterface, a Unix
+	 *    timestamp, or any string that strtotime() can understand.
+	 *    Default: 'now'.
+	 * @param bool $cldr If true, answer the question according to CLDR data
+	 *    instead of TZDB data.
+	 *    Default: false.
+	 * @return bool Whether DST is in effect at the specified moment.
+	 */
+	public function usesDstAtTime(\DateTimeInterface|int|string $when = 'now', bool $cldr = false): bool
+	{
+		if ($when instanceof \DateTimeInterface) {
+			$when->setTimezone($this);
+		} elseif (ctype_digit((string) $when)) {
+			$when = new Time('@' . $when, $this);
+		} else {
+			$when = new Time($when, $this);
 		}
 
-		return self::DST_NEVER;
+		$is_dst = (bool) $when->format('I');
+
+		if (
+			$cldr
+			&& Calendar\VTimeZone::exists(self::getCanonical($this->getName()))
+		) {
+			$vtimezone = Calendar\VTimeZone::load(self::getCanonical($this->getName()));
+
+			foreach ($vtimezone->metazones ?? [] as $entry) {
+				if ($when < (new \DateTimeImmutable($entry['ts']))) {
+					break;
+				}
+
+				if (!isset($entry['dst_offset'])) {
+					continue;
+				}
+
+				$is_dst = $when->format('Z') == $entry['dst_offset'] * 3600;
+			}
+		}
+
+		return $is_dst;
 	}
 
 	/**
