@@ -140,8 +140,10 @@ class BBCodeParser extends Parser
 	 * @var string
 	 *
 	 * Used to divide strings into sections for smiley parsing.
+	 *
+	 * We always transform "\r\n" into "\n", so we can use "\r" for this task.
 	 */
-	private string $smiley_section_divider = "\u{E0A0}";
+	private string $smiley_section_divider = "\r";
 
 	/****************************
 	 * Internal static properties
@@ -415,6 +417,9 @@ class BBCodeParser extends Parser
 		if (\strval($message) === '') {
 			return '';
 		}
+
+		// This should never happen, but just in case...
+		$message = strtr($message, ["\r\n" => "\n", "\r" => "\n"]);
 
 		// Ensure we start with a clean slate.
 		$this->resetRuntimeProperties();
