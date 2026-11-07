@@ -366,7 +366,7 @@ class MarkRead implements ActionInterface, Routable
 
 		foreach ($boards as $b) {
 			if (isset($_SESSION['topicseen_cache'][$b])) {
-				$_SESSION['topicseen_cache'][$b] = [];
+				unset($_SESSION['topicseen_cache'][$b]);
 			}
 		}
 
