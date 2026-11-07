@@ -17,6 +17,7 @@ namespace SMF\Tests\Integration\Http;
 
 use PHPUnit\Framework\Attributes\CoversNothing;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 
 /**
  * The statistics centre, as a guest sees it.
@@ -114,7 +115,7 @@ class StatsTest extends HttpTestCase
 		$login = 'stats_' . bin2hex(random_bytes(4));
 
 		$id = (int) Db::$db->insert(
-			'insert',
+			InsertType::Insert,
 			'{db_prefix}members',
 			[
 				'member_name' => 'string',

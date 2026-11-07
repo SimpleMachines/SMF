@@ -17,6 +17,7 @@ namespace SMF;
 
 use SMF\Actions\Admin\ACP;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 
 /**
  * Statistic collection
@@ -161,7 +162,7 @@ class Statistics
 
 		if (!empty($ID[1])) {
 			Db::$db->insert(
-				'replace',
+				InsertType::Replace,
 				'{db_prefix}settings',
 				[
 					'variable' => 'string',

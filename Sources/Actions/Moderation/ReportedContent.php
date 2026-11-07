@@ -20,6 +20,7 @@ use SMF\ActionTrait;
 use SMF\Alert;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\IP;
@@ -1201,7 +1202,7 @@ class ReportedContent implements ActionInterface
 		$data = array_merge([User::$me->id, User::$me->name, 'reportc', ''], $data);
 
 		$last_comment = Db::$db->insert(
-			'',
+			InsertType::Insert,
 			'{db_prefix}log_comments',
 			[
 				'id_member' => 'int',
@@ -1245,7 +1246,7 @@ class ReportedContent implements ActionInterface
 		// And get ready to notify people.
 		if (!empty($report)) {
 			Db::$db->insert(
-				'insert',
+				InsertType::Insert,
 				'{db_prefix}background_tasks',
 				[
 					'task_class' => 'string',

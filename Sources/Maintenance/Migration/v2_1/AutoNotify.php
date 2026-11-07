@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
 
@@ -98,7 +99,7 @@ class AutoNotify extends MigrationBase
 			Db::$db->free_result($request);
 
 			Db::$db->insert(
-				'ignore',
+				InsertType::Ignore,
 				'{db_prefix}user_alerts_prefs',
 				[
 					'id_member' => 'int',

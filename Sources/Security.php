@@ -17,6 +17,7 @@ namespace SMF;
 
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use ZxcvbnPhp\Zxcvbn;
 
 /**
@@ -793,7 +794,7 @@ class Security
 
 		// Add a new entry, deleting the old if necessary.
 		Db::$db->insert(
-			'replace',
+			InsertType::Replace,
 			'{db_prefix}log_floodcontrol',
 			[
 				'ip' => 'inet',

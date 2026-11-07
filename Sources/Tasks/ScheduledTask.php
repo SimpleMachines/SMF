@@ -17,6 +17,7 @@ namespace SMF\Tasks;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 
 /**
  * Base class for scheduled tasks.
@@ -48,7 +49,7 @@ abstract class ScheduledTask extends BackgroundTask
 		}
 
 		Db::$db->insert(
-			'',
+			InsertType::Insert,
 			'{db_prefix}log_scheduled_tasks',
 			[
 				'id_task' => 'int',

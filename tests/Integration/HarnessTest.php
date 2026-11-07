@@ -20,6 +20,7 @@ use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\Depends;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 
 /**
  * Checks the integration harness itself.
@@ -83,7 +84,7 @@ class HarnessTest extends IntegrationTestCase
 	public function testAWriteIsVisibleInsideTheTestThatMadeIt(): void
 	{
 		Db::$db->insert(
-			'replace',
+			InsertType::Replace,
 			'{db_prefix}settings',
 			['variable' => 'string', 'value' => 'string'],
 			[[self::LEFTOVER, 'written']],
@@ -178,7 +179,7 @@ class HarnessTest extends IntegrationTestCase
 	public function testAssertNoErrorsLoggedNoticesALoggedError(): void
 	{
 		Db::$db->insert(
-			'insert',
+			InsertType::Insert,
 			'{db_prefix}log_errors',
 			[
 				'log_time' => 'int',

@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Maintenance\Migration\MigrationBase;
 
 class AdminInfoFiles extends MigrationBase
@@ -67,7 +68,7 @@ class AdminInfoFiles extends MigrationBase
 
 		if (Db::$db->num_rows($file_check) == 0) {
 			Db::$db->insert(
-				'',
+				InsertType::Insert,
 				'{db_prefix}admin_info_files',
 				[
 					'filename' => 'string',

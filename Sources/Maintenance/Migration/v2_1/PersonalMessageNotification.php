@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Db\Schema;
 use SMF\Db\Schema\Column;
 use SMF\Maintenance\Maintenance;
@@ -104,7 +105,7 @@ class PersonalMessageNotification extends MigrationBase
 
 			if (!empty($inserts)) {
 				Db::$db->insert(
-					'ignore',
+					InsertType::Ignore,
 					'{db_prefix}user_alerts_prefs',
 					[
 						'id_member' => 'int',

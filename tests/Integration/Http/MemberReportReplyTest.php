@@ -18,6 +18,7 @@ namespace SMF\Tests\Integration\Http;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 
 /**
  * The email moderators get when someone else comments on a report about a
@@ -94,7 +95,7 @@ class MemberReportReplyTest extends HttpTestCase
 		$comment = $this->comment($admin, 'admin');
 
 		Db::$db->insert(
-			'insert',
+			InsertType::Insert,
 			'{db_prefix}background_tasks',
 			['task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'],
 			[[
@@ -162,7 +163,7 @@ class MemberReportReplyTest extends HttpTestCase
 	private function comment(int $member, string $name): int
 	{
 		return (int) Db::$db->insert(
-			'insert',
+			InsertType::Insert,
 			'{db_prefix}log_comments',
 			[
 				'id_member' => 'int', 'member_name' => 'string', 'comment_type' => 'string', 'id_recipient' => 'int',

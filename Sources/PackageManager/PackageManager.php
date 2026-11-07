@@ -16,6 +16,7 @@ namespace SMF\PackageManager;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\EmailAddress;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
@@ -1331,7 +1332,7 @@ class PackageManager
 
 				// Log that we installed it.
 				Db::$db->insert(
-					'',
+					InsertType::Insert,
 					'{db_prefix}log_packages',
 					[
 						'filename' => 'string',
@@ -3144,7 +3145,7 @@ class PackageManager
 		}
 
 		Db::$db->insert(
-			'',
+			InsertType::Insert,
 			'{db_prefix}package_servers',
 			[
 				'name' => 'string-255',

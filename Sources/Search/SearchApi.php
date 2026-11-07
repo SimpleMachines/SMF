@@ -19,6 +19,7 @@ use SMF\Actions\Search;
 use SMF\BackwardCompatibility;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -1733,7 +1734,7 @@ abstract class SearchApi implements SearchApiInterface
 		// If there's data to be inserted for non-IGNORE databases do it here!
 		if (!empty($inserts)) {
 			Db::$db->insert(
-				'',
+				InsertType::Insert,
 				'{db_prefix}log_search_results',
 				['id_search' => 'int', 'id_topic' => 'int', 'relevance' => 'int', 'id_msg' => 'int', 'num_matches' => 'int'],
 				$inserts,
@@ -1996,7 +1997,7 @@ abstract class SearchApi implements SearchApiInterface
 			// Got some non-MySQL data to plonk in?
 			if (!empty($inserts)) {
 				Db::$db->insert(
-					'',
+					InsertType::Insert,
 					('{db_prefix}' . ($createTemporary ? 'tmp_' : '') . 'log_search_topics'),
 					$createTemporary ? ['id_topic' => 'int'] : ['id_search' => 'int', 'id_topic' => 'int'],
 					$inserts,
@@ -2098,7 +2099,7 @@ abstract class SearchApi implements SearchApiInterface
 			// More non-MySQL stuff needed?
 			if (!empty($inserts)) {
 				Db::$db->insert(
-					'',
+					InsertType::Insert,
 					'{db_prefix}' . ($createTemporary ? 'tmp_' : '') . 'log_search_messages',
 					$createTemporary ? ['id_msg' => 'int'] : ['id_msg' => 'int', 'id_search' => 'int'],
 					$inserts,
@@ -2248,7 +2249,7 @@ abstract class SearchApi implements SearchApiInterface
 					}
 
 					Db::$db->insert(
-						'',
+						InsertType::Insert,
 						'{db_prefix}log_search_results',
 						$query_columns,
 						$inserts,
@@ -2325,7 +2326,7 @@ abstract class SearchApi implements SearchApiInterface
 				// Now put them in!
 				if (!empty($inserts)) {
 					Db::$db->insert(
-						'',
+						InsertType::Insert,
 						'{db_prefix}log_search_results',
 						['id_search' => 'int', 'id_topic' => 'int', 'relevance' => 'float', 'id_msg' => 'int', 'num_matches' => 'int'],
 						$inserts,

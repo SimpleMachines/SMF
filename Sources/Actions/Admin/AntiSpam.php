@@ -20,6 +20,7 @@ use SMF\ActionTrait;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Menu;
@@ -261,7 +262,7 @@ class AntiSpam implements ActionInterface
 
 			if (!empty($changes['insert'])) {
 				Db::$db->insert(
-					'insert',
+					InsertType::Insert,
 					'{db_prefix}qanda',
 					['lngfile' => 'string-50', 'question' => 'string-255', 'answers' => 'string-65534'],
 					$changes['insert'],

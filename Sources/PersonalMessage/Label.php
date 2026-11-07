@@ -19,6 +19,7 @@ use SMF\ArrayAccessHelper;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Lang;
 use SMF\User;
 use SMF\Utils;
@@ -307,7 +308,7 @@ class Label implements \ArrayAccess
 					$inserts[] = [User::$me->id, $label];
 				}
 
-				Db::$db->insert('', '{db_prefix}pm_labels', ['id_member' => 'int', 'name' => 'string-30'], $inserts, []);
+				Db::$db->insert(InsertType::Insert, '{db_prefix}pm_labels', ['id_member' => 'int', 'name' => 'string-30'], $inserts, []);
 			}
 
 			// Update existing labels as needed

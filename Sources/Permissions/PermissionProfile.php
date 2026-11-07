@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Permissions;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Group;
 use SMF\Lang;
 use SMF\Utils;
@@ -103,7 +104,7 @@ class PermissionProfile
 	{
 		if (empty($this->id)) {
 			$this->id = Db::$db->insert(
-				'',
+				InsertType::Insert,
 				'{db_prefix}permission_profiles',
 				['profile_name' => 'string'],
 				[[$this->name]],
@@ -135,7 +136,7 @@ class PermissionProfile
 			// This will only ever be called if an expected profile was deleted.
 			if (Db::$db->affected_rows() == 0) {
 				Db::$db->insert(
-					'ignore',
+					InsertType::Ignore,
 					'{db_prefix}permission_profiles',
 					['id_profile' => 'int', 'profile_name' => 'string'],
 					[[$this->id, $this->name]],

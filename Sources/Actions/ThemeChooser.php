@@ -21,6 +21,7 @@ use SMF\ActionTrait;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Lang;
 use SMF\Routable;
 use SMF\SecurityToken;
@@ -121,7 +122,7 @@ class ThemeChooser implements ActionInterface, Routable
 					}
 
 					Db::$db->insert(
-						'replace',
+						InsertType::Replace,
 						'{db_prefix}themes',
 						[
 							'id_theme' => 'int',

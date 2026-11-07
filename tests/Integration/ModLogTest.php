@@ -19,6 +19,7 @@ use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\DataProvider;
 use SMF\Actions\Moderation\Logs;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 
 /**
  * Covers the order of the entries in the moderation and administration logs.
@@ -133,7 +134,7 @@ class ModLogTest extends IntegrationTestCase
 
 		for ($i = 0; $i < 2; $i++) {
 			$ids[] = (int) Db::$db->insert(
-				'insert',
+				InsertType::Insert,
 				'{db_prefix}log_actions',
 				[
 					'id_log' => 'int',

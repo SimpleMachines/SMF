@@ -17,6 +17,7 @@ namespace SMF\Tasks;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Sapi;
 
 /**
@@ -181,7 +182,7 @@ class PruneLogTopics extends ScheduledTask
 		// Create one SQL statement for this set of inserts.
 		if (!empty($boards)) {
 			Db::$db->insert(
-				'replace',
+				InsertType::Replace,
 				'{db_prefix}log_mark_read',
 				['id_member' => 'int', 'id_board' => 'int', 'id_msg' => 'int'],
 				$boards,
