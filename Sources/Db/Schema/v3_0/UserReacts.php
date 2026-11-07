@@ -22,7 +22,7 @@ use SMF\Db\Schema\Table;
 /**
  * Defines all the properties for a database table.
  */
-class UserLikes extends Table
+class UserReacts extends Table
 {
 	/****************
 	 * Public methods
@@ -33,12 +33,19 @@ class UserLikes extends Table
 	 */
 	public function __construct()
 	{
-		$this->name = 'user_likes';
+		$this->name = 'user_reacts';
 
 		$this->columns = [
 			'id_member' => new Column(
 				name: 'id_member',
 				type: 'mediumint',
+				unsigned: true,
+				not_null: true,
+				default: 0,
+			),
+			'id_react' => new Column(
+				name: 'id_react',
+				type: 'smallint',
 				unsigned: true,
 				not_null: true,
 				default: 0,
@@ -57,9 +64,9 @@ class UserLikes extends Table
 				not_null: true,
 				default: 0,
 			),
-			'like_time' => new Column(
-				name: 'like_time',
-				type: 'bigint',
+			'react_time' => new Column(
+				name: 'react_time',
+				type: 'int',
 				unsigned: true,
 				not_null: true,
 				default: 0,
@@ -92,8 +99,8 @@ class UserLikes extends Table
 					],
 				],
 			),
-			'liker' => new DbIndex(
-				name: 'liker',
+			'reactor' => new DbIndex(
+				name: 'reactor',
 				columns: [
 					[
 						'name' => 'id_member',

@@ -1234,7 +1234,7 @@ class Display implements ActionInterface, Routable
 	}
 
 	/**
-	 * Initializes Msg::get() and loads attachments and likes.
+	 * Initializes Msg::get() and loads attachments and reactions.
 	 */
 	protected function initDisplayContext(): void
 	{
@@ -1249,9 +1249,9 @@ class Display implements ActionInterface, Routable
 				Attachment::prepareByMsg($this->messages);
 			}
 
-			// And the likes
-			if (!empty(Config::$modSettings['enable_likes'])) {
-				Utils::$context['my_likes'] = Topic::$info->getLikedMsgs();
+			// And the reactions
+			if (!empty(Config::$modSettings['enable_reacts'])) {
+				Utils::$context['my_reactions'] = Topic::$info->getReactedMsgs();
 			}
 
 			// Go to the last message if the given time is beyond the time of the last message.
@@ -1271,7 +1271,7 @@ class Display implements ActionInterface, Routable
 			Msg::$getter = [];
 			Utils::$context['first_message'] = 0;
 			Utils::$context['first_new_message'] = false;
-			Utils::$context['likes'] = [];
+			Utils::$context['reactions'] = [];
 		}
 
 		// Set the callback.  (do you REALIZE how much memory all the messages would take?!?)

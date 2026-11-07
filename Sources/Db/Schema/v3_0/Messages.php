@@ -182,8 +182,8 @@ class Messages extends Table
 				not_null: true,
 				default: 1,
 			),
-			'likes' => new Column(
-				name: 'likes',
+			'reactions' => new Column(
+				name: 'reactions',
 				type: 'smallint',
 				unsigned: true,
 				not_null: true,
@@ -312,11 +312,11 @@ class Messages extends Table
 					],
 				],
 			),
-			'idx_likes' => new DbIndex(
-				name: 'idx_likes',
+			'idx_messages_reactions' => new DbIndex(
+				name: 'idx_messages_reactions',
 				columns: [
 					[
-						'name' => 'likes',
+						'name' => 'reactions',
 					],
 				],
 			),
