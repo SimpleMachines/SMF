@@ -487,6 +487,16 @@ function scheduled_daily_digest()
 			'email' => $member['email'],
 		);
 
+		// What the mail says before anything specific to this member has been
+		// added to it. Whether it still says only this at the end is how we
+		// know there was nothing to tell them about.
+		$greeting_only = $email['body'];
+
+		// Each section below sets this when it writes its heading, and a
+		// section is skipped rather than entered when there is nothing of that
+		// kind, so it needs a value that is this member's own.
+		$titled = false;
+
 		// All new topics?
 		if (isset($types['topic']))
 		{
@@ -553,6 +563,12 @@ function scheduled_daily_digest()
 
 		if ($titled)
 			$email['body'] .= "\n";
+
+		// Watching something is not the same as there being anything to report
+		// about it. A greeting and an unsubscribe link on their own tell the
+		// member nothing.
+		if ($email['body'] === $greeting_only)
+			continue;
 
 		// Then just say our goodbyes!
 		$email['body'] .= "\n\n" . sprintf($txt['regards_team'], $context['forum_name']);
