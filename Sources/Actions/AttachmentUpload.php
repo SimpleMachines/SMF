@@ -22,6 +22,7 @@ use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
+use SMF\Msg;
 use SMF\OutputTypeInterface;
 use SMF\OutputTypes;
 use SMF\Routable;
@@ -261,7 +262,16 @@ class AttachmentUpload implements ActionInterface, Routable
 
 		$this->attchDir = Utils::$context['attach_dir'] = $this->attachmentUploadDir[Config::$modSettings['currentAttachmentUploadDir']];
 
-		$this->canPostAttachment = Utils::$context['can_post_attachment'] = !empty(Config::$modSettings['attachmentEnable']) && Config::$modSettings['attachmentEnable'] == 1 && (User::$me->allowedTo('post_attachment', $this->board) || (Config::$modSettings['postmod_active'] && User::$me->allowedTo('post_unapproved_attachments', $this->board)));
+		$this->canPostAttachment = Utils::$context['can_post_attachment'] = !empty(Config::$modSettings['attachmentEnable'])
+			&& Config::$modSettings['attachmentEnable'] == 1
+			&& (
+				User::$me->allowedTo('post_attachment', $this->board)
+				|| (
+					Config::$modSettings['postmod_active']
+					&& User::$me->allowedTo('post_unapproved_attachments', $this->board)
+				)
+			)
+			&& $this->canModifyMsg($this->msg, $this->board);
 	}
 
 	/**
@@ -279,7 +289,7 @@ class AttachmentUpload implements ActionInterface, Routable
 
 		// If this isn't a new post, check the current attachments.
 		if (isset($_REQUEST['msg'])) {
-			Utils::$context['attachments']['quantity'] = \count(Utils::$context['current_attachments']);
+			Utils::$context['attachments']['quantity'] = !empty(Utils::$context['current_attachments']) ? \count(Utils::$context['current_attachments']) : 0;
 
 			foreach (Utils::$context['current_attachments'] as $attachment) {
 				Utils::$context['attachments']['total_size'] += $attachment['size'];
@@ -598,5 +608,33 @@ class AttachmentUpload implements ActionInterface, Routable
 		Utils::obExit(false);
 
 		die;
+	}
+
+	/**
+	 * Can they modify this message?
+	 */
+	protected function canModifyMsg(int $id_msg, int $id_board): bool
+	{
+		// No message or a guest, you can't modify a message
+		if ($this->msg === 0 || empty(User::$me->id)) {
+			return false;
+		}
+
+		/** @var Msg */
+		$msg = Msg::load($id_msg);
+
+		// Can't find the message, can't edit it.
+		if (empty($msg)) {
+			return false;
+		}
+
+		// Either you can modify anything, or this is your own message.
+		return (bool) (
+			allowedTo('modify_any', $id_board)
+			|| (
+				$msg->id_member == User::$me->id
+				&& allowedTo('modify_own', $id_board)
+			)
+		 );
 	}
 }
