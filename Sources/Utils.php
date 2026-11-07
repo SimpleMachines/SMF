@@ -1642,7 +1642,15 @@ class Utils
 		// The substrings 'O:' and 'C:' are used to serialize objects.
 		// If they are not present, then there are none in the serialized data.
 		elseif (!str_contains($str, 'O:') && !str_contains($str, 'C:')) {
-			$out = unserialize($str);
+			// PHP changed how we supress warnings, but unserialize does not handle throwables.
+			try {
+				$old_error_reporting = error_reporting(0);
+				$out = @unserialize($str, ['allowed_classes' => false]);
+			} catch (\Throwable $e) {
+				$out = false;
+			} finally {
+				error_reporting($old_error_reporting);
+			}
 		}
 		// It looks like there might be an object in the serialized data,
 		// but we won't know for sure until we check more closely.
