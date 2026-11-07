@@ -367,7 +367,7 @@ function MarkRead()
 		foreach ($boards as $b)
 		{
 			if (isset($_SESSION['topicseen_cache'][$b]))
-				$_SESSION['topicseen_cache'][$b] = array();
+				unset($_SESSION['topicseen_cache'][$b]);
 		}
 
 		if (!isset($_REQUEST['unread']))
