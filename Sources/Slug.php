@@ -198,7 +198,7 @@ class Slug implements \Stringable
 		self::$known[$this->type][$this->id] = $this;
 
 		// Make sure we always show the correct slug.
-		self::redirectNoncanonical($this);
+		self::redirectNoncanonical();
 	}
 
 	/**
@@ -295,7 +295,7 @@ class Slug implements \Stringable
 			$this->slug = AsciiTransliterator::toAscii($this->slug);
 
 			// Convert to lower case.
-			$this->slug = Utils::convertCase($this->slug, 'lower', false, 'c', true);
+			$this->slug = Utils::convertCase($this->slug, 'lower', false, 'c');
 
 			// Remove unwanted stuff and hyphenate.
 			$this->slug = preg_replace(
@@ -322,7 +322,7 @@ class Slug implements \Stringable
 			);
 		} else {
 			// Convert to lower case and decomposed form.
-			$this->slug = Utils::convertCase($this->slug, 'lower', false, 'd', true);
+			$this->slug = Utils::convertCase($this->slug, 'lower', false, 'd');
 
 			// Remove unwanted stuff and hyphenate.
 			$this->slug = preg_replace(

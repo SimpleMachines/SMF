@@ -18,6 +18,7 @@ namespace SMF;
 use SMF\Actions\Admin\ACP;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\InsertType;
+use SMF\WebFetch\WebFetchApi;
 
 /**
  * Statistic collection

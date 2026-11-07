@@ -4,7 +4,7 @@
 ### PHP Version Support
 | MIN SMF VERSION | MAX SMF VERSION | MIN PHP VERSION | MAX PHP VERSION |
 | --------------- | --------------- | --------------- | --------------- |
-| 3.0             | LATEST          | 8.0.0           | LATEST          |
+| 3.0             | LATEST          | 8.4.27          | LATEST          |
 
 ### Undocumented Version Support
 - Versions below miniumn listed above are not supported.
