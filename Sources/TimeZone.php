@@ -2446,7 +2446,7 @@ class TimeZone extends \DateTimeZone
 
 		// Build a list of identifiers organized by country, with priority
 		// countries at the top of the list.
-		self::prioritizeTzids($flat);
+		self::prioritizeTzids();
 
 		// Within each country, find exactly one representative identifier for
 		// each and every unique set of time zone rules.
@@ -2778,7 +2778,7 @@ class TimeZone extends \DateTimeZone
 					$alt['ts'] = \is_int($alt['ts']) ? $alt['ts'] : strtotime($alt['ts']);
 				}
 
-				usort(self::$fallbacks[$tzid], fn($a, $b) => $a['ts'] > $b['ts']);
+				usort(self::$fallbacks[$tzid], fn($a, $b) => $a['ts'] > $b['ts'] ? 1 : 0);
 
 				foreach (self::$fallbacks[$tzid] as $alt) {
 					if ($when < $alt['ts']) {
