@@ -93,6 +93,7 @@ class Maintenance implements ActionInterface
 				'optimize' => 'optimize',
 				'convertentities' => 'entitiesToUnicode',
 				'convertmsgbody' => 'changeMsgBodyLength',
+				'admininfofiles' => 'repairAdminInfoFiles',
 			],
 		],
 		'members' => [
@@ -220,6 +221,11 @@ class Maintenance implements ActionInterface
 		if (isset($_GET['done']) && $_GET['done'] == 'convertentities') {
 			Utils::$context['maintenance_finished'] = Lang::getTxt('entity_convert_title', file: 'ManageMaintenance');
 		}
+
+		Utils::$context['options']['admininfofiles'] = [
+			'title' => Lang::getTxt('admininfofiles_title', file: 'ManageMaintenance'),
+			'info' => Lang::getTxt('admininfofiles_introduction', file: 'ManageMaintenance'),
+		];
 	}
 
 	/**
@@ -1310,6 +1316,46 @@ class Maintenance implements ActionInterface
 		Utils::$context['convert_to'] = null;
 
 
+	}
+
+	/**
+	 * Rebuilds Admin information files to the original entries provided.
+	 * This uses information from our Database schema to re-add any entries.
+	 * Any modifications or changes to the original entries will be lost.
+	 */
+	public function repairAdminInfoFiles(): void
+	{
+		// @@ TODO We should have our schema defined somewhere?
+		$table = new \SMF\Db\Schema\v3_0\AdminInfoFiles();
+		$initial_data = $table->initial_data;
+
+		Db::$db->insert(
+			'replace',
+			'{db_prefix}' . $table->name,
+			[
+				'id_file' => 'int',
+				'filename' => 'string',
+				'path' => 'string',
+				'parameters' => 'string',
+				'data' => 'string',
+				'filetype' => 'string',
+			],
+			$initial_data,
+			['id_file'],
+		);
+
+		// Find our task and fire it off so we get some data.
+		$request = Db::$db->query(
+			'SELECT id_task
+			FROM {db_prefix}scheduled_tasks
+			WHERE task = {literal:fetchSMfiles}',
+		);
+		$task = Db::$db->fetch_assoc($request);
+		Db::$db->free_result($request);
+
+		if ($task != null && isset($task['id_task'])) {
+			(new TaskRunner())->runScheduledTasks([$task['id_task']]);
+		}
 	}
 
 	/**
