@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace SMF\Tests\Integration\Http;
 
+use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use SMF\Actions\Notify;
 use SMF\Config;
@@ -182,6 +183,6 @@ class TopicRemovedNotificationTest extends HttpTestCase
 			}
 		}
 
-		$this->fail('no link on the page carries the session');
+		throw new AssertionFailedError('no link on the page carries the session');
 	}
 }
