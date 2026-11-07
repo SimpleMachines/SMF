@@ -2031,7 +2031,7 @@ class TimeZone extends \DateTimeZone
 	/**
 	 * Returns the metazone for this time zone at the given timestamp.
 	 *
-	 * @param \DateTimeInterface|int|string $when The date/time we are
+	 * @param \DateTime|\DateTimeInterface|int|string $when The date/time we are
 	 *    interested in. May be an instance of \DateTimeInterface, a Unix
 	 *    timestamp, or any string that strtotime() can understand.
 	 *    Default: 'now'.
@@ -2162,7 +2162,7 @@ class TimeZone extends \DateTimeZone
 	 *        Europe/Paris  --> 'Central European Time'
 	 *        Europs/Rome   --> 'Central European Time (Italy)'
 	 *
-	 * @param \DateTimeInterface|int|string|null $when The date/time we are
+	 * @param \DateTime|\DateTimeInterface|int|string|null $when The date/time we are
 	 *    interested in. May be an instance of \DateTimeInterface, a Unix
 	 *    timestamp, any string that strtotime() can understand, or null
 	 *    to get a metazone label that works for any date.
@@ -2327,7 +2327,7 @@ class TimeZone extends \DateTimeZone
 	 * Returns whether Daylight Saving Time is in effect in this time zone at
 	 * the specified moment.
 	 *
-	 * @param \DateTimeInterface|int|string $when The date/time we are
+	 * @param \DateTime|\DateTimeInterface|int|string $when The date/time we are
 	 *    interested in. May be an instance of \DateTimeInterface, a Unix
 	 *    timestamp, or any string that strtotime() can understand.
 	 *    Default: 'now'.

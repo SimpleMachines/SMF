@@ -56,7 +56,7 @@ class Mail
 	 * @param null|string $message_id If specified, it will be used as local part of the Message-ID header.
 	 * @param bool $send_html Whether or not the message is HTML vs. plain text
 	 * @param int $priority The priority of the message
-	 * @param bool $hotmail_fix Whether to apply the "hotmail fix"
+	 * @param ?bool $hotmail_fix Whether to apply the "hotmail fix"
 	 * @param bool $is_private Whether this is private
 	 * @return bool Whether ot not the email was sent properly.
 	 */

@@ -481,8 +481,8 @@ class CurlFetcher extends WebFetchApi
 	 *
 	 *  - Resets the curl options for the loop and sets the referrer flag.
 	 *
-	 * @param string $target_url The URL we want to redirect to.
-	 * @param string $referrer_url The URL that we're redirecting from.
+	 * @param Url $target_url The URL we want to redirect to.
+	 * @param Url $referrer_url The URL that we're redirecting from.
 	 */
 	private function redirect(Url $target_url, Url $referrer_url): void
 	{

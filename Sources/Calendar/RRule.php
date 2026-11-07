@@ -105,7 +105,7 @@ class RRule implements \Stringable
 	public int $interval = 1;
 
 	/**
-	 * @var \DateTimeInterface
+	 * @var \DateTimeInterface|\DateTime
 	 *
 	 * When the recurrence ends.
 	 */

@@ -30,7 +30,7 @@ abstract class BBCode implements \ArrayAccess, BBCodeInterface
 	 *****************/
 
 	/**
-	 * @var null
+	 * @var mixed
 	 *
 	 * Used for the form `[tag]parsed content[/tag]`
 	 */

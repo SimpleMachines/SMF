@@ -84,11 +84,11 @@ class ProxyServer
 	protected $cachedsize;
 
 	/**
-	 * @var string
+	 * @var ?string
 	 *
 	 * Body of object cached.
 	 */
-	protected $cachedbody;
+	protected ?string $cachedbody;
 
 	/****************
 	 * Public methods

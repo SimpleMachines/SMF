@@ -182,7 +182,7 @@ abstract class DatabaseApi
 	 **************************/
 
 	/**
-	 * @var object|static|\SMF\Db\APIs\MySQL|\SMF\Db\APIs\PostgreSQL
+	 * @var object
 	 *
 	 * A loaded instance of a child class of this class.
 	 */
@@ -216,7 +216,7 @@ abstract class DatabaseApi
 	public static array $package_log = [];
 
 	/**
-	 * @var object
+	 * @var object|false
 	 *
 	 * A static copy of $this->connection. This exists solely to facilitate
 	 * backward compatibility by populating the global $db_connection variable.

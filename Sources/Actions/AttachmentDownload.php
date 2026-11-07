@@ -112,6 +112,7 @@ class AttachmentDownload implements ActionInterface, Routable
 			$request = null;
 			IntegrationHook::call('integrate_download_request', [&$request]);
 
+			/** @var ?object $request */
 			if (!\is_null($request) && Db::$db->is_resource($request)) {
 				// No attachment has been found.
 				if (Db::$db->num_rows($request) == 0) {

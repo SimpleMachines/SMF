@@ -508,7 +508,7 @@ class Recent implements ActionInterface, Routable
 
 		$counter = Utils::$context['start'] + 1;
 
-		/** @var \SMF\Msg $msg */
+		/** @var Msg $msg */
 		foreach (Msg::get($this->messages, $query_customizations) as $msg) {
 			Utils::$context['posts'][$msg->id] = $msg->format($counter++, [
 				'do_permissions' => false,

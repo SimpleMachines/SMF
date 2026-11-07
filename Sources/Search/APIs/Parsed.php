@@ -656,6 +656,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 			$word_data = [];
 
 			while (microtime(true) < TIME_START + 10) {
+				/** @var Msg $msg */
 				foreach (Msg::get(range($start_id, $start_id + self::BATCH_SIZE - 1)) as $msg) {
 					$last_id = $msg->id;
 

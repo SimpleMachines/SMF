@@ -242,7 +242,7 @@ class BoardIndex implements ActionInterface, Routable
 			$msg_load_options['params']['is_approved'] = 1;
 		}
 
-		/** @var \SMF\Msg $msg */
+		/** @var Msg $msg */
 		foreach (Msg::get(0, $msg_load_options) as $msg) {
 			$posts[$msg->id] = $msg->format(0, [
 				'do_permissions' => false,
@@ -681,7 +681,7 @@ class BoardIndex implements ActionInterface, Routable
 	/**
 	 * Propagates statistics (e.g. post and topic counts) to parent boards.
 	 *
-	 * @param \SMF\Board $board An instance of SMF\Board.
+	 * @param Board $board An instance of SMF\Board.
 	 * @param array $board_index_options The options passed to BoardIndex:get().
 	 */
 	protected static function propagateStatsToParents(Board $board, array $board_index_options): void

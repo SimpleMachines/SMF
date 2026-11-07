@@ -1879,7 +1879,7 @@ class Utils
 	 * @param string $type_pattern A regex pattern to match the acceptable MIME
 	 *    types.
 	 * @param bool $is_path If true, $data is a path or URL to a file.
-	 * @param string &mime_type Will be set to the detected MIME type.
+	 * @param string &$mime_type Will be set to the detected MIME type.
 	 * @return int 1 if the detected MIME type matches the pattern, 0 if it
 	 *    doesn't, or 2 if we can't check.
 	 */
@@ -2242,8 +2242,8 @@ class Utils
 	/**
 	 * Ends execution.  Takes care of template loading and remembering the previous URL.
 	 *
-	 * @param bool $header Whether to do the header
-	 * @param bool $do_footer Whether to do the footer
+	 * @param ?bool $header Whether to do the header
+	 * @param ?bool $do_footer Whether to do the footer
 	 * @param bool $from_index Whether we're coming from the board index
 	 * @param bool $from_fatal_error Whether we're coming from a fatal error
 	 */

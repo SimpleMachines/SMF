@@ -96,7 +96,7 @@ class Event implements \ArrayAccess
 	public int $type = self::TYPE_EVENT;
 
 	/**
-	 * @var \SMF\Time
+	 * @var Time
 	 *
 	 * A Time object representing the start of the event's first occurrence.
 	 */
@@ -900,7 +900,7 @@ class Event implements \ArrayAccess
 	 * Returns a generator that yields all occurrences of the event between
 	 * $this->view_start and $this->view_end.
 	 *
-	 * @return Generator<EventOccurrence> Iterating over result gives
+	 * @return \Generator<EventOccurrence> Iterating over result gives
 	 *    EventOccurrence instances.
 	 */
 	public function getAllVisibleOccurrences(): \Generator
@@ -1682,7 +1682,7 @@ class Event implements \ArrayAccess
 	 * @param string $high_date The high end of the range, inclusive, in YYYY-MM-DD format.
 	 * @param bool $use_permissions Whether to use permissions. Default: true.
 	 * @param array $query_customizations Customizations to the SQL query.
-	 * @return Generator<Event> Iterating over result gives Event instances.
+	 * @return \Generator<Event> Iterating over result gives Event instances.
 	 */
 	public static function get(string $low_date, string $high_date, bool $use_permissions = true, array $query_customizations = []): \Generator
 	{
@@ -1751,7 +1751,7 @@ class Event implements \ArrayAccess
 	 * @param string $high_date The high end of the range, inclusive, in YYYY-MM-DD format.
 	 * @param bool $use_permissions Whether to use permissions. Default: true.
 	 * @param array $query_customizations Customizations to the SQL query.
-	 * @return Generator<EventOccurrence> Iterating over result gives
+	 * @return \Generator<EventOccurrence> Iterating over result gives
 	 *    EventOccurrence instances.
 	 */
 	public static function getOccurrencesInRange(string $low_date, string $high_date, bool $use_permissions = true, array $query_customizations = []): \Generator

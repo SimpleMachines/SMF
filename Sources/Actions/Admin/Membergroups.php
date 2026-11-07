@@ -526,7 +526,7 @@ class Membergroups implements ActionInterface
 
 		$groups = Group::load((int) $_REQUEST['group']);
 
-		/** @var \SMF\Group $group */
+		/** @var Group $group */
 		$group = array_shift($groups);
 
 		if (!isset($group) || !($group instanceof Group)) {

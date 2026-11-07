@@ -249,7 +249,11 @@ class SMTP extends MailAgent implements MailAgentInterface
 	 *
 	 * @internal
 	 * @deprecated Only exists backwards compatbility.
-	 * @param array $config_vars Additional config_vars, see ManageSettings.php for usage.
+	 * @param string $message The message to send
+	 * @param resource $socket Socket to send on
+	 * @param string $code The expected response code
+	 * @param string $response The response from the SMTP server
+	 * @return bool Whether it responded as such.
 	 */
 	public function compatServerParse(string $message, $socket, string $code, ?string &$response = null): bool
 	{
