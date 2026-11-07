@@ -1,0 +1,264 @@
+status 200
+@ title
+title
+  "Theme Settings"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=theme;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Themes and Layout"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=theme;sa=list;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Theme Settings"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      "Themes and Layout settings"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "From here, you can view the list of themes you currently have installed, change their paths and settings, and uninstall them."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Themes and Layout settings Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Themes and Layout settings Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a [href="{boardurl}/index.php?action=admin;area=theme;sa=admin;{session_var}={session_id}"]
+                "Manage and Install"
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=theme;sa=list;{session_var}={session_id}"]
+                "Theme Settings"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=theme;sa=reset;{session_var}={session_id}"]
+                "Member Options"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=theme;sa=edit;{session_var}={session_id}"]
+                "Modify Themes"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  div#admin_form_wrapper
+    form [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=theme;sa=list;th=#" method="post"]
+      div.cat_bar
+        h3.catbg
+          a.help [href="{boardurl}/index.php?action=helpadmin;help=theme_settings" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          "Theme Settings for SMF Default Theme - Curve#"
+      div.windowbg
+        div.title_bar
+          h3.config_hd.titlebg
+            "Theme URLs and Configuration"
+        dl.settings
+          dt
+            label [for="theme_name"]
+              "This theme’s name:"
+          dd
+            input#theme_name [name="options[name]" size="#" type="text" value="SMF Default Theme - Curve#"]
+          dt
+            label [for="theme_url"]
+              "This theme’s URL:"
+          dd
+            input#theme_url [name="options[theme_url]" size="#" type="text" value="{boardurl}/Themes/default"]
+          dt
+            label [for="images_url"]
+              "This theme’s images URL:"
+          dd
+            input#images_url [name="options[images_url]" size="#" type="text" value="{boardurl}/Themes/default/images"]
+          dt
+            label [for="theme_dir"]
+              "This theme’s directory:"
+          dd
+            input#theme_dir [name="options[theme_dir]" size="#" type="text" value="{boarddir}/Themes/default"]
+        div.title_bar
+          h3.config_hd.titlebg
+            "Theme Color Modes"
+        dl.settings
+          dt
+            label [for="colormode"]
+              "Default color mode"
+          dd
+            select#colormode [name="options[default_colormode]"]
+              option [value="light"]
+                "Light"
+              option [value="system"]
+                "System Default"
+              option [value="dark"]
+                "Dark"
+          dt
+            label [for="disable_user_mode"]
+              "Disable user color mode selection"
+          dd
+            input [name="options[disable_user_mode]" type="hidden" value="#"]
+            input#disable_user_mode [name="options[disable_user_mode]" type="checkbox" value="#"]
+        div.title_bar
+          h3.config_hd.titlebg
+            "Theme Options and Preferences"
+        dl.settings
+          dt
+            label [for="options_header_logo_url"]
+              strong
+                "Logo image URL"
+            ":"
+            br
+            span.smalltext
+              "Leave blank to show forum name or default logo."
+          dd
+            input#options_header_logo_url [name="options[header_logo_url]" size="#" type="text" value]
+          dt
+            label [for="options_site_slogan"]
+              strong
+                "Site slogan"
+            ":"
+            br
+            span.smalltext
+              "Add your own text for a slogan here. It will replace the SMF logo."
+          dd
+            input#options_site_slogan [name="options[site_slogan]" size="#" type="text" value]
+          dt
+            label [for="options_og_image"]
+              strong
+                "Open Graph image"
+            ":"
+            br
+            span.smalltext
+              "Suggested size: #x#px."
+              a.bbc_link [href="https://ogp.me/" target="_blank"]
+                "Open Graph"
+              "is used for social media sharing."
+          dd
+            input#options_og_image [name="options[og_image]" size="#" type="url" value]
+        hr
+        dl.settings
+          dt
+            label [for="options_smiley_sets_default"]
+              strong
+                "Select default smiley set for this theme"
+            ":"
+          dd
+            select#options_smiley_sets_default [name="options[smiley_sets_default]"]
+              option [selected value]
+                "(use global default smiley set)"
+              option [value="none"]
+                "No smileys"
+              option [value="fugue"]
+                "Fugue’s Set"
+              option [value="alienine"]
+                "Alienine’s Set"
+        hr
+        dl.settings
+          dt
+            label [for="options_enable_news"]
+              strong
+                "Enable random news line in the forum header"
+            ":"
+          dd
+            input [name="options[enable_news]" type="hidden" value="#"]
+            input#options_enable_news [checked name="options[enable_news]" type="checkbox" value="#"]
+          dt
+            label [for="options_show_newsfader"]
+              strong
+                "Show news fader on board index"
+            ":"
+          dd
+            input [name="options[show_newsfader]" type="hidden" value="#"]
+            input#options_show_newsfader [name="options[show_newsfader]" type="checkbox" value="#"]
+          dt
+            label [for="options_newsfader_time"]
+              strong
+                "Fading delay between items for the news fader, in milliseconds"
+            ":"
+          dd
+            input#options_newsfader_time [min="#" name="options[newsfader_time]" type="number" value="#"]
+        hr
+        dl.settings
+          dt
+            label [for="options_number_recent_posts"]
+              strong
+                "Number of recent posts to display on board index"
+            ":"
+            br
+            span.smalltext
+              "(Set to # to(s) disable.)"
+          dd
+            input#options_number_recent_posts [min="#" name="options[number_recent_posts]" type="number" value="#"]
+          dt
+            label [for="options_show_stats_index"]
+              strong
+                "Show statistics on board index"
+            ":"
+          dd
+            input [name="options[show_stats_index]" type="hidden" value="#"]
+            input#options_show_stats_index [checked name="options[show_stats_index]" type="checkbox" value="#"]
+          dt
+            label [for="options_show_latest_member"]
+              strong
+                "Show latest member on board index"
+            ":"
+          dd
+            input [name="options[show_latest_member]" type="hidden" value="#"]
+            input#options_show_latest_member [checked name="options[show_latest_member]" type="checkbox" value="#"]
+          dt
+            label [for="options_show_group_key"]
+              strong
+                "Show group key on board index"
+            ":"
+          dd
+            input [name="options[show_group_key]" type="hidden" value="#"]
+            input#options_show_group_key [name="options[show_group_key]" type="checkbox" value="#"]
+          dt
+            label [for="options_display_who_viewing"]
+              strong
+                "Show who is viewing boards and topics"
+            ":"
+          dd
+            select#options_display_who_viewing [name="options[display_who_viewing]"]
+              option [value="#"]
+                "Do not show"
+              option [value="#"]
+                "Show only numbers"
+              option [value="#"]
+                "Show member names"
+        input.button [name="save" type="submit" value="Save"]
+        input [name="{session_var}" type="hidden" value="{session_id}"]
+        input [name="{token_var}" type="hidden" value="{hash}"]
+
+= errors logged
+[undefined_vars] #: Undefined array key "default_colormode"

@@ -1,0 +1,137 @@
+status 200
+@ title
+title
+  "Features and Options"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=featuresettings;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Features and Options"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=likes;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Likes"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      a.help [href="{boardurl}/index.php?action=helpadmin;help=featuresettings" onclick="return reqOverlayDiv(this.href);"]
+        span.help.main_icons [title="Help"]
+      "Features and Options"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "This page allows you to change the settings of features and basic options in your forum. Please see the"
+    a [href="{boardurl}/index.php?action=admin;area=theme;sa=list;th=#;{session_var}={session_id}"]
+      "theme settings"
+    "for more options. Click the help icons for more information about a setting."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Features and Options Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Features and Options Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=basic;{session_var}={session_id}"]
+                "General"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=bbc;{session_var}={session_id}"]
+                "Bulletin Board Code & Markdown"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=layout;{session_var}={session_id}"]
+                "Layout"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=sig;{session_var}={session_id}"]
+                "Signatures"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=profile;{session_var}={session_id}"]
+                "Profile Fields"
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=likes;{session_var}={session_id}"]
+                "Likes"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=mentions;{session_var}={session_id}"]
+                "Mentions"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=alerts;{session_var}={session_id}"]
+                "Notifications"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  form#admin_form_wrapper [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=featuresettings;save;sa=likes" method="post"]
+    div.cat_bar
+      h3.catbg
+        "Likes"
+    div.noup.windowbg
+      dl.settings
+        dt
+          a#setting_enable_likes
+          span
+            label [for="enable_likes"]
+              "Enable Likes"
+        dd
+          input#enable_likes [name="enable_likes" type="checkbox" value="#"]
+        dt
+          a#setting_likes_like
+          span
+            label
+              "Membergroups allowed to like posts"
+        dd
+          fieldset#likes_like
+            legend
+              a.toggle_up [href="javascript:void(#);" onclick="document.getElementById('likes_like').style.display = 'none';document.getElementById('likes_like_groups_link').style.display = 'block'; return false;"]
+                "Select permissions for each group"
+            ul
+              li
+                input [name="likes_like[#]" type="checkbox" value="on"]
+                span
+                  "Regular Members"
+              li
+                input [name="likes_like[#]" type="checkbox" value="on"]
+                span
+                  "Global Moderator"
+              li
+                input [onclick="invertAll(this, this.form, 'likes_like[');" type="checkbox"]
+                span
+                  "Select all"
+          a#likes_like_groups_link.toggle_down [href="javascript:void(#);" onclick="document.getElementById('likes_like').style.display = 'block'; document.getElementById('likes_like_groups_link').style.display = 'none'; return false;" style="display: none;"]
+            "Select permissions for each group"
+          script
+            | document.getElementById("likes_like").style.display = "none"; document.getElementById("likes_like_groups_link").style.display = "";
+      input.button [type="submit" value="Save"]
+    input [name="{token_var}" type="hidden" value="{hash}"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]

@@ -1,0 +1,316 @@
+status 200
+@ title
+title
+  "Recent posts"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php#c#" itemprop="item"]
+        span [itemprop="name"]
+          "Snapshot fixtures"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=recent;c=#" itemprop="item"]
+        span [itemprop="name"]
+          "Recent posts"
+      meta [content="#" itemprop="position"]
+@ #content_section
+div#content_section
+  main#main_content_section
+    div#recent.main_section
+      div#display_head.information
+        h2.display_title
+          span#top_subject
+            "Recent posts"
+      div.pagesection
+        div.pagelinks
+          span.pages
+            "Pages"
+          span.current_page
+            "#"
+      div.windowbg
+        div.floatright.page_number
+          "##"
+        div.topic_details
+          h5
+            a [href="{boardurl}/index.php?board=#"]
+              "{board}"
+            "/"
+            a [href="{boardurl}/index.php?msg=#" rel="nofollow"]
+              "{subject}"
+          span.smalltext
+            "Last post by"
+            a [href="{boardurl}/index.php?action=profile;u=#" title="View the profile of {member}"]
+              "{member}"
+            "on {date}"
+        div.list_posts
+          "A second topic in the child board."
+        ul.quickbuttons.quickbuttons_recent
+          li
+            a [href="{boardurl}/index.php?action=post;topic=#"]
+              span.main_icons.reply_button
+              "Reply"
+          li
+            a [href="{boardurl}/index.php?action=post;topic=#;quote=#"]
+              span.main_icons.quote
+              "Quote"
+          li.you_sure
+            a [data-confirm="Remove this post" href="{boardurl}/index.php?action=deletemsg;msg=#;topic=#;recent;{session_var}={session_id}"]
+              span.main_icons.remove_button
+              "Remove"
+      div.windowbg
+        div.floatright.page_number
+          "##"
+        div.topic_details
+          h5
+            a [href="{boardurl}/index.php?board=#"]
+              "{board}"
+            "/"
+            a [href="{boardurl}/index.php?msg=#" rel="nofollow"]
+              "{subject}"
+          span.smalltext
+            "Last post by"
+            a [href="{boardurl}/index.php?action=profile;u=#" title="View the profile of {member}"]
+              "{member}"
+            "on {date}"
+        div.list_posts
+          "A topic in a child board."
+        ul.quickbuttons.quickbuttons_recent
+          li
+            a [href="{boardurl}/index.php?action=post;topic=#"]
+              span.main_icons.reply_button
+              "Reply"
+          li
+            a [href="{boardurl}/index.php?action=post;topic=#;quote=#"]
+              span.main_icons.quote
+              "Quote"
+      div.windowbg
+        div.floatright.page_number
+          "##"
+        div.topic_details
+          h5
+            a [href="{boardurl}/index.php?board=#"]
+              "{board}"
+            "/"
+            a [href="{boardurl}/index.php?msg=#" rel="nofollow"]
+              "{subject}"
+          span.smalltext
+            "Last post by"
+            a [href="{boardurl}/index.php?action=profile;u=#" title="View the profile of {member}"]
+              "{member}"
+            "on {date}"
+        div.list_posts
+          "Another topic, so the board lists more than one."
+        ul.quickbuttons.quickbuttons_recent
+          li
+            a [href="{boardurl}/index.php?action=post;topic=#"]
+              span.main_icons.reply_button
+              "Reply"
+          li
+            a [href="{boardurl}/index.php?action=post;topic=#;quote=#"]
+              span.main_icons.quote
+              "Quote"
+      div.windowbg
+        div.floatright.page_number
+          "##"
+        div.topic_details
+          h5
+            a [href="{boardurl}/index.php?board=#"]
+              "{board}"
+            "/"
+            a [href="{boardurl}/index.php?msg=#" rel="nofollow"]
+              "{subject}"
+          span.smalltext
+            "Last post by"
+            a [href="{boardurl}/index.php?action=profile;u=#" title="View the profile of {member}"]
+              "{member}"
+            "on {date}"
+        div.list_posts
+          "A sticky, locked topic with a poll."
+        ul.quickbuttons.quickbuttons_recent
+          li
+            a [href="{boardurl}/index.php?action=post;topic=#"]
+              span.main_icons.reply_button
+              "Reply"
+          li
+            a [href="{boardurl}/index.php?action=post;topic=#;quote=#"]
+              span.main_icons.quote
+              "Quote"
+      div.windowbg
+        div.floatright.page_number
+          "##"
+        div.topic_details
+          h5
+            a [href="{boardurl}/index.php?board=#"]
+              "{board}"
+            "/"
+            a [href="{boardurl}/index.php?msg=#" rel="nofollow"]
+              "{subject}"
+          span.smalltext
+            "Last post by"
+            a [href="{boardurl}/index.php?action=profile;u=#" title="View the profile of {member}"]
+              "{member}"
+            "on {date}"
+        div.list_posts
+          "A reply from another member, with a smiley"
+          img.smiley [alt=":)" src="{boardurl}/Smileys/fugue/smiley.png" title="Smiley"]
+        ul.quickbuttons.quickbuttons_recent
+          li
+            a [href="{boardurl}/index.php?action=post;topic=#"]
+              span.main_icons.reply_button
+              "Reply"
+          li
+            a [href="{boardurl}/index.php?action=post;topic=#;quote=#"]
+              span.main_icons.quote
+              "Quote"
+      div.windowbg
+        div.floatright.page_number
+          "##"
+        div.topic_details
+          h5
+            a [href="{boardurl}/index.php?board=#"]
+              "{board}"
+            "/"
+            a [href="{boardurl}/index.php?msg=#" rel="nofollow"]
+              "{subject}"
+          span.smalltext
+            "Last post by"
+            a [href="{boardurl}/index.php?action=profile;u=#" title="View the profile of {member}"]
+              "{member}"
+            "on {date}"
+        div.list_posts
+          blockquote.bbc_standard_quote
+            cite
+              "Quote from: {member}"
+            "The quoted text."
+          "A reply from an administrator."
+        ul.quickbuttons.quickbuttons_recent
+          li
+            a [href="{boardurl}/index.php?action=post;topic=#"]
+              span.main_icons.reply_button
+              "Reply"
+          li
+            a [href="{boardurl}/index.php?action=post;topic=#;quote=#"]
+              span.main_icons.quote
+              "Quote"
+      div.windowbg
+        div.floatright.page_number
+          "##"
+        div.topic_details
+          h5
+            a [href="{boardurl}/index.php?board=#"]
+              "{board}"
+            "/"
+            a [href="{boardurl}/index.php?msg=#" rel="nofollow"]
+              "{subject}"
+          span.smalltext
+            "Last post by Snapshot Guest on {date}"
+        div.list_posts
+          "A reply from a guest."
+        ul.quickbuttons.quickbuttons_recent
+          li
+            a [href="{boardurl}/index.php?action=post;topic=#"]
+              span.main_icons.reply_button
+              "Reply"
+          li
+            a [href="{boardurl}/index.php?action=post;topic=#;quote=#"]
+              span.main_icons.quote
+              "Quote"
+      div.windowbg
+        div.floatright.page_number
+          "##"
+        div.topic_details
+          h5
+            a [href="{boardurl}/index.php?board=#"]
+              "{board}"
+            "/"
+            a [href="{boardurl}/index.php?msg=#" rel="nofollow"]
+              "{subject}"
+          span.smalltext
+            "Last post by"
+            a [href="{boardurl}/index.php?action=profile;u=#" title="View the profile of {member}"]
+              "{member}"
+            "on {date}"
+        div.list_posts
+          "The first post, with"
+          strong
+            "bold"
+          ","
+          em
+            "italic"
+          ","
+          u
+            "underlined"
+          "and"
+          s
+            "struck"
+          "text."
+          br
+          a.bbc_link [href="https://www.simplemachines.org" rel="noopener" target="_blank"]
+            "A link"
+          "and"
+          a.bbc_email [href="mailto:{email}"]
+            "{email}"
+          "."
+          br
+          blockquote.bbc_standard_quote
+            cite
+              "Quote"
+            "An unattributed quote."
+          div.codeheader
+            "Code"
+          pre.bbc_code [data-expand-txt="Expand" data-select-txt="Select" data-shrink-txt="Shrink"]
+            code
+              "echo \"code\";"
+          ul.bbc_list
+            li
+              "One"
+            li
+              "Two"
+          span.bbc_color [style="color: red;"]
+            "Red"
+          span.bbc_size [style="font-size: #pt;"]
+            "Sized"
+          div.centertext
+            "Centred"
+          table.bbc_table
+            thead
+              tr
+                th
+                  "A"
+                th
+                  "B"
+            tbody
+          span.bbc_inline_spoiler [title="Show or hide spoiler content"]
+            button [tabindex="#" title="Show or hide spoiler content" type="button"]
+            span
+              "Hidden"
+          hr.bbc_hr
+          "Smileys:"
+          img.smiley [alt=":)" src="{boardurl}/Smileys/fugue/smiley.png" title="Smiley"]
+          img.smiley [alt=";)" src="{boardurl}/Smileys/fugue/wink.png" title="Wink"]
+        ul.quickbuttons.quickbuttons_recent
+          li
+            a [href="{boardurl}/index.php?action=post;topic=#"]
+              span.main_icons.reply_button
+              "Reply"
+          li
+            a [href="{boardurl}/index.php?action=post;topic=#;quote=#"]
+              span.main_icons.quote
+              "Quote"
+      div.pagesection
+        div.pagelinks
+          span.pages
+            "Pages"
+          span.current_page
+            "#"

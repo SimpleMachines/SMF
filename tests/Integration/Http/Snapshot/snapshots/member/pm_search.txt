@@ -1,0 +1,173 @@
+status 200
+@ title
+title
+  "Search personal messages"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=pm" itemprop="item"]
+        span [itemprop="name"]
+          "Personal Messages"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=pm;sa=search" itemprop="item"]
+        span [itemprop="name"]
+          "Search messages"
+      meta [content="#" itemprop="position"]
+@ #content_section
+div#content_section
+  main#main_content_section
+    nav#genericmenu [aria-label=" Menu"]
+      a.mobile_generic_menu_1
+        span.menu_icon
+        span.text_menu
+          "Menu"
+      div#mobile_generic_menu_#.popup_container
+        div.description.popup_window
+          div.popup_heading
+            "Menu"
+            a.hide_popup.main_icons [href="javascript:void(#);"]
+          div.generic_menu
+            ul.dropdown_menu_1.dropmenu
+              li.subsections
+                a [href="{boardurl}/index.php?action=pm;f=inbox"]
+                  "Messages"
+                ul
+                  li
+                    a.inbox.pm_menu_icon [href="{boardurl}/index.php?action=pm;f=inbox"]
+                      span.inbox.main_icons
+                      "Inbox"
+                  li
+                    a.pm_menu_icon.send [href="{boardurl}/index.php?action=pm;sa=send"]
+                      span.main_icons.send
+                      "send"
+                  li
+                    a.pm_menu_icon.sent [href="{boardurl}/index.php?action=pm;f=sent"]
+                      span.main_icons.sent
+                      "sent"
+                  li
+                    a.drafts.pm_menu_icon [href="{boardurl}/index.php?action=pm;f=drafts"]
+                      span.drafts.main_icons
+                      "Drafts"
+              li.subsections
+                a.active [href="{boardurl}/index.php?action=pm;sa=search"]
+                  "Actions"
+                ul
+                  li
+                    a.chosen.pm_menu_icon.search [href="{boardurl}/index.php?action=pm;sa=search"]
+                      span.main_icons.search
+                      "Search"
+                  li
+                    a.pm_menu_icon.prune [href="{boardurl}/index.php?action=pm;sa=prune"]
+                      span.main_icons.prune
+                      "prune"
+              li.subsections
+                a [href="{boardurl}/index.php?action=pm;sa=manlabels"]
+                  "Preferences"
+                ul
+                  li
+                    a.manlabels.pm_menu_icon [href="{boardurl}/index.php?action=pm;sa=manlabels"]
+                      span.main_icons.manlabels
+                      "manlabels"
+                  li
+                    a.manrules.pm_menu_icon [href="{boardurl}/index.php?action=pm;sa=manrules"]
+                      span.main_icons.manrules
+                      "manrules"
+                  li
+                    a.pm_menu_icon.settings [href="{boardurl}/index.php?action=pm;sa=settings"]
+                      span.main_icons.settings
+                      "Settings"
+    script
+      | $( ".mobile_generic_menu_#" ).click(function() { $( "#mobile_generic_menu_#" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#" ).hide(); });
+    div#admin_content
+      div#personal_messages
+        form#searchform [accept-charset="UTF-#" action="{boardurl}/index.php?action=pm;sa=search#" method="post" name="searchform"]
+          div.cat_bar
+            h3.catbg
+              "Search personal messages"
+          div#advanced_search.roundframe
+            input [name="advanced" type="hidden" value="#"]
+            dl#search_options.settings
+              dt
+                strong
+                  label [for="searchfor"]
+                    "Search for"
+              dd
+                input [name="search" size="#" type="search"]
+                script
+                  | window.addEventListener("load", initSearch, false);
+              dt
+                label [for="searchtype"]
+                  "Match"
+              dd
+                select [name="searchtype"]
+                  option [selected value="#"]
+                    "Match all words"
+                  option [value="#"]
+                    "Match any words"
+              dt
+                label [for="userspec"]
+                  "By user"
+              dd
+                input [name="userspec" size="#" type="text" value="*"]
+              dt
+                label [for="sort"]
+                  "Search order"
+              dd
+                select [name="sort"]
+                  option [value="relevance|desc"]
+                    "Most relevant first"
+                  option [value="id_pm|desc"]
+                    "Most recent first"
+                  option [value="id_pm|asc"]
+                    "Oldest first"
+              dt.options
+                "Options"
+              dd.options
+                label [for="show_complete"]
+                  input#show_complete [name="show_complete" type="checkbox" value="#"]
+                  "Show full message in results."
+                br
+                label [for="subject_only"]
+                  input#subject_only [name="subject_only" type="checkbox" value="#"]
+                  "Search by subject and author only."
+              dt.between
+                "Message age"
+              dd
+                "between"
+                input [max="#" min="#" name="minage" type="number" value="#"]
+                "and"
+                input [max="#" min="#" name="maxage" type="number" value="#"]
+                "days"
+          fieldset.labels
+            div.alt.roundframe
+              div.title_bar
+                h3.titlebg
+                  a#advanced_panel_link [href="#"]
+                    "Choose labels to search by, or search all"
+                span#advanced_panel_toggle.toggle_up [style="display: none;"]
+              div#advanced_panel_div
+                ul#search_labels
+                  li
+                    label [for="searchlabel_-#"]
+                      input#searchlabel_-# [checked name="searchlabel[-#]" type="checkbox" value="-#"]
+                      "Inbox"
+              br.clear
+              div.padding
+                input#check_all [checked name="all" onclick="invertAll(this, this.form, 'searchlabel');" type="checkbox" value]
+                label [for="check_all"]
+                  em
+                    "Select all"
+                input.button.floatright [name="pm_search" type="submit" value="Search"]
+          script
+            | var oAdvancedPanelToggle = new smc_Toggle({ bToggleEnabled: true, bCurrentlyCollapsed: true, aSwappableContainers: [ 'advanced_panel_div' ], aSwapImages: [ { sId: 'advanced_panel_toggle', altExpanded: 'Hide', altCollapsed: 'Show' } ], aSwapLinks: [ { sId: 'advanced_panel_link', msgExpanded: 'Choose labels to search by, or search all', msgCollapsed: 'Choose labels to search by, or search all' } ] });

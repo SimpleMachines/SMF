@@ -534,7 +534,7 @@ class ServerSideIncludes
 		}
 
 		if ($output_method == 'echo') {
-			template_menu();
+			Theme::loadSubTemplate('menu');
 
 			return null;
 		}

@@ -1,0 +1,94 @@
+status 200
+@ #genericmenu
+nav#genericmenu [aria-label="Moderation Center Menu"]
+  a.mobile_generic_menu_1
+    span.menu_icon
+    span.text_menu
+      "Moderation Center Menu"
+  div#mobile_generic_menu_#.popup_container
+    div.description.popup_window
+      div.popup_heading
+        "Moderation Center Menu"
+        a.hide_popup.main_icons [href="javascript:void(#);"]
+      div.generic_menu
+        ul.dropdown_menu_1.dropmenu
+          li.subsections
+            a.active [href="{boardurl}/index.php?action=moderate;area=index"]
+              "Main"
+            ul
+              li
+                a.administration.chosen.moderate_menu_icon [href="{boardurl}/index.php?action=moderate;area=index"]
+                  span.administration.main_icons
+                  "Moderation Center"
+          li.subsections
+            a [href="{boardurl}/index.php?action=moderate;area=modlog"]
+              "Logs"
+            ul
+              li
+                a.logs.moderate_menu_icon [href="{boardurl}/index.php?action=moderate;area=modlog"]
+                  span.logs.main_icons
+                  "Moderation Log"
+              li.subsections
+                a.moderate_menu_icon.warning [href="{boardurl}/index.php?action=moderate;area=warnings"]
+                  span.main_icons.warning
+                  "Warnings"
+                ul
+                  li
+                    a [href="{boardurl}/index.php?action=moderate;area=warnings;sa=log"]
+                      "Log"
+                  li
+                    a [href="{boardurl}/index.php?action=moderate;area=warnings;sa=templates"]
+                      "Custom Templates"
+          li.subsections
+            a [href="{boardurl}/index.php?action=moderate;area=reportedposts"]
+              "Posts"
+            ul
+              li.subsections
+                a.moderate_menu_icon.reports [href="{boardurl}/index.php?action=moderate;area=reportedposts"]
+                  span.main_icons.reports
+                  "Reported Posts"
+                ul
+                  li
+                    a [href="{boardurl}/index.php?action=moderate;area=reportedposts;sa=show"]
+                      "Active Reports"
+                  li
+                    a [href="{boardurl}/index.php?action=moderate;area=reportedposts;sa=closed"]
+                      "Old Reports"
+          li.subsections
+            a [href="{boardurl}/index.php?action=moderate;area=groups;sa=requests"]
+              "Groups"
+            ul
+              li
+                a.members_request.moderate_menu_icon [href="{boardurl}/index.php?action=moderate;area=groups;sa=requests"]
+                  span.main_icons.members_request
+                  "Membergroup Requests"
+              li
+                a.membergroups.moderate_menu_icon [href="{boardurl}/index.php?action=moderate;area=viewgroups"]
+                  span.main_icons.membergroups
+                  "View Membergroups"
+          li.subsections
+            a [href="{boardurl}/index.php?action=moderate;area=userwatch"]
+              "Members"
+            ul
+              li.subsections
+                a.members_watched.moderate_menu_icon [href="{boardurl}/index.php?action=moderate;area=userwatch"]
+                  span.main_icons.members_watched
+                  "Watched Members"
+                ul
+                  li
+                    a [href="{boardurl}/index.php?action=moderate;area=userwatch;sa=member"]
+                      "Member"
+                  li
+                    a [href="{boardurl}/index.php?action=moderate;area=userwatch;sa=post"]
+                      "View by Post"
+              li.subsections
+                a.members_watched.moderate_menu_icon [href="{boardurl}/index.php?action=moderate;area=reportedmembers"]
+                  span.main_icons.members_watched
+                  "Reported Members"
+                ul
+                  li
+                    a [href="{boardurl}/index.php?action=moderate;area=reportedmembers;sa=open"]
+                      "Active Reports"
+                  li
+                    a [href="{boardurl}/index.php?action=moderate;area=reportedmembers;sa=closed"]
+                      "Old Reports"

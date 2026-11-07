@@ -1,0 +1,101 @@
+status 200
+@ title
+title
+  "Search Results"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=search;params={params}" itemprop="item"]
+        span [itemprop="name"]
+          "Search"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=search#;params={params}" itemprop="item"]
+        span [itemprop="name"]
+          "Search Results"
+      meta [content="#" itemprop="position"]
+@ #content_section
+div#content_section
+  main#main_content_section
+    form#new_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=search#" method="post" name="new_search"]
+      input [maxlength="#" name="search" size="#" type="hidden" value="bold"]
+      input [name="searchtype" type="hidden" value="#"]
+      input [name="userspec" type="hidden" value]
+      input [name="show_complete" type="hidden" value="#"]
+      input [name="subject_only" type="hidden" value="#"]
+      input [name="minage" type="hidden" value="#"]
+      input [name="maxage" type="hidden" value="#"]
+      input [name="sort" type="hidden" value="relevance"]
+      input [name="brd[#]" type="hidden" value="#"]
+    div#display_head.information
+      h2.display_title
+        span
+          "Search Results"
+      div.floatleft
+        a.button [href="{boardurl}/index.php?action=search;params={params}"]
+          "Adjust Search Parameters"
+      div.floatright
+        span.padding
+          "Search order"
+        select.floatright [form="new_search" name="sort" onchange="document.forms.new_search.submit()"]
+          option [selected value="relevance|desc"]
+            "Most relevant results first"
+          option [value="num_replies|desc"]
+            "Largest topics first"
+          option [value="num_replies|asc"]
+            "Smallest topics first"
+          option [value="id_msg|desc"]
+            "Most recent topics first"
+          option [value="id_msg|asc"]
+            "Oldest topics first"
+    div.pagesection
+      div.pagelinks
+        span.pages
+          "Pages"
+        span.current_page
+          "#"
+    div.windowbg
+      div.block
+        div.floatright.page_number
+          "##"
+        div.half_content
+          div.topic_details
+            h5
+              a [href="{boardurl}/index.php?board=#"]
+                "{board}"
+              "/"
+              a [href="{boardurl}/index.php?topic=#.msg##msg#"]
+                "{subject}"
+            span.smalltext
+              "{date} by"
+              strong
+                a [href="{boardurl}/index.php?action=profile;u=#" title="View the profile of {member}"]
+                  "{member}"
+      div.list_posts.word_break
+        strong
+          "......"
+        "first post, with"
+        mark.highlight
+          "bold"
+        ", italic, underlined and struck text. A link and"
+        strong
+          "......"
+    div.pagesection
+      div.pagelinks
+        span.pages
+          "Pages"
+        span.current_page
+          "#"
+      div#search_jump_to.floatright.pagelinks.smalltext
+      script
+        | window.addEventListener("DOMContentLoaded", function() { new JumpTo({ sContainerId: "search_jump_to", sJumpToTemplate: "<label class=\"smalltext jump_to\" for=\"%select_id%\">Jump to<" + "/label> %dropdown_list%", iCurBoardId: #, iCurBoardChildLevel: #, sCurBoardName: "Please select a destination", sBoardChildLevelIndicator: "==", sBoardPrefix: "=> ", sCatSeparator: "-----------------------------", sCatPrefix: "", sGoButtonLabel: "Go" }); });

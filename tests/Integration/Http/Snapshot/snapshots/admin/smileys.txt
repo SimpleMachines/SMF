@@ -1,0 +1,138 @@
+status 200
+@ title
+title
+  "Smileys and Message Icons"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=smileys;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Smileys and Message Icons"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=smileys;sa=editsets;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Smiley Sets"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      a.help [href="{boardurl}/index.php?action=helpadmin;help=smileys" onclick="return reqOverlayDiv(this.href);"]
+        span.help.main_icons [title="Help"]
+      "Smileys and Message Icons"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "Smiley Sets are groups of smileys your users can choose between. For example, you might have yellow and red smileys."
+    br
+    "Here you can change the name and location of each smiley set - remember, however, that all sets share the same smileys."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Smileys and Message Icons Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Smileys and Message Icons Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=smileys;sa=editsets;{session_var}={session_id}"]
+                "Smiley Sets"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=smileys;sa=settings;{session_var}={session_id}"]
+                "Settings"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  form [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=smileys;sa=editsets" method="post"]
+    div.cat_bar
+      h3.catbg
+        "Smiley Sets"
+    div.additional_row
+      input [name="smiley_save" type="hidden"]
+      input.button.you_sure [data-confirm="Are you sure you want to remove these smiley sets?-n-Note: This won't remove the images, just the choices." name="delete" type="submit" value="Delete selected"]
+      a.button [href="{boardurl}/index.php?action=admin;area=smileys;sa=modifyset"]
+        "New smiley Set"
+    table#smiley_set_list.table_grid
+      thead
+        tr.title_bar
+          th#header_smiley_set_list_default.centercol.default [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=smileys;sa=editsets;sort=default" rel="nofollow"]
+              "Default"
+          th#header_smiley_set_list_name.name [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=smileys;sa=editsets;sort=name;desc" rel="nofollow"]
+              "Name"
+              span.main_icons.sort_up
+          th#header_smiley_set_list_url.url [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=smileys;sa=editsets;sort=url" rel="nofollow"]
+              "URL"
+          th#header_smiley_set_list_modify.centercol.modify [scope="col"]
+            "Modify"
+          th#header_smiley_set_list_check.centercol.check [scope="col"]
+            input [onclick="invertAll(this, this.form);" type="checkbox"]
+      tbody
+        tr#list_smiley_set_list_#.windowbg
+          td.centercol.default
+          td.name
+            "Alienine’s Set"
+          td.url
+            "{boardurl}/Smileys/"
+            strong
+              "alienine"
+            "/..."
+          td.centercol.modify
+            a [href="{boardurl}/index.php?action=admin;area=smileys;sa=modifyset;set=alienine"]
+              "Modify"
+          td.centercol.check
+            input [name="smiley_set[alienine]" type="checkbox"]
+        tr#list_smiley_set_list_#.windowbg
+          td.centercol.default
+            span.main_icons.valid
+          td.name
+            "Fugue’s Set"
+          td.url
+            "{boardurl}/Smileys/"
+            strong
+              "fugue"
+            "/..."
+          td.centercol.modify
+            a [href="{boardurl}/index.php?action=admin;area=smileys;sa=modifyset;set=fugue"]
+              "Modify"
+          td.centercol.check
+    div.flow_auto
+      div.additional_row
+        input [name="smiley_save" type="hidden"]
+        input.button.you_sure [data-confirm="Are you sure you want to remove these smiley sets?-n-Note: This won't remove the images, just the choices." name="delete" type="submit" value="Delete selected"]
+        a.button [href="{boardurl}/index.php?action=admin;area=smileys;sa=modifyset"]
+          "New smiley Set"
+    input [name="{session_var}" type="hidden" value="{session_id}"]
+    input [name="{token_var}" type="hidden" value="{hash}"]

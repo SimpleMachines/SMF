@@ -1,0 +1,348 @@
+status 200
+@ title
+title
+  "Profile - Notifications"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=profile" itemprop="item"]
+        span [itemprop="name"]
+          "Profile of Snapshot Member"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=profile;area=notification" itemprop="item"]
+        span [itemprop="name"]
+          "Notifications"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=profile;area=notification;sa=alerts" itemprop="item"]
+        span [itemprop="name"]
+          "Notification Preferences"
+      meta [content="#" itemprop="position"]
+@ #content_section
+div#content_section
+  main#main_content_section
+    nav#genericmenu [aria-label=" Menu"]
+      a.mobile_generic_menu_1
+        span.menu_icon
+        span.text_menu
+          "Menu"
+      div#mobile_generic_menu_#.popup_container
+        div.description.popup_window
+          div.popup_heading
+            "Menu"
+            a.hide_popup.main_icons [href="javascript:void(#);"]
+          div.generic_menu
+            ul.dropdown_menu_1.dropmenu
+              li.subsections
+                a [href="{boardurl}/index.php?action=profile;area=summary;u=#"]
+                  "{member}"
+                ul
+                  li
+                    a.administration.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=summary;u=#"]
+                      span.administration.main_icons
+                      "{member}"
+                  li
+                    a.profile_menu_icon.stats [href="{boardurl}/index.php?action=profile;area=statistics;u=#"]
+                      span.main_icons.stats
+                      "Show Stats"
+                  li.subsections
+                    a.posts.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=showposts;u=#"]
+                      span.main_icons.posts
+                      "Show Posts"
+                    ul
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=showposts;sa=messages;u=#"]
+                          "Messages"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=showposts;sa=topics;u=#"]
+                          "Topics"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=showposts;sa=unwatchedtopics;u=#"]
+                          "Unwatched topics"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=showposts;sa=attach;u=#"]
+                          "Attachments"
+                  li
+                    a.drafts.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=showdrafts;u=#"]
+                      span.drafts.main_icons
+                      "Show Drafts"
+                  li
+                    a.alerts.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=showalerts;u=#"]
+                      span.alerts.main_icons
+                      "Show Alerts"
+                  li.subsections
+                    a.logs.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=tracking;u=#"]
+                      span.logs.main_icons
+                      "Track User"
+                    ul
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=tracking;sa=logins;u=#"]
+                          "Logins"
+              li.subsections
+                a.active [href="{boardurl}/index.php?action=profile;area=account;u=#"]
+                  "Forum Profile"
+                ul
+                  li
+                    a.maintain.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=account;u=#"]
+                      span.main_icons.maintain
+                      "Account Settings"
+                  li
+                    a.members.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=forumprofile;u=#"]
+                      span.main_icons.members
+                      "Forum Profile"
+                  li
+                    a.features.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=theme;u=#"]
+                      span.features.main_icons
+                      "Look and Layout"
+                  li.subsections
+                    a.alerts.chosen.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=notification;u=#"]
+                      span.alerts.main_icons
+                      "Notifications"
+                    ul
+                      li
+                        a.chosen [href="{boardurl}/index.php?action=profile;area=notification;sa=alerts;u=#"]
+                          "Notification Preferences"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=notification;sa=topics;u=#"]
+                          "Watched Topics"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=notification;sa=boards;u=#"]
+                          "Watched Boards"
+                  li.subsections
+                    a.frenemy.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=lists;u=#"]
+                      span.frenemy.main_icons
+                      "Buddies/Ignore List"
+                    ul
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=lists;sa=buddies;u=#"]
+                          "Edit Buddies"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=lists;sa=ignore;u=#"]
+                          "Edit Ignore List"
+              li.subsections
+                a [href="{boardurl}/index.php?action=profile;area=deleteaccount;u=#"]
+                  "Actions"
+                ul
+                  li
+                    a.members_delete.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=deleteaccount;u=#"]
+                      span.main_icons.members_delete
+                      "Delete this account"
+    script
+      | $( ".mobile_generic_menu_#" ).click(function() { $( "#mobile_generic_menu_#" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#" ).hide(); });
+    div#admin_content
+      div.cat_bar
+        h3.catbg
+          "Notifications"
+      p.information
+        "SMF allows you to be notified of replies to posts, newly posted topics, and forum announcements. You can change those settings here, or oversee the topics and boards you are currently receiving notifications for."
+      a.mobile_generic_menu_1_tabs
+        span.menu_icon
+        span.text_menu
+          "Notifications Menu"
+      div#adm_submenus
+        div#mobile_generic_menu_#_tabs.popup_container
+          div.description.popup_window
+            div.popup_heading
+              "Notifications Menu"
+              a.hide_popup.main_icons [href="javascript:void(#);"]
+            div.generic_menu
+              ul.dropdown_menu_1_tabs.dropmenu
+                li
+                  a.active [href="{boardurl}/index.php?action=profile;area=notification;sa=alerts;u=#"]
+                    "Notification Preferences"
+                li
+                  a [href="{boardurl}/index.php?action=profile;area=notification;sa=topics;u=#"]
+                    "Watched Topics"
+                li
+                  a [href="{boardurl}/index.php?action=profile;area=notification;sa=boards;u=#"]
+                    "Watched Boards"
+      script
+        | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+      div#profile_error.errorbox [style="display:none"]
+      div.cat_bar
+        h3.catbg
+          "Notification Preferences"
+      p.information
+        "This page will allow you to configure when and how you get notified about new content."
+      form#notify_options.flow_auto [accept-charset="UTF-#" action="{boardurl}/index.php?action=profile;area=notification;sa=alerts;u=#" method="post"]
+        div.cat_bar
+          h3.catbg
+            "General Settings"
+        div.windowbg
+          dl.settings
+            dt
+              label [for="notify_announcements"]
+                "Receive forum newsletters, announcements and important notifications by email."
+            dd
+              input [name="notify_announcements" type="hidden" value="#"]
+              input#notify_announcements [name="notify_announcements" type="checkbox" value="#"]
+            dt
+              label [for="notify_alert_timeout"]
+                "Timeout for Alert desktop notifications (in seconds)"
+            dd
+              input#notify_alert_timeout [max="#" min="#" name="opt_alert_timeout" size="#" type="number" value="#"]
+        div.cat_bar
+          h3.catbg
+            "Alert Preferences"
+        table.table_grid
+          tbody
+            tr.title_bar
+              th
+                "Boards and Topics"
+              th
+                "Receive alert"
+              th
+                "Receive email"
+            tr.windowbg
+            tr.windowbg
+              td [colspan="#"]
+                input#opt_msg_auto_notify [name="opt_msg_auto_notify" type="checkbox"]
+                label [for="opt_msg_auto_notify"]
+                  "Follow topics I create and reply to"
+            tr.windowbg
+              td [colspan="#"]
+                input#opt_msg_receive_body [name="opt_msg_receive_body" type="checkbox"]
+                label [for="opt_msg_receive_body"]
+                  "Receive message body in e-mails"
+            tr.windowbg
+              td [colspan="#"]
+                label [for="opt_msg_notify_pref"]
+                  "How frequently to tell me:"
+                select#opt_msg_notify_pref [name="opt_msg_notify_pref"]
+                  option [value="#"]
+                    "Never"
+                  option [selected value="#"]
+                    "Immediately"
+                  option [value="#"]
+                    "Immediately (but only for the first unread message)"
+                  option [value="#"]
+                    "Send me a daily summary"
+                  option [value="#"]
+                    "Send me a weekly summary"
+            tr.windowbg
+              td [colspan="#"]
+                label [for="opt_msg_notify_type"]
+                  "Notify me of:"
+                select#opt_msg_notify_type [name="opt_msg_notify_type"]
+                  option [selected value="#"]
+                    "Replies and moderation"
+                  option [value="#"]
+                    "Moderation only if I started the topic and am following it"
+                  option [value="#"]
+                    "Only replies"
+                  option [value="#"]
+                    "Nothing at all"
+            tr.windowbg
+              td
+                "When a topic I follow receives a reply, I normally want to know via..."
+              td.centercol
+                input [checked name="alert_topic_notify" type="checkbox"]
+              td.centercol
+                input [name="email_topic_notify" type="checkbox"]
+            tr.windowbg
+              td
+                "When a new topic is created in a board I follow, I normally want to know via..."
+              td.centercol
+                input [checked name="alert_board_notify" type="checkbox"]
+              td.centercol
+                input [name="email_board_notify" type="checkbox"]
+            tr.title_bar
+              th
+                "Posts"
+              th
+                "Receive alert"
+              th
+                "Receive email"
+            tr.windowbg
+            tr.windowbg
+              td
+                "When one of my posts is quoted"
+              td.centercol
+                input [checked name="alert_msg_quote" type="checkbox"]
+              td.centercol
+                input [name="email_msg_quote" type="checkbox"]
+            tr.windowbg
+              td
+                "When a reply is made to my unapproved topic"
+              td.centercol
+                input [checked name="alert_unapproved_reply" type="checkbox"]
+              td.centercol
+                input [checked name="email_unapproved_reply" type="checkbox"]
+            tr.title_bar
+              th
+                "Personal Messages"
+              th
+                "Receive alert"
+              th
+                "Receive email"
+            tr.windowbg
+            tr.windowbg
+              td [colspan="#"]
+                label [for="opt_pm_notify"]
+                  "If enabled, notify me of personal messages from:"
+                select#opt_pm_notify [name="opt_pm_notify"]
+                  option [selected value="#"]
+                    "All members"
+                  option [value="#"]
+                    "Buddies Only"
+            tr.windowbg
+              td
+                "When I receive a new personal message"
+                a.floatright.help [href="{boardurl}/index.php?action=helpadmin;help=alert_pm_new" onclick="return reqOverlayDiv(this.href);"]
+                  span.help.main_icons [title="Help"]
+              td.centercol
+                input [disabled type="checkbox"]
+              td.centercol
+                input [name="email_pm_new" type="checkbox"]
+            tr.windowbg
+              td
+                "When I receive a reply to a personal message"
+                a.floatright.help [href="{boardurl}/index.php?action=helpadmin;help=alert_pm_new" onclick="return reqOverlayDiv(this.href);"]
+                  span.help.main_icons [title="Help"]
+              td.centercol
+                input [disabled type="checkbox"]
+              td.centercol
+                input [name="email_pm_reply" type="checkbox"]
+            tr.title_bar
+              th
+                "Members"
+              th
+                "Receive alert"
+              th
+                "Receive email"
+            tr.windowbg
+            tr.windowbg
+              td
+                "When other members add me as their buddy"
+              td.centercol
+                input [checked name="alert_buddy_request" type="checkbox"]
+              td.centercol
+                input [disabled type="checkbox"]
+            tr.windowbg
+              td
+                "When it is my birthday"
+              td.centercol
+                input [name="alert_birthday" type="checkbox"]
+              td.centercol
+                input [checked name="email_birthday" type="checkbox"]
+        br
+        div
+          input#notify_submit.button [name="notify_submit" type="submit" value="Save settings"]
+          input [name="{session_var}" type="hidden" value="{session_id}"]
+          input [name="{token_var}" type="hidden" value="{hash}"]
+          input [name="u" type="hidden" value="#"]
+          input [name="sa" type="hidden" value="notification"]
+      br
