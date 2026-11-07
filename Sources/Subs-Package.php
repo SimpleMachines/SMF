@@ -52,6 +52,47 @@ function read_tgz_file($gzfilename, $destination, $single_file = false, $overwri
 }
 
 /**
+ * Normalizes an archive entry name and confines it to the extraction directory.
+ *
+ * @param string $filename The entry name from the archive.
+ * @return string|false The normalized name, or false if it would escape.
+ */
+function package_safe_filename($filename)
+{
+	if (strpos($filename, "\0") !== false)
+		return false;
+
+	$filename = str_replace('\\', '/', $filename);
+
+	// A drive-letter prefix is absolute on Windows.
+	if (preg_match('~^[a-z]:~i', $filename))
+		return false;
+
+	$parts = array();
+
+	foreach (explode('/', $filename) as $part)
+	{
+		if ($part === '' || $part === '.')
+			continue;
+
+		if ($part === '..')
+		{
+			if (empty($parts))
+				return false;
+
+			array_pop($parts);
+			continue;
+		}
+
+		$parts[] = $part;
+	}
+
+	$filename = implode('/', $parts);
+
+	return $filename === '' ? false : $filename;
+}
+
+/**
  * Extracts a file or files from the .tar.gz contained in data.
  *
  * detects if the file is really a .zip file, and if so returns the result of read_zip_data
@@ -158,33 +199,25 @@ function read_tgz_data($data, $destination, $single_file = false, $overwrite = f
 		$current['data'] = substr($data, ++$offset << 9, $current['size']);
 		$offset += $size;
 
+		// Confine every entry to the extraction directory before touching the filesystem.
+		$safe_filename = package_safe_filename($current['filename']);
+		if ($safe_filename === false)
+			continue;
+
 		// If hunting for a file in subdirectories, pass to subsequent write test...
 		if ($single_file && $destination !== null && (substr($destination, 0, 2) == '*/'))
 			$write_this = true;
 		// Not a directory and doesn't exist already...
-		elseif (substr($current['filename'], -1, 1) != '/' && $destination !== null && !file_exists($destination . '/' . $current['filename']))
+		elseif (substr($current['filename'], -1, 1) != '/' && $destination !== null && !file_exists($destination . '/' . $safe_filename))
 			$write_this = true;
 		// File exists... check if it is newer.
 		elseif (substr($current['filename'], -1, 1) != '/')
-			$write_this = $overwrite || ($destination !== null && filemtime($destination . '/' . $current['filename']) < $current['mtime']);
+			$write_this = $overwrite || ($destination !== null && filemtime($destination . '/' . $safe_filename) < $current['mtime']);
 		// Folder... create.
 		elseif ($destination !== null && !$single_file)
 		{
-			// Protect from accidental parent directory writing...
-			do {
-				$prev = $current['filename'];
-				$current['filename'] = strtr($current['filename'], array(
-					'../' => '',
-					'/..' => '',
-					'..' . DIRECTORY_SEPARATOR => '',
-					DIRECTORY_SEPARATOR . '..' => '',
-					'..\\' => '',
-					'\\..' => '',
-				));
-			} while ($prev !== $current['filename']);
-
-			if (!file_exists($destination . '/' . $current['filename']))
-				mktree($destination . '/' . $current['filename'], 0777);
+			if (!file_exists($destination . '/' . $safe_filename))
+				mktree($destination . '/' . $safe_filename, 0777);
 			$write_this = false;
 		}
 		else
@@ -192,8 +225,8 @@ function read_tgz_data($data, $destination, $single_file = false, $overwrite = f
 
 		if ($write_this && $destination !== null)
 		{
-			if (strpos($current['filename'], '/') !== false && !$single_file)
-				mktree($destination . '/' . dirname($current['filename']), 0777);
+			if (strpos($safe_filename, '/') !== false && !$single_file)
+				mktree($destination . '/' . dirname($safe_filename), 0777);
 
 			// Is this the file we're looking for?
 			if ($single_file && ($destination == $current['filename'] || $destination == '*/' . basename($current['filename'])))
@@ -205,12 +238,12 @@ function read_tgz_data($data, $destination, $single_file = false, $overwrite = f
 			elseif ($files_to_extract !== null && !in_array($current['filename'], $files_to_extract))
 				continue;
 
-			package_put_contents($destination . '/' . $current['filename'], $current['data']);
+			package_put_contents($destination . '/' . $safe_filename, $current['data']);
 		}
 
 		if (substr($current['filename'], -1, 1) != '/')
 			$return[] = array(
-				'filename' => $current['filename'],
+				'filename' => $safe_filename,
 				'md5' => md5($current['data']),
 				'preview' => substr($current['data'], 0, 100),
 				'size' => $current['size'],
@@ -301,6 +334,11 @@ function read_zip_data($data, $destination, $single_file = false, $overwrite = f
 				$file_info = $general_purpose + $file_info;
 		}
 
+		// Confine every entry to the extraction directory before touching the filesystem.
+		$safe_filename = package_safe_filename($file_info['filename']);
+		if ($safe_filename === false)
+			continue;
+
 		$write_this = false;
 		if ($destination !== null)
 		{
@@ -309,14 +347,12 @@ function read_zip_data($data, $destination, $single_file = false, $overwrite = f
 				$write_this = true;
 			// If this is a file, and it doesn't exist.... happy days!
 			elseif ($is_file)
-				$write_this = !file_exists($destination . '/' . $file_info['filename']) || $overwrite;
+				$write_this = !file_exists($destination . '/' . $safe_filename) || $overwrite;
 			// This is a directory, so we're gonna want to create it. (probably...)
 			elseif (!$single_file)
 			{
-				$file_info['filename'] = strtr($file_info['filename'], array('../' => '', '/..' => ''));
-
-				if (!file_exists($destination . '/' . $file_info['filename']))
-					mktree($destination . '/' . $file_info['filename'], 0777);
+				if (!file_exists($destination . '/' . $safe_filename))
+					mktree($destination . '/' . $safe_filename, 0777);
 			}
 		}
 
@@ -348,15 +384,15 @@ function read_zip_data($data, $destination, $single_file = false, $overwrite = f
 			elseif ($single_file || ($files_to_extract !== null && !in_array($file_info['filename'], $files_to_extract)))
 				continue;
 
-			if (!$single_file && strpos($file_info['filename'], '/') !== false)
-				mktree($destination . '/' . dirname($file_info['filename']), 0777);
+			if (!$single_file && strpos($safe_filename, '/') !== false)
+				mktree($destination . '/' . dirname($safe_filename), 0777);
 
-			package_put_contents($destination . '/' . $file_info['filename'], $file_info['data']);
+			package_put_contents($destination . '/' . $safe_filename, $file_info['data']);
 		}
 
 		if ($is_file)
 			$return[] = array(
-				'filename' => $file_info['filename'],
+				'filename' => $safe_filename,
 				'md5' => md5($file_info['data']),
 				'preview' => substr($file_info['data'], 0, 100),
 				'size' => $file_info['size'],
