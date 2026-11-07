@@ -118,7 +118,16 @@ class Attachments
 
 		$this->_attchDir = $context['attach_dir'] = $this->_attachmentUploadDir[$modSettings['currentAttachmentUploadDir']];
 
-		$this->_canPostAttachment = $context['can_post_attachment'] = !empty($modSettings['attachmentEnable']) && $modSettings['attachmentEnable'] == 1 && (allowedTo('post_attachment', $this->_board) || ($modSettings['postmod_active'] && allowedTo('post_unapproved_attachments', $this->_board)));
+		$this->_canPostAttachment = $context['can_post_attachment'] = !empty($modSettings['attachmentEnable'])
+			&& $modSettings['attachmentEnable'] == 1
+			&& (
+				allowedTo('post_attachment', $this->_board)
+				|| (
+					$modSettings['postmod_active']
+					&& allowedTo('post_unapproved_attachments', $this->_board)
+				)
+			)
+			&& $this->canModifyMsg($this->_msg, $this->_board);
 	}
 
 	/**
@@ -243,7 +252,7 @@ class Attachments
 		// If this isn't a new post, check the current attachments.
 		if (isset($_REQUEST['msg']))
 		{
-			$context['attachments']['quantity'] = count($context['current_attachments']);
+			$context['attachments']['quantity'] = !empty($context['current_attachments']) ? count($context['current_attachments']) : 0;
 			foreach ($context['current_attachments'] as $attachment)
 				$context['attachments']['total_size'] += $attachment['size'];
 		}
@@ -550,6 +559,49 @@ class Attachments
 		// Done.
 		obExit(false);
 		die;
+	}
+
+	/**
+	 * Can they modify this message?
+	*/
+	protected function canModifyMsg(int $id_msg, int $id_board): bool
+	{
+		global $smcFunc, $user_info;
+
+		// No message or a guest, you can't modify a message
+		if ($this->_msg === 0 || empty($user_info['id'])) {
+			return false;
+		}
+
+		$request = $smcFunc['db_query']('', '
+			SELECT
+				m.id_member
+			FROM {db_prefix}messages AS m
+			WHERE m.id_msg = {int:id_msg}
+				and m.id_board = {int:id_board}',
+			array(
+				'id_msg' => $id_msg,
+				'id_board' => $id_board,
+			)
+		);
+
+		// Can't find the message, can't edit it.
+		if ($smcFunc['db_num_rows']($request) == 0) {
+			return false;
+		}
+		$row = $smcFunc['db_fetch_assoc']($request);
+
+		// Either you can modify anything, or this is your own message.
+		if (
+			allowedTo('modify_any', $id_board)
+		 	|| (
+		 		$row['id_member'] == $user_info['id']
+		 		&& allowedTo('modify_own', $id_board)
+		 	)
+		 )
+		 	return true;
+
+		return false;
 	}
 }
 
