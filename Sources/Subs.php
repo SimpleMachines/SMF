@@ -7248,8 +7248,17 @@ function _safe_unserialize($str)
 
 	// The substrings 'O' and 'C' are used to serialize objects.
 	// If they are not present, then there are none in the serialized data.
-	if (strpos($str, 'O:') === false && strpos($str, 'C:') === false)
-		return unserialize($str, ['allowed_classes' => false]);
+	if (strpos($str, 'O:') === false && strpos($str, 'C:') === false) {
+		// PHP changed how we supress warnings, but unserialize does not handle throwables.
+		try {
+			$old_error_reporting = error_reporting(0);
+			return @unserialize($str, ['allowed_classes' => false]);
+		} catch (\Throwable $e) {
+			return false;
+		} finally {
+			error_reporting($old_error_reporting);
+		}
+	}
 
 	$stack = array();
 	$expected = array();
