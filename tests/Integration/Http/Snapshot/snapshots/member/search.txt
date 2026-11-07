@@ -1,0 +1,122 @@
+status 200
+@ title
+title
+  "Set Search Parameters"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=search" itemprop="item"]
+        span [itemprop="name"]
+          "Search"
+      meta [content="#" itemprop="position"]
+@ #content_section
+div#content_section
+  main#main_content_section
+    form#searchform [accept-charset="UTF-#" action="{boardurl}/index.php?action=search#" method="post" name="searchform"]
+      div.cat_bar
+        h3.catbg
+          span.filter.main_icons
+          "Set Search Parameters"
+      div#advanced_search.roundframe
+        dl#search_options.settings
+          dt
+            strong
+              label [for="searchfor"]
+                "Search for"
+          dd
+            input#searchfor [maxlength="#" name="search" size="#" type="search"]
+            br
+            em.smalltext
+              em
+                "e.g."
+              "Orwell \"Animal Farm\" -movie"
+          dt
+            label [for="searchtype"]
+              "Match"
+          dd
+            select#searchtype [name="searchtype"]
+              option [selected value="#"]
+                "Match all words"
+              option [value="#"]
+                "Match any words"
+          dt
+            label [for="userspec"]
+              "By user"
+          dd
+            input#userspec [name="userspec" size="#" type="text" value="*"]
+          dt
+            label [for="sort"]
+              "Search order"
+          dd
+            select#sort [name="sort"]
+              option [value="relevance|desc"]
+                "Most relevant results first"
+              option [value="num_replies|desc"]
+                "Largest topics first"
+              option [value="num_replies|asc"]
+                "Smallest topics first"
+              option [value="id_msg|desc"]
+                "Most recent topics first"
+              option [value="id_msg|asc"]
+                "Oldest topics first"
+          dt.options.righttext
+            "Options"
+          dd.options
+            ul
+              li
+                label
+                  input#show_complete [name="show_complete" type="checkbox" value="#"]
+                  span
+                    "Show results as messages"
+              li
+                label
+                  input#subject_only [name="subject_only" type="checkbox" value="#"]
+                  span
+                    "Search in topic subjects only"
+          dt.between
+            "Message age"
+          dd
+            "between"
+            input#minage [max="#" min="#" name="minage" type="number" value="#"]
+            "and"
+            input#maxage [max="#" min="#" name="maxage" type="number" value="#"]
+            "days"
+        script
+          | window.addEventListener("load", initSearch, false);
+        input [name="advanced" type="hidden" value="#"]
+      fieldset.flow_hidden
+        div.alt.roundframe
+          details#advanced_panel
+            summary.title_bar.titlebg
+              "Choose boards to search in, or search all"
+            div.boardslist.flow_auto
+              ul
+                li
+                  a [href="javascript:void(#);" onclick="selectBoards([#, #, #, #], 'searchform'); return false;"]
+                    "Snapshot fixtures"
+                  ul
+                    li
+                      label [for="brd#"]
+                        input#brd# [checked name="brd[#]" type="checkbox" value="#"]
+                        "Snapshot board"
+                    li
+                      label [for="brd#"]
+                        input#brd# [checked name="brd[#]" type="checkbox" value="#"]
+                        "Snapshot empty board"
+          br.clear
+          div.padding
+            input#check_all [checked name="all" onclick="invertAll(this, this.form, 'brd');" type="checkbox" value]
+            label [for="check_all"]
+              em
+                "Select all"
+            input.button.floatright [name="b_search" type="submit" value="Search"]
+    script
+      | var oAddMemberSuggest = new smc_AutoSuggest({ sSessionId: smf_session_id, sSessionVar: smf_session_var, sControlId: 'userspec', sSearchType: 'member' });

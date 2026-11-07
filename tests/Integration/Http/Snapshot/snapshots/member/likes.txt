@@ -1,0 +1,5 @@
+status 302
+location {boardurl}/index.php
+(nothing matches title)
+(nothing matches .navigate_section)
+(nothing matches #content_section)

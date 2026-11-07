@@ -1,0 +1,550 @@
+status 200
+@ title
+title
+  "Modify Group"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=permissions;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Permissions"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=permissions;sa=index;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "General permissions"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      a.help [href="{boardurl}/index.php?action=helpadmin;help=permissions" onclick="return reqOverlayDiv(this.href);"]
+        span.help.main_icons [title="Help"]
+      "Manage Permissions"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "General permissions"
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Manage Permissions Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Manage Permissions Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=permissions;sa=index;{session_var}={session_id}"]
+                "General permissions"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=permissions;sa=board;{session_var}={session_id}"]
+                "Board permissions"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=permissions;sa=profiles;{session_var}={session_id}"]
+                "Edit profiles"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=permissions;sa=postmod;{session_var}={session_id}"]
+                "Post moderation"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=permissions;sa=settings;{session_var}={session_id}"]
+                "Settings"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  script
+    | window.smf_usedDeny = false; function warnAboutDeny() { if (window.smf_usedDeny) return confirm("You are about to deny one or more permissions.\nThis can be dangerous and cause unexpected results if you have not made sure no one is accidentally in the group or groups you are denying permissions to.\n\nAre you sure you want to continue?"); else return true; }
+  form#permissions [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=permissions;sa=modify#;group=#;pid=#" method="post" name="permissionForm" onsubmit="return warnAboutDeny();"]
+    div.cat_bar
+      h3.catbg
+        "General Permissions for \"Regular Members\""
+    table.half_content.table_grid
+      tbody
+        tr.title_bar
+          th
+          th.smalltext
+            "General"
+          th
+            "Own"
+          th
+            "Any"
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_search_posts" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "Search for posts and topics"
+          td
+          td
+            input [checked="checked" name="perm[global][search_posts]" type="checkbox" value="on"]
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_view_mlist" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "View the memberlist and groups"
+          td
+          td
+            input [checked="checked" name="perm[global][view_mlist]" type="checkbox" value="on"]
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_view_stats" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "View forum statistics"
+          td
+          td
+            input [checked="checked" name="perm[global][view_stats]" type="checkbox" value="on"]
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_who_view" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "View Who’s Online page"
+          td
+          td
+            input [checked="checked" name="perm[global][who_view]" type="checkbox" value="on"]
+        tr.title_bar
+          th
+          th.smalltext
+            "Forum administration"
+          th
+            "Own"
+          th
+            "Any"
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_access_mod_center" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "Access the moderation center"
+          td
+          td
+            input [name="perm[global][access_mod_center]" type="checkbox" value="on"]
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_edit_news" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "Edit news"
+          td
+          td
+            input [name="perm[global][edit_news]" type="checkbox" value="on"]
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_manage_attachments" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "Manage attachments and avatars"
+          td
+          td
+            input [name="perm[global][manage_attachments]" type="checkbox" value="on"]
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_manage_boards" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "Manage boards and categories"
+          td
+          td
+            input [name="perm[global][manage_boards]" type="checkbox" value="on"]
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_manage_smileys" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "Manage smileys and message icons"
+          td
+          td
+            input [name="perm[global][manage_smileys]" type="checkbox" value="on"]
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_admin_forum" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "Administrate forum and database"
+          td
+          td
+            input [name="perm[global][admin_forum]" type="checkbox" value="on"]
+        tr.title_bar
+          th
+          th.smalltext
+            "Member administration"
+          th
+            "Own"
+          th
+            "Any"
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_issue_warning" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "Issue warnings to members"
+          td
+          td
+            input [name="perm[global][issue_warning]" type="checkbox" value="on"]
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_manage_bans" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "Manage ban list"
+          td
+          td
+            input [name="perm[global][manage_bans]" type="checkbox" value="on"]
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_manage_permissions" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "Manage permissions"
+          td
+          td
+            input [name="perm[global][manage_permissions]" type="checkbox" value="on"]
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_moderate_forum" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "Moderate forum members"
+          td
+          td
+            input [name="perm[global][moderate_forum]" type="checkbox" value="on"]
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_send_mail" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "Send a forum email to members"
+          td
+          td
+            input [name="perm[global][send_mail]" type="checkbox" value="on"]
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_manage_membergroups" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "Manage and assign membergroups"
+          td
+          td
+            input [name="perm[global][manage_membergroups]" type="checkbox" value="on"]
+    table.half_content.table_grid
+      tbody
+        tr.title_bar
+          th
+          th.smalltext
+            "Personal Messaging"
+          th
+            "Own"
+          th
+            "Any"
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_pm_draft" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "Save drafts of personal messages"
+          td
+          td
+            input [checked="checked" name="perm[global][pm_draft]" type="checkbox" value="on"]
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_pm_read" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "Read personal messages"
+          td
+          td
+            input [checked="checked" name="perm[global][pm_read]" type="checkbox" value="on"]
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_pm_send" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "Send personal messages"
+          td
+          td
+            input [checked="checked" name="perm[global][pm_send]" type="checkbox" value="on"]
+        tr.title_bar
+          th
+          th.smalltext
+            "Member Profiles"
+          th
+            "Own"
+          th
+            "Any"
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_profile_blurb" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "Edit personal text"
+          td
+            input#profile_blurb_own_on [checked="checked" name="perm[global][profile_blurb_own]" type="checkbox" value="on"]
+          td
+            input [name="perm[global][profile_blurb_any]" type="checkbox" value="on"]
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_profile_extra" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "Edit additional profile settings"
+          td
+            input#profile_extra_own_on [checked="checked" name="perm[global][profile_extra_own]" type="checkbox" value="on"]
+          td
+            input [name="perm[global][profile_extra_any]" type="checkbox" value="on"]
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_profile_forum" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "Allow Forum Profile edits"
+          td
+            input#profile_forum_own_on [checked="checked" name="perm[global][profile_forum_own]" type="checkbox" value="on"]
+          td
+            input [name="perm[global][profile_forum_any]" type="checkbox" value="on"]
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_profile_gravatar" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "Choose a Gravatar"
+          td
+          td
+            input [name="perm[global][profile_gravatar]" type="checkbox" value="on"]
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_profile_remote_avatar" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "Choose a remotely stored avatar"
+          td
+          td
+            input [checked="checked" name="perm[global][profile_remote_avatar]" type="checkbox" value="on"]
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_profile_server_avatar" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "Select an avatar from the server"
+          td
+          td
+            input [checked="checked" name="perm[global][profile_server_avatar]" type="checkbox" value="on"]
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_profile_signature" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "Edit signature"
+          td
+            input#profile_signature_own_on [checked="checked" name="perm[global][profile_signature_own]" type="checkbox" value="on"]
+          td
+            input [name="perm[global][profile_signature_any]" type="checkbox" value="on"]
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_profile_title" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "Edit custom title"
+          td
+            input#profile_title_own_on [name="perm[global][profile_title_own]" type="checkbox" value="on"]
+          td
+            input [name="perm[global][profile_title_any]" type="checkbox" value="on"]
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_profile_upload_avatar" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "Upload an avatar to the server"
+          td
+          td
+            input [checked="checked" name="perm[global][profile_upload_avatar]" type="checkbox" value="on"]
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_profile_view" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "View other members’ profile summary and stats pages"
+          td
+          td
+            input [checked="checked" name="perm[global][profile_view]" type="checkbox" value="on"]
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_profile_website" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "Edit website"
+          td
+            input#profile_website_own_on [checked="checked" name="perm[global][profile_website_own]" type="checkbox" value="on"]
+          td
+            input [name="perm[global][profile_website_any]" type="checkbox" value="on"]
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_report_user" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "Report users’ profiles"
+          td
+          td
+            input [name="perm[global][report_user]" type="checkbox" value="on"]
+        tr.title_bar
+          th
+          th.smalltext
+            "Member Accounts"
+          th
+            "Own"
+          th
+            "Any"
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_profile_displayed_name" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "Edit displayed name"
+          td
+            input#profile_displayed_name_own_on [checked="checked" name="perm[global][profile_displayed_name_own]" type="checkbox" value="on"]
+          td
+            input [name="perm[global][profile_displayed_name_any]" type="checkbox" value="on"]
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_profile_identity" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "Edit account settings"
+          td
+            input#profile_identity_own_on [checked="checked" name="perm[global][profile_identity_own]" type="checkbox" value="on"]
+          td
+            input [name="perm[global][profile_identity_any]" type="checkbox" value="on"]
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_profile_password" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "Change password"
+          td
+            input#profile_password_own_on [checked="checked" name="perm[global][profile_password_own]" type="checkbox" value="on"]
+          td
+            input [name="perm[global][profile_password_any]" type="checkbox" value="on"]
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_profile_remove" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "Delete account"
+          td
+            input#profile_remove_own_on [checked="checked" name="perm[global][profile_remove_own]" type="checkbox" value="on"]
+          td
+            input [name="perm[global][profile_remove_any]" type="checkbox" value="on"]
+        tr.windowbg
+          td
+            a.help [href="{boardurl}/index.php?action=helpadmin;help=permissionhelp_view_warning" onclick="return reqOverlayDiv(this.href);"]
+              span.help.main_icons [title="Help"]
+          td.full_width.lefttext
+            "View warning status"
+          td
+            input#view_warning_own_on [name="perm[global][view_warning_own]" type="checkbox" value="on"]
+          td
+            input [name="perm[global][view_warning_any]" type="checkbox" value="on"]
+    br.clear
+    div.padding
+      input.button [type="submit" value="Save changes"]
+    input [name="perm[global][calendar_edit_own]" type="hidden" value="off"]
+    input [name="perm[global][calendar_edit_any]" type="hidden" value="off"]
+    input [name="perm[global][calendar_post]" type="hidden" value="off"]
+    input [name="perm[global][calendar_view]" type="hidden" value="on"]
+    input [name="perm[global][karma_edit]" type="hidden" value="off"]
+    input [name="perm[global][likes_like]" type="hidden" value="off"]
+    input [name="perm[global][mention]" type="hidden" value="off"]
+    input [name="perm[global][bbc_cowsay]" type="hidden" value="off"]
+    input [name="perm[global][bbc_abbr]" type="hidden" value="off"]
+    input [name="perm[global][bbc_acronym]" type="hidden" value="off"]
+    input [name="perm[global][bbc_anchor]" type="hidden" value="off"]
+    input [name="perm[global][bbc_attach]" type="hidden" value="off"]
+    input [name="perm[global][bbc_b]" type="hidden" value="off"]
+    input [name="perm[global][bbc_bdo]" type="hidden" value="off"]
+    input [name="perm[global][bbc_black]" type="hidden" value="off"]
+    input [name="perm[global][bbc_blue]" type="hidden" value="off"]
+    input [name="perm[global][bbc_br]" type="hidden" value="off"]
+    input [name="perm[global][bbc_center]" type="hidden" value="off"]
+    input [name="perm[global][bbc_code]" type="hidden" value="off"]
+    input [name="perm[global][bbc_color]" type="hidden" value="off"]
+    input [name="perm[global][bbc_details]" type="hidden" value="off"]
+    input [name="perm[global][bbc_email]" type="hidden" value="off"]
+    input [name="perm[global][bbc_flash]" type="hidden" value="off"]
+    input [name="perm[global][bbc_float]" type="hidden" value="off"]
+    input [name="perm[global][bbc_ftp]" type="hidden" value="off"]
+    input [name="perm[global][bbc_font]" type="hidden" value="off"]
+    input [name="perm[global][bbc_glow]" type="hidden" value="off"]
+    input [name="perm[global][bbc_green]" type="hidden" value="off"]
+    input [name="perm[global][bbc_h#]" type="hidden" value="off"]
+    input [name="perm[global][bbc_hr]" type="hidden" value="off"]
+    input [name="perm[global][bbc_i]" type="hidden" value="off"]
+    input [name="perm[global][bbc_img]" type="hidden" value="off"]
+    input [name="perm[global][bbc_iurl]" type="hidden" value="off"]
+    input [name="perm[global][bbc_justify]" type="hidden" value="off"]
+    input [name="perm[global][bbc_li]" type="hidden" value="off"]
+    input [name="perm[global][bbc_list]" type="hidden" value="off"]
+    input [name="perm[global][bbc_ltr]" type="hidden" value="off"]
+    input [name="perm[global][bbc_me]" type="hidden" value="off"]
+    input [name="perm[global][bbc_member]" type="hidden" value="off"]
+    input [name="perm[global][bbc_move]" type="hidden" value="off"]
+    input [name="perm[global][bbc_nobbc]" type="hidden" value="off"]
+    input [name="perm[global][bbc_nolink]" type="hidden" value="off"]
+    input [name="perm[global][bbc_php]" type="hidden" value="off"]
+    input [name="perm[global][bbc_pre]" type="hidden" value="off"]
+    input [name="perm[global][bbc_quote]" type="hidden" value="off"]
+    input [name="perm[global][bbc_red]" type="hidden" value="off"]
+    input [name="perm[global][bbc_right]" type="hidden" value="off"]
+    input [name="perm[global][bbc_rtl]" type="hidden" value="off"]
+    input [name="perm[global][bbc_s]" type="hidden" value="off"]
+    input [name="perm[global][bbc_shadow]" type="hidden" value="off"]
+    input [name="perm[global][bbc_size]" type="hidden" value="off"]
+    input [name="perm[global][bbc_spoiler]" type="hidden" value="off"]
+    input [name="perm[global][bbc_sub]" type="hidden" value="off"]
+    input [name="perm[global][bbc_sup]" type="hidden" value="off"]
+    input [name="perm[global][bbc_table]" type="hidden" value="off"]
+    input [name="perm[global][bbc_td]" type="hidden" value="off"]
+    input [name="perm[global][bbc_time]" type="hidden" value="off"]
+    input [name="perm[global][bbc_tr]" type="hidden" value="off"]
+    input [name="perm[global][bbc_tt]" type="hidden" value="off"]
+    input [name="perm[global][bbc_u]" type="hidden" value="off"]
+    input [name="perm[global][bbc_url]" type="hidden" value="off"]
+    input [name="perm[global][bbc_white]" type="hidden" value="off"]
+    input [name="perm[global][bbc_youtube]" type="hidden" value="off"]
+    input [name="perm[global][approve_group_requests]" type="hidden" value="off"]
+    input [name="perm[global][is_not_guest]" type="hidden" value="off"]
+    input [name="perm[board][post_unapproved_replies_own]" type="hidden" value="on"]
+    input [name="perm[board][post_unapproved_replies_any]" type="hidden" value="on"]
+    input [name="perm[board][post_unapproved_topics]" type="hidden" value="on"]
+    input [name="perm[board][approve_posts]" type="hidden" value="off"]
+    input [name="perm[board][post_unapproved_attachments]" type="hidden" value="on"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]
+    input [name="{token_var}" type="hidden" value="{hash}"]

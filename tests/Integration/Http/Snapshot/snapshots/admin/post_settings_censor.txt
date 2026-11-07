@@ -1,0 +1,142 @@
+status 200
+@ title
+title
+  "Censored Words"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=postsettings;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Posts and Topics"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=postsettings;sa=censor;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Censored Words"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      a.help [href="{boardurl}/index.php?action=helpadmin;help=posts_and_topics" onclick="return reqOverlayDiv(this.href);"]
+        span.help.main_icons [title="Help"]
+      "Manage Posts and Topics"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "Due to the public nature of forums there may be some words that you wish to prohibit being posted by users of your forum. You can enter any words below that you wish to be censored whenever used by a member."
+    br
+    "Clear a box to remove that word from the censor."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Manage Posts and Topics Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Manage Posts and Topics Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a [href="{boardurl}/index.php?action=admin;area=postsettings;sa=posts;{session_var}={session_id}"]
+                "Post Settings"
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=postsettings;sa=censor;{session_var}={session_id}"]
+                "Censored Words"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=postsettings;sa=topics;{session_var}={session_id}"]
+                "Topic Settings"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=postsettings;sa=drafts;{session_var}={session_id}"]
+                "Drafts"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  form#admin_form_wrapper [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=postsettings;sa=censor" method="post"]
+    div#section_header.cat_bar
+      h3.catbg
+        "Censored Words"
+    div.windowbg
+      p
+        "Put the word to be censored on the left, and what to change it to on the right."
+      div.block
+        input [name="censor_vulgar[]" size="#" type="text"]
+        "=>"
+        input [name="censor_proper[]" size="#" type="text"]
+      div#moreCensoredWords
+      div#moreCensoredWords_link.block.hidden
+        a.button [href="#" onclick="addNewWord(); return false;"]
+          "Add another word"
+        br
+      script
+        | document.getElementById("moreCensoredWords_link").classList.remove('hidden');
+      hr
+      dl.settings
+        dt
+          strong
+            label [for="allow_no_censored"]
+              "Allow users to turn off word censoring"
+        dd
+          input#allow_no_censored [name="allow_no_censored" type="checkbox" value="#"]
+        dt
+          strong
+            label [for="censorWholeWord_check"]
+              "Check only whole words"
+        dd
+          input#censorWholeWord_check [name="censorWholeWord" type="checkbox" value="#"]
+        dt
+          strong
+            label [for="censorIgnoreCase_check"]
+              "Ignore case when censoring"
+        dd
+          input#censorIgnoreCase_check [checked name="censorIgnoreCase" type="checkbox" value="#"]
+        dt
+          a#spoofdetector_censor_help [href="{boardurl}/index.php?action=helpadmin;help=spoofdetector_censor" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          strong
+            label [for="spoofdetector_censor_check"]
+              "Detect character spoofing when censoring"
+          br
+          span.smalltext
+            "Prevents attempts to bypass the word censor by using visually similar Unicode characters."
+            br
+            "If enabling this causes some words to be censored incorrectly, click the help icon for solutions."
+        dd
+          input#spoofdetector_censor_check [name="spoofdetector_censor" type="checkbox" value="#"]
+      input.button [name="save_censor" type="submit" value="Save"]
+    div.cat_bar
+      h3.catbg
+        "Test censored words"
+    div.windowbg
+      p.centertext
+        input [name="censortest" type="text" value]
+        input.button [type="submit" value="Test"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]
+    input [name="{token_var}" type="hidden" value="{hash}"]

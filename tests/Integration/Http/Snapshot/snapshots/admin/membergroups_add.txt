@@ -1,0 +1,171 @@
+status 200
+@ title
+title
+  "Add membergroup"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=membergroups;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Membergroups"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=membergroups;sa=add;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Add membergroup"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      a.help [href="{boardurl}/index.php?action=helpadmin;help=membergroups" onclick="return reqOverlayDiv(this.href);"]
+        span.help.main_icons [title="Help"]
+      "Manage Membergroups"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "Membergroups are groups of members that have similar permission settings, appearance, or access rights. Some membergroups are based on the amount of posts a user has made. You can assign someone to a membergroup by selecting their profile and changing their account settings."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Manage Membergroups Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Manage Membergroups Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a [href="{boardurl}/index.php?action=admin;area=membergroups;sa=index;{session_var}={session_id}"]
+                "Edit membergroups"
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=membergroups;sa=add;{session_var}={session_id}"]
+                "Add membergroup"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=membergroups;sa=settings;{session_var}={session_id}"]
+                "Settings"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  form#new_group [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=membergroups;sa=add" method="post"]
+    div.cat_bar
+      h3.catbg
+        "Add membergroup"
+    div.windowbg
+      dl.settings
+        dt
+          label [for="group_name_input"]
+            strong
+              "Membergroup name"
+        dd
+          input#group_name_input [name="group_name" size="#" type="text"]
+        dt
+          label [for="permission_base"]
+            strong
+              "Permissions"
+          br
+          span.smalltext
+            "You can edit them later."
+        dd
+          fieldset#permission_base
+            legend
+              "Select permission profile"
+            input#perm_type_inherit [checked name="perm_type" type="radio" value="inherit"]
+            label [for="perm_type_inherit"]
+              "inherit from"
+            select#inheritperm_select [name="inheritperm" onclick="document.getElementById('perm_type_inherit').checked = true;"]
+              option [value="-#"]
+                "Guests"
+              option [selected value="#"]
+                "Regular Members"
+              option [value="#"]
+                "Global Moderator"
+            br
+            input#perm_type_copy [name="perm_type" type="radio" value="copy"]
+            label [for="perm_type_copy"]
+              "based off of"
+            select#copyperm_select [name="copyperm" onclick="document.getElementById('perm_type_copy').checked = true;"]
+              option [value="-#"]
+                "Guests"
+              option [selected value="#"]
+                "Regular Members"
+              option [value="#"]
+                "Global Moderator"
+            br
+            input#perm_type_predefined [name="perm_type" type="radio" value="predefined"]
+            label [for="perm_type_predefined"]
+              "by type"
+            select#level_select [name="level" onclick="document.getElementById('perm_type_predefined').checked = true;"]
+              option [value="restrict"]
+                "Restrictive"
+              option [selected value="standard"]
+                "Standard"
+              option [value="moderator"]
+                "Moderator"
+              option [value="maintenance"]
+                "Maintenance"
+        dt
+          strong
+            "Visible Boards"
+        dd
+          fieldset#visible_boards
+            legend
+              "Boards the membergroup can see"
+            ul.floatleft.padding
+              li.category
+                a [href="javascript:void(#);" onclick="selectBoards([#, #, #, #], 'new_group'); return false;"]
+                  strong
+                    "Snapshot fixtures"
+                ul
+                  li.board [style="margin-inline-start: #em;"]
+                    input#brd# [name="boardaccess[#]" type="checkbox" value="allow"]
+                    label [for="brd#"]
+                      "Snapshot board"
+                  li.board [style="margin-inline-start: #em;"]
+                    input#brd# [name="boardaccess[#]" type="checkbox" value="allow"]
+                    label [for="brd#"]
+                      "Snapshot child one"
+                  li.board [style="margin-inline-start: #em;"]
+                    input#brd# [name="boardaccess[#]" type="checkbox" value="allow"]
+                    label [for="brd#"]
+                      "Snapshot child two"
+                  li.board [style="margin-inline-start: #em;"]
+                    input#brd# [name="boardaccess[#]" type="checkbox" value="allow"]
+                    label [for="brd#"]
+                      "Snapshot empty board"
+            br.clear
+            br
+            input#checkall_check [onclick="invertAll(this, this.form, 'boardaccess');" type="checkbox"]
+            label [for="checkall_check"]
+              em
+                "Select all"
+      input.button [type="submit" value="Add group"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]
+    input [name="{token_var}" type="hidden" value="{hash}"]

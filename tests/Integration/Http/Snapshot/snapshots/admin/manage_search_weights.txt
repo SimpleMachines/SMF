@@ -1,0 +1,155 @@
+status 200
+@ title
+title
+  "Search - weights"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=managesearch;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Search"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=managesearch;sa=weights;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Weights"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      a.help [href="{boardurl}/index.php?action=helpadmin;help=search" onclick="return reqOverlayDiv(this.href);"]
+        span.help.main_icons [title="Help"]
+      "Search"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "Here you can change the individual components of the relevance rating."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Search Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Search Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=managesearch;sa=weights;{session_var}={session_id}"]
+                "Weights"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=managesearch;sa=method;{session_var}={session_id}"]
+                "Search Method"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=managesearch;sa=settings;{session_var}={session_id}"]
+                "Settings"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  form#admin_form_wrapper [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=managesearch;sa=weights" method="post"]
+    div.cat_bar
+      h3.catbg
+        "Weights"
+    div.windowbg
+      dl.settings
+        dt
+          a.help [href="{boardurl}/index.php?action=helpadmin;help=search_weight_frequency" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          label [for="weight#_val"]
+            "Relative search weight for number of matching messages within a topic"
+        dd
+          span.search_weight
+            input#weight#_val [name="search_weight_frequency" onchange="calculateNewValues()" size="#" type="text" value="#"]
+          span#weight#.search_weight
+            "#%"
+        dt
+          a.help [href="{boardurl}/index.php?action=helpadmin;help=search_weight_age" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          label [for="weight#_val"]
+            "Relative search weight for age of last matching message"
+        dd
+          span.search_weight
+            input#weight#_val [name="search_weight_age" onchange="calculateNewValues()" size="#" type="text" value="#"]
+          span#weight#.search_weight
+            "#%"
+        dt
+          a.help [href="{boardurl}/index.php?action=helpadmin;help=search_weight_length" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          label [for="weight#_val"]
+            "Relative search weight for topic length"
+        dd
+          span.search_weight
+            input#weight#_val [name="search_weight_length" onchange="calculateNewValues()" size="#" type="text" value="#"]
+          span#weight#.search_weight
+            "#%"
+        dt
+          a.help [href="{boardurl}/index.php?action=helpadmin;help=search_weight_subject" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          label [for="weight#_val"]
+            "Relative search weight for a matching subject"
+        dd
+          span.search_weight
+            input#weight#_val [name="search_weight_subject" onchange="calculateNewValues()" size="#" type="text" value="#"]
+          span#weight#.search_weight
+            "#%"
+        dt
+          a.help [href="{boardurl}/index.php?action=helpadmin;help=search_weight_first_message" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          label [for="weight#_val"]
+            "Relative search weight for a first message match"
+        dd
+          span.search_weight
+            input#weight#_val [name="search_weight_first_message" onchange="calculateNewValues()" size="#" type="text" value="#"]
+          span#weight#.search_weight
+            "#%"
+        dt
+          a.help [href="{boardurl}/index.php?action=helpadmin;help=search_weight_sticky" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          label [for="weight#_val"]
+            "Relative search weight for a sticky topic"
+        dd
+          span.search_weight
+            input#weight#_val [name="search_weight_sticky" onchange="calculateNewValues()" size="#" type="text" value="#"]
+          span#weight#.search_weight
+            "#%"
+        dt
+          strong
+            "Total"
+        dd
+          span#weighttotal.search_weight
+            strong
+              "#"
+          span.search_weight
+            strong
+              "#%"
+      input.button [name="save" type="submit" value="Save"]
+      input [name="{session_var}" type="hidden" value="{session_id}"]
+      input [name="{token_var}" type="hidden" value="{hash}"]

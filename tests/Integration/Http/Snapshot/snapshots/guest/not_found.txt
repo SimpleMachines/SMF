@@ -1,0 +1,25 @@
+status 404
+@ title
+title
+  "An error has occurred"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+@ #content_section
+div#content_section
+  main#main_content_section
+    div#fatal_error
+      div.cat_bar
+        h3.catbg
+          "An error has occurred"
+      div.windowbg
+        div#not_found.padding
+          "Sorry, this section is not available at this time."
+    div.centertext
+      a.button.floatnone [href="javascript:document.location=document.referrer"]
+        "Back"

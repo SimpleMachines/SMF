@@ -1,0 +1,86 @@
+status 200
+@ title
+title
+  "Reports"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=reports;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Reports"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      "Reports"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "From this section you can generate a variety of reports to assist in the administration of your forum. Simply follow the steps below to select the option of your choice."
+  div.cat_bar
+    h3.catbg
+      "Select type of Report"
+  form.option_form.windowbg [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=reports" method="post"]
+    label
+      input [checked name="rt" type="radio" value="boards"]
+      strong
+        "Boards"
+      p
+        "Reports showing the current settings and access levels for each of boards on your forum."
+    label
+      input [name="rt" type="radio" value="board_access"]
+      strong
+        "Board Access"
+      p
+        "Report on which membergroup has access to which boards on your forum."
+    label
+      input [name="rt" type="radio" value="board_perms"]
+      strong
+        "Board Permissions"
+      p
+        "Generate reports showing permissions each membergroup has across the different boards in your forum."
+    label
+      input [name="rt" type="radio" value="member_groups"]
+      strong
+        "Membergroups"
+      p
+        "Report showing the settings for each membergroup on your forum."
+    label
+      input [name="rt" type="radio" value="group_perms"]
+      strong
+        "Group Permissions"
+      p
+        "Report on the permissions each membergroup has in the forum."
+    label
+      input [name="rt" type="radio" value="staff"]
+      strong
+        "Staff"
+      p
+        "This report summarizes all members who currently have positions of authority on the forum."
+    input.button [name="continue" type="submit" value="Continue"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]

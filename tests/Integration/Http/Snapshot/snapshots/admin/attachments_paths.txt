@@ -1,0 +1,126 @@
+status 200
+@ title
+title
+  "Manage attachment paths"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=manageattachments;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Attachments and Avatars"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=attachpaths;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Attachment Directories"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      a.help [href="{boardurl}/index.php?action=helpadmin;help=manage_files" onclick="return reqOverlayDiv(this.href);"]
+        span.help.main_icons [title="Help"]
+      "Attachments and Avatars"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "From here you can administer the attached files on your system. You can delete attachments by size and by date from your system. Statistics on attachments are also displayed below."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Attachments and Avatars Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Attachments and Avatars Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=browse;{session_var}={session_id}"]
+                "Browse Files"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=attachments;{session_var}={session_id}"]
+                "Attachment Settings"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=avatars;{session_var}={session_id}"]
+                "Avatar Settings"
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=attachpaths;{session_var}={session_id}"]
+                "Attachment Directories"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=maintenance;{session_var}={session_id}"]
+                "File Maintenance"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  form [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=manageattachments;sa=attachpaths;{session_var}={session_id}" method="post"]
+    div.cat_bar
+      h3.catbg
+        "Attachment directory paths"
+    div.additional_row.information
+      "Create new directories or change the current directory below."
+      br
+      "To create a new directory within the forum directory structure, use just the directory name."
+      br
+      "To remove a directory, blank the path input field. Only empty directories can be removed. To see if a directory is empty, check for files or sub-directories in brackets next to the file count."
+      br
+      "To rename a directory, simply change its name in the input field. Only directories without sub-directories may be renamed."
+    table#attach_paths.table_grid
+      thead
+        tr.title_bar
+          th#header_attach_paths_current_dir.centercol.current_dir [scope="col"]
+            "Current"
+          th#header_attach_paths_path.path [scope="col"]
+            "Path"
+          th#header_attach_paths_current_size.current_size [scope="col"]
+            "Size (KB)"
+          th#header_attach_paths_num_files.num_files [scope="col"]
+            "Files"
+          th#header_attach_paths_status.centercol.status [scope="col"]
+            "Status"
+      tbody
+        tr#list_attach_paths_#.windowbg
+          td.centercol.current_dir [style="width: #%;"]
+            input [checked name="current_dir" type="radio" value="#"]
+          td.path [style="width: #%;"]
+            input [name="dirs[#]" type="hidden" value="{boarddir}/attachments"]
+            input [name="dirs[#]" size="#" style="width: #%" type="text" value="{boarddir}/attachments"]
+          td.current_size [style="width: #%;"]
+            "#"
+          td.num_files [style="width: #%;"]
+            "#"
+          td.centercol.status [style="width: #%;"]
+            "Unused"
+    div.flow_auto
+      div.additional_row
+        input [name="{session_var}" type="hidden" value="{session_id}"]
+        input.button [name="save" type="submit" value="Save"]
+        input.button [name="new_path" type="submit" value="Add Path"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]
