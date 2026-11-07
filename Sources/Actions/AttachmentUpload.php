@@ -635,6 +635,6 @@ class AttachmentUpload implements ActionInterface, Routable
 				$msg->id_member == User::$me->id
 				&& allowedTo('modify_own', $id_board)
 			)
-		 );
+		);
 	}
 }
