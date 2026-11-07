@@ -182,7 +182,7 @@ abstract class DatabaseApi
 	 **************************/
 
 	/**
-	 * @var object
+	 * @var object|static|\SMF\Db\APIs\MySQL|\SMF\Db\APIs\PostgreSQL
 	 *
 	 * A loaded instance of a child class of this class.
 	 */
