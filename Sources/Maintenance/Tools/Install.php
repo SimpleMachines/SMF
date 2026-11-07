@@ -18,6 +18,7 @@ namespace SMF\Maintenance\Tools;
 use SMF\Config;
 use SMF\Cookie;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Db\Schema\Table;
 use SMF\EmailAddress;
 use SMF\IP;
@@ -1076,7 +1077,7 @@ class Install extends ToolsBase implements ToolsInterface
 
 			try {
 				Utils::$context['id_member'] = Db::$db->insert(
-					'',
+					InsertType::Insert,
 					Db::$db->prefix . 'members',
 					[
 						'member_name' => 'string-25',
@@ -1193,7 +1194,7 @@ class Install extends ToolsBase implements ToolsInterface
 
 		// As track stats is by default enabled let's add some activity.
 		Db::$db->insert(
-			'ignore',
+			InsertType::Ignore,
 			'{db_prefix}log_activity',
 			[
 				'date' => 'date',
@@ -1257,7 +1258,7 @@ class Install extends ToolsBase implements ToolsInterface
 				$_SERVER['HTTP_USER_AGENT'] = substr($_SERVER['HTTP_USER_AGENT'], 0, 211);
 
 				Db::$db->insert(
-					'replace',
+					InsertType::Replace,
 					'{db_prefix}sessions',
 					[
 						'session_id' => 'string',

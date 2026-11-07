@@ -18,6 +18,7 @@ namespace SMF\Tests\Integration\Http;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use SMF\Actions\Notify;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 
 /**
  * Turning off email notifications for a topic, which is what the unsubscribe
@@ -76,7 +77,7 @@ class TopicNotificationTest extends HttpTestCase
 		// emails and alerts both on in general.
 		Notify::deleteNotifyPrefs($admin, ['topic_notify_' . $this->topic]);
 		Notify::setNotifyPrefs($admin, ['topic_notify' => Notify::PREF_BOTH]);
-		Db::$db->insert('ignore', '{db_prefix}log_notify', ['id_member' => 'int', 'id_topic' => 'int', 'id_board' => 'int'], [[$admin, $this->topic, 0]], ['id_member', 'id_topic', 'id_board']);
+		Db::$db->insert(InsertType::Ignore, '{db_prefix}log_notify', ['id_member' => 'int', 'id_topic' => 'int', 'id_board' => 'int'], [[$admin, $this->topic, 0]], ['id_member', 'id_topic', 'id_board']);
 
 		$this->signInAsAdmin();
 		$page = $this->fetch('?topic=' . $this->topic . '.0');

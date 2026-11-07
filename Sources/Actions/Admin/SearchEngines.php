@@ -21,6 +21,7 @@ use SMF\ActionTrait;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\IntegrationHook;
 use SMF\IP;
 use SMF\ItemList;
@@ -703,7 +704,7 @@ class SearchEngines implements ActionInterface
 				);
 			} else {
 				Db::$db->insert(
-					'insert',
+					InsertType::Insert,
 					'{db_prefix}spiders',
 					[
 						'spider_name' => 'string',
@@ -929,7 +930,7 @@ class SearchEngines implements ActionInterface
 		// New stats?
 		if (!empty($stat_inserts)) {
 			Db::$db->insert(
-				'ignore',
+				InsertType::Ignore,
 				'{db_prefix}log_spider_stats',
 				['stat_date' => 'date', 'id_spider' => 'int', 'page_hits' => 'int', 'last_seen' => 'int'],
 				$stat_inserts,

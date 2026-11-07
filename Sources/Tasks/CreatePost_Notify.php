@@ -19,6 +19,7 @@ use SMF\Actions\Notify;
 use SMF\Alert;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Mail;
@@ -367,7 +368,7 @@ class CreatePost_Notify extends BackgroundTask
 		// Insert it into the digest for daily/weekly notifications
 		if ($type != 'edit' && empty($this->_details['respawns'])) {
 			Db::$db->insert(
-				'',
+				InsertType::Insert,
 				'{db_prefix}log_digest',
 				[
 					'id_topic' => 'int',

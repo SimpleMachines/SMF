@@ -19,6 +19,7 @@ use SMF\ActionInterface;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\EmailAddress;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
@@ -663,7 +664,7 @@ class Subscriptions implements ActionInterface
 			// Is it new?!
 			if (Utils::$context['action_type'] == 'add') {
 				$id_subscribe = Db::$db->insert(
-					'',
+					InsertType::Insert,
 					'{db_prefix}subscriptions',
 					[
 						'name' => 'string-60',
@@ -971,7 +972,7 @@ class Subscriptions implements ActionInterface
 					self::add((int) Utils::$context['sub_id'], $id_member, 0, $starttime, $endtime);
 				} else {
 					Db::$db->insert(
-						'',
+						InsertType::Insert,
 						'{db_prefix}log_subscribed',
 						[
 							'id_subscribe' => 'int',
@@ -1779,7 +1780,7 @@ class Subscriptions implements ActionInterface
 		$starttime = !empty($forceStartTime) ? $forceStartTime : time();
 
 		Db::$db->insert(
-			'',
+			InsertType::Insert,
 			'{db_prefix}log_subscribed',
 			[
 				'id_subscribe' => 'int',

@@ -17,6 +17,7 @@ namespace SMF;
 
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 
 /**
  * This class loads information about categories. It also handles low-level
@@ -524,7 +525,7 @@ class Category implements \ArrayAccess
 
 		// Add the category to the database.
 		$category_id = Db::$db->insert(
-			'',
+			InsertType::Insert,
 			'{db_prefix}categories',
 			$cat_columns,
 			[$cat_parameters],

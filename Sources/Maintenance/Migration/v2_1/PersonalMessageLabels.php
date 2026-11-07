@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Db\Schema;
 use SMF\Db\Schema\Column;
 use SMF\Maintenance\Maintenance;
@@ -158,7 +159,7 @@ class PersonalMessageLabels extends MigrationBase
 
 				if (!empty($inserts)) {
 					Db::$db->insert(
-						'',
+						InsertType::Insert,
 						'{db_prefix}pm_labels',
 						[
 							'id_member' => 'int',
@@ -238,7 +239,7 @@ class PersonalMessageLabels extends MigrationBase
 				// Insert the new data
 				if (!empty($inserts)) {
 					Db::$db->insert(
-						'',
+						InsertType::Insert,
 						'{db_prefix}pm_labeled_messages',
 						[
 							'id_pm' => 'int',

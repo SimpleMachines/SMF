@@ -21,6 +21,7 @@ use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Routable;
 use SMF\Topic;
 use SMF\User;
@@ -155,7 +156,7 @@ class MarkRead implements ActionInterface, Routable
 		}
 
 		Db::$db->insert(
-			'replace',
+			InsertType::Replace,
 			'{db_prefix}log_topics',
 			[
 				'id_msg' => 'int',
@@ -248,7 +249,7 @@ class MarkRead implements ActionInterface, Routable
 
 		// Blam, unread!
 		Db::$db->insert(
-			'replace',
+			InsertType::Replace,
 			'{db_prefix}log_topics',
 			[
 				'id_msg' => 'int',
@@ -390,7 +391,7 @@ class MarkRead implements ActionInterface, Routable
 				}
 
 				Db::$db->insert(
-					'replace',
+					InsertType::Replace,
 					'{db_prefix}log_boards',
 					[
 						'id_msg' => 'int',

@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
 
@@ -113,7 +114,7 @@ class CustomFieldsPart2 extends MigrationBase
 
 			if (!empty($inserts)) {
 				Db::$db->insert(
-					'replace',
+					InsertType::Replace,
 					'{db_prefix}themes',
 					[
 						'id_member' => 'int',

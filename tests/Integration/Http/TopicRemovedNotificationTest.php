@@ -19,6 +19,7 @@ use PHPUnit\Framework\Attributes\CoversNothing;
 use SMF\Actions\Notify;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Tests\Support\HttpResponse;
 
 /**
@@ -89,7 +90,7 @@ class TopicRemovedNotificationTest extends HttpTestCase
 		// is involved.
 		$this->member = $this->makeMember();
 		Notify::setNotifyPrefs($this->member, ['topic_notify_' . $topic => Notify::PREF_EMAIL, 'msg_notify_pref' => 1, 'msg_notify_type' => 1]);
-		Db::$db->insert('insert', '{db_prefix}log_notify', ['id_member' => 'int', 'id_topic' => 'int', 'id_board' => 'int', 'sent' => 'int'], [[$this->member, $topic, 0, 0]], []);
+		Db::$db->insert(InsertType::Insert, '{db_prefix}log_notify', ['id_member' => 'int', 'id_topic' => 'int', 'id_board' => 'int', 'sent' => 'int'], [[$this->member, $topic, 0, 0]], []);
 
 		$page = $this->fetch('?topic=' . $topic . '.0');
 		$response = $this->http->get('?action=removetopic2;topic=' . $topic . '.0;' . $this->sessionQuery($page));
@@ -141,7 +142,7 @@ class TopicRemovedNotificationTest extends HttpTestCase
 		$name = 'watcher_' . bin2hex(random_bytes(4));
 
 		return (int) Db::$db->insert(
-			'insert',
+			InsertType::Insert,
 			'{db_prefix}members',
 			[
 				'member_name' => 'string',

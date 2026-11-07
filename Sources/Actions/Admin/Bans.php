@@ -23,6 +23,7 @@ use SMF\ActionInterface;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\EmailAddress;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
@@ -2096,7 +2097,7 @@ class Bans implements ActionInterface
 		}
 
 		Db::$db->insert(
-			'',
+			InsertType::Insert,
 			'{db_prefix}ban_items',
 			$insertKeys,
 			$insertTriggers,
@@ -2310,7 +2311,7 @@ class Bans implements ActionInterface
 
 		// Yes yes, we're ready to add now.
 		$ban_info['id'] = Db::$db->insert(
-			'',
+			InsertType::Insert,
 			'{db_prefix}ban_groups',
 			[
 				'name' => 'string-20',

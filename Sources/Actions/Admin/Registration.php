@@ -20,6 +20,7 @@ use SMF\Actions\Register2;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Diff\EditDiff;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
@@ -353,7 +354,7 @@ class Registration implements ActionInterface
 
 				// Writing it counts as agreeing to it, right?
 				Db::$db->insert(
-					'replace',
+					InsertType::Replace,
 					'{db_prefix}themes',
 					['id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'],
 					[[User::$me->id, 1, 'agreement_accepted', time()]],
@@ -539,7 +540,7 @@ class Registration implements ActionInterface
 
 			// Writing it counts as agreeing to it, right?
 			Db::$db->insert(
-				'replace',
+				InsertType::Replace,
 				'{db_prefix}themes',
 				['id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string', 'value' => 'string'],
 				[[User::$me->id, 1, 'policy_accepted', time()]],
@@ -627,7 +628,7 @@ class Registration implements ActionInterface
 			// values in the members table.
 			if ($reserve_case != Config::$modSettings['reserveCase']) {
 				Db::$db->insert(
-					'insert',
+					InsertType::Insert,
 					'{db_prefix}background_tasks',
 					[
 						'task_class' => 'string',

@@ -17,6 +17,7 @@ namespace SMF;
 
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 
 /**
  * This class loads information about the current board, as well as other boards
@@ -1042,7 +1043,7 @@ class Board implements \ArrayAccess, Routable
 
 			// Update log_mark_read and log_boards.
 			Db::$db->insert(
-				'replace',
+				InsertType::Replace,
 				'{db_prefix}log_mark_read',
 				['id_msg' => 'int', 'id_member' => 'int', 'id_board' => 'int'],
 				$markRead,
@@ -1050,7 +1051,7 @@ class Board implements \ArrayAccess, Routable
 			);
 
 			Db::$db->insert(
-				'replace',
+				InsertType::Replace,
 				'{db_prefix}log_boards',
 				['id_msg' => 'int', 'id_member' => 'int', 'id_board' => 'int'],
 				$markRead,
@@ -2561,7 +2562,7 @@ class Board implements \ArrayAccess, Routable
 		];
 
 		$this->id = Db::$db->insert(
-			'',
+			InsertType::Insert,
 			'{db_prefix}boards',
 			$columns,
 			[$params],
@@ -2767,7 +2768,7 @@ class Board implements \ArrayAccess, Routable
 
 		if (!empty($this->moderators)) {
 			Db::$db->insert(
-				'insert',
+				InsertType::Insert,
 				'{db_prefix}moderators',
 				['id_board' => 'int', 'id_member' => 'int'],
 				array_map(fn($mod) => [$this->id, $mod], $this->moderators),
@@ -2786,7 +2787,7 @@ class Board implements \ArrayAccess, Routable
 
 		if (!empty($this->moderator_groups)) {
 			Db::$db->insert(
-				'insert',
+				InsertType::Insert,
 				'{db_prefix}moderator_groups',
 				['id_board' => 'int', 'id_group' => 'int'],
 				array_map(fn($mod) => [$this->id, $mod], $this->moderator_groups),

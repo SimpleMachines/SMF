@@ -17,6 +17,7 @@ namespace SMF\Tests\Integration\Http;
 
 use PHPUnit\Framework\Attributes\CoversNothing;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 
 /**
  * cron.php, which runs the background tasks: every notification email, among
@@ -71,7 +72,7 @@ class CronTest extends HttpTestCase
 		$this->mark = (int) ($this->queryRow('SELECT MAX(id_error) AS id FROM {db_prefix}log_errors')['id'] ?? 0);
 
 		$task = (int) Db::$db->insert(
-			'insert',
+			InsertType::Insert,
 			'{db_prefix}background_tasks',
 			['task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'],
 			[[self::MISSING_CLASS, '', 0]],

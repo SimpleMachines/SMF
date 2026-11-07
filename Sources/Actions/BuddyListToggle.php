@@ -21,6 +21,7 @@ use SMF\ActionTrait;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\ErrorHandler;
 use SMF\Routable;
 use SMF\Tasks\Buddy_Notify;
@@ -78,7 +79,7 @@ class BuddyListToggle implements ActionInterface, Routable
 			// And add a nice alert. Don't abuse though!
 			if ((CacheApi::get('Buddy-sent-' . User::$me->id . '-' . $this->userReceiver, 86400)) == null) {
 				Db::$db->insert(
-					'insert',
+					InsertType::Insert,
 					'{db_prefix}background_tasks',
 					[
 						'task_class' => 'string',

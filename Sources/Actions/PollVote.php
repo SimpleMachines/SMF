@@ -20,6 +20,7 @@ use SMF\ActionSuffixRouter;
 use SMF\ActionTrait;
 use SMF\Cookie;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Poll;
@@ -148,7 +149,7 @@ class PollVote implements ActionInterface, Routable
 
 		// Add their vote to the tally.
 		Db::$db->insert(
-			'insert',
+			InsertType::Insert,
 			'{db_prefix}log_polls',
 			['id_poll' => 'int', 'id_member' => 'int', 'id_choice' => 'int'],
 			$inserts,

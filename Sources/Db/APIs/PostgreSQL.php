@@ -18,6 +18,7 @@ namespace SMF\Db\APIs;
 use SMF\Config;
 use SMF\Db\DatabaseApi;
 use SMF\Db\DatabaseApiInterface;
+use SMF\Db\InsertType;
 use SMF\Debug\DebugUtils;
 use SMF\ErrorHandler;
 use SMF\IP;
@@ -406,7 +407,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 *
 	 */
-	public function insert(string $method, string $table, array $columns, array $data, array $keys, int $returnmode = DatabaseApi::INSERT_RETURN_MODE_OFF, ?object $connection = null): int|array|null
+	public function insert(string|InsertType $method, string $table, array $columns, array $data, array $keys, int $returnmode = DatabaseApi::INSERT_RETURN_MODE_OFF, ?object $connection = null): int|array|null
 	{
 		$connection = $connection ?? $this->connection;
 
@@ -417,8 +418,11 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			return null;
 		}
 
-		// Force method to lower case
-		$method = strtolower($method);
+		// Convert to the InsertType.
+		if (\is_string($method)) {
+			// Force method to lower case
+			$method = InsertType::tryFrom(strtolower($method)) ?? InsertType::Insert;
+		}
 
 		// Ensure that $data is a multidimensional array.
 		if (array_filter($data, fn($dataRow) => \is_array($dataRow)) !== $data) {
@@ -441,7 +445,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$table = str_replace('{db_prefix}', $this->prefix, $table);
 
 		// Sanity check for replace is key part of the columns array
-		if ($method == 'replace') {
+		if ($method == InsertType::Replace) {
 			if (empty($keys)) {
 				$this->error_backtrace(
 					'When using the replace mode, the key column is a required entry.',
@@ -464,7 +468,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		// PostgreSQL doesn't support replace: we implement a MySQL-compatible behavior instead
-		if ($method == 'replace' || $method == 'ignore') {
+		if ($method == InsertType::Replace || $method == InsertType::Ignore) {
 			// The columns in an ON CONFLICT statement must exactly match the columns
 			// of some primary or unique index.
 			$possibly_conflicting_columns = [];
@@ -494,7 +498,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 				foreach ($columns as $column_name => $type) {
 					if (
 						!\in_array($column_name, $possibly_conflicting_columns)
-						&& $method == 'replace'
+						&& $method == InsertType::Replace
 					) {
 						$col_str .= ($count > 0 ? ',' : '');
 						$col_str .= $column_name . ' = EXCLUDED.' . $column_name;
@@ -502,7 +506,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 					}
 				}
 
-				if ($method == 'replace' && !empty($col_str)) {
+				if ($method == InsertType::Replace && !empty($col_str)) {
 					$replace = ' ON CONFLICT (' . $key_str . ') DO UPDATE SET ' . $col_str;
 				} else {
 					$replace = ' ON CONFLICT (' . $key_str . ') DO NOTHING';
@@ -565,7 +569,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 					', $insertRows) . $replace . $returning,
 				[
 					'security_override' => true,
-					'db_error_skip' => $method == 'ignore' || $table === $this->prefix . 'log_errors',
+					'db_error_skip' => $method == InsertType::Ignore || $table === $this->prefix . 'log_errors',
 				],
 				$connection,
 			);

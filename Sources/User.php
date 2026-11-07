@@ -21,6 +21,7 @@ use SMF\Actions\Logout;
 use SMF\Actions\Moderation\ReportedContent;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Db\Schema\v3_0\Members as MembersTable;
 use SMF\Permissions\Permission;
 use SMF\Permissions\PermissionProfile;
@@ -3999,7 +4000,7 @@ class User implements \ArrayAccess
 			// Nothing updated?
 			if (Db::$db->affected_rows() == 0) {
 				Db::$db->insert(
-					'ignore',
+					InsertType::Ignore,
 					'{db_prefix}log_spider_stats',
 					[
 						'id_spider' => 'int', 'last_seen' => 'int', 'stat_date' => 'date', 'page_hits' => 'int',
@@ -4024,7 +4025,7 @@ class User implements \ArrayAccess
 			}
 
 			Db::$db->insert(
-				'insert',
+				InsertType::Insert,
 				'{db_prefix}log_spider_hits',
 				[
 					'id_spider' => 'int',
@@ -5949,7 +5950,7 @@ class User implements \ArrayAccess
 		// Anonymize their data in the edit history of posts.
 		// We do this via a background task because it might take a while.
 		Db::$db->insert(
-			'insert',
+			InsertType::Insert,
 			'{db_prefix}background_tasks',
 			[
 				'task_class' => 'string-255',

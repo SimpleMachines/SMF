@@ -24,6 +24,7 @@ use SMF\Calendar\Event;
 use SMF\Calendar\EventOccurrence;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Draft;
 use SMF\EmailAddress;
 use SMF\ErrorHandler;
@@ -648,7 +649,7 @@ class Post2 extends Post
 		// Turn notification on or off.  (note this just blows smoke if it's already on or off.)
 		if (!empty($_POST['notify']) && !User::$me->is_guest) {
 			Db::$db->insert(
-				'ignore',
+				InsertType::Ignore,
 				'{db_prefix}log_notify',
 				[
 					'id_member' => 'int',

@@ -18,6 +18,7 @@ namespace SMF\Search\APIs;
 use SMF\Autolinker;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Msg;
@@ -686,7 +687,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 		// If necessary, spawn a new background task to continue the job...
 		if (($last_id ?? 0) < Config::$modSettings['maxMsgID']) {
 			Db::$db->insert(
-				'',
+				InsertType::Insert,
 				'{db_prefix}background_tasks',
 				[
 					'task_class' => 'string',
@@ -927,7 +928,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 		foreach ($word_data as $word => &$msg_data) {
 			// Ensure this word is in our dictionary, and get its ID.
 			$id_word = Db::$db->insert(
-				'ignore',
+				InsertType::Ignore,
 				'{db_prefix}log_search_dictionary',
 				[
 					'word' => 'string-255',
@@ -983,7 +984,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 		// New entries to create.
 		if (!empty($inserts)) {
 			Db::$db->insert(
-				'',
+				InsertType::Insert,
 				'{db_prefix}log_search_parsed',
 				[
 					'id_word' => 'int',

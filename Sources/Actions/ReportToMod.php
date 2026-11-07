@@ -20,6 +20,7 @@ use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Msg;
@@ -403,7 +404,7 @@ class ReportToMod implements ActionInterface, Routable
 			}
 
 			$id_report = Db::$db->insert(
-				'',
+				InsertType::Insert,
 				'{db_prefix}log_reported',
 				[
 					'id_msg' => 'int',
@@ -441,7 +442,7 @@ class ReportToMod implements ActionInterface, Routable
 		// Now just add our report...
 		if ($id_report) {
 			$id_comment = Db::$db->insert(
-				'',
+				InsertType::Insert,
 				'{db_prefix}log_reported_comments',
 				[
 					'id_report' => 'int',
@@ -467,7 +468,7 @@ class ReportToMod implements ActionInterface, Routable
 
 			// And get ready to notify people.
 			Db::$db->insert(
-				'insert',
+				InsertType::Insert,
 				'{db_prefix}background_tasks',
 				[
 					'task_class' => 'string',
@@ -581,7 +582,7 @@ class ReportToMod implements ActionInterface, Routable
 		// Otherwise, we shall make one!
 		else {
 			$id_report = Db::$db->insert(
-				'',
+				InsertType::Insert,
 				'{db_prefix}log_reported',
 				[
 					'id_msg' => 'int',
@@ -619,7 +620,7 @@ class ReportToMod implements ActionInterface, Routable
 		// Now just add our report...
 		if ($id_report) {
 			Db::$db->insert(
-				'',
+				InsertType::Insert,
 				'{db_prefix}log_reported_comments',
 				[
 					'id_report' => 'int',
@@ -644,7 +645,7 @@ class ReportToMod implements ActionInterface, Routable
 
 			// And get ready to notify people.
 			Db::$db->insert(
-				'insert',
+				InsertType::Insert,
 				'{db_prefix}background_tasks',
 				[
 					'task_class' => 'string',

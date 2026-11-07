@@ -17,6 +17,7 @@ namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Maintenance\Migration\MigrationBase;
 
 class CollapsedCategories extends MigrationBase
@@ -67,7 +68,7 @@ class CollapsedCategories extends MigrationBase
 
 		if (!empty($inserts)) {
 			$result = Db::$db->insert(
-				'replace',
+				InsertType::Replace,
 				'{db_prefix}themes',
 				[
 					'id_member' => 'int',

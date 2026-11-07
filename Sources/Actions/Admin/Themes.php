@@ -20,6 +20,7 @@ use SMF\ActionTrait;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -253,7 +254,7 @@ class Themes implements ActionInterface
 
 			if (!empty($setValues)) {
 				Db::$db->insert(
-					'replace',
+					InsertType::Replace,
 					'{db_prefix}themes',
 					['id_theme' => 'int', 'id_member' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'],
 					$setValues,
@@ -424,7 +425,7 @@ class Themes implements ActionInterface
 				}
 
 				Db::$db->insert(
-					'replace',
+					InsertType::Replace,
 					'{db_prefix}themes',
 					['id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'],
 					$setValues,
@@ -830,7 +831,7 @@ class Themes implements ActionInterface
 			// If we're actually inserting something..
 			if (!empty($inserts)) {
 				Db::$db->insert(
-					'replace',
+					InsertType::Replace,
 					'{db_prefix}themes',
 					['id_member' => 'int', 'id_theme' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'],
 					$inserts,
@@ -2087,7 +2088,7 @@ class Themes implements ActionInterface
 
 		if (!empty($inserts)) {
 			Db::$db->insert(
-				'insert',
+				InsertType::Insert,
 				'{db_prefix}themes',
 				['id_theme' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'],
 				$inserts,

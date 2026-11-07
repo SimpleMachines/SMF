@@ -17,6 +17,7 @@ namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Db\Schema;
 use SMF\Db\Schema\Column;
 use SMF\Lang;
@@ -144,7 +145,7 @@ class Smileys extends MigrationBase
 
 				if (!empty($inserts)) {
 					Db::$db->insert(
-						'ignore',
+						InsertType::Ignore,
 						'{db_prefix}smiley_files',
 						['id_smiley' => 'int', 'smiley_set' => 'string-48', 'filename' => 'string-48'],
 						$inserts,

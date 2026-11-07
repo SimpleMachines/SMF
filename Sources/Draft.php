@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 
 /**
  * Represents a post draft.
@@ -743,7 +744,7 @@ class Draft
 		// Otherwise, creating a new draft.
 		else {
 			$this->id = Db::$db->insert(
-				'',
+				InsertType::Insert,
 				'{db_prefix}user_drafts',
 				[
 					'id_topic' => 'int',

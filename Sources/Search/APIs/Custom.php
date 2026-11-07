@@ -17,6 +17,7 @@ namespace SMF\Search\APIs;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Debug\DebugUtils;
 use SMF\Lang;
 use SMF\Menu;
@@ -387,7 +388,7 @@ class Custom extends SearchApi implements SearchApiInterface
 
 		if (!empty($inserts)) {
 			Db::$db->insert(
-				'ignore',
+				InsertType::Ignore,
 				'{db_prefix}log_search_words',
 				['id_word' => 'int', 'id_msg' => 'int'],
 				$inserts,
@@ -444,7 +445,7 @@ class Custom extends SearchApi implements SearchApiInterface
 					$inserts[] = [$word, $msgOptions['id']];
 				}
 				Db::$db->insert(
-					'insert',
+					InsertType::Insert,
 					'{db_prefix}log_search_words',
 					['id_word' => 'string', 'id_msg' => 'int'],
 					$inserts,
@@ -725,7 +726,7 @@ class Custom extends SearchApi implements SearchApiInterface
 
 					if (!empty($inserts)) {
 						Db::$db->insert(
-							'ignore',
+							InsertType::Ignore,
 							'{db_prefix}log_search_words',
 							['id_word' => 'int', 'id_msg' => 'int'],
 							$inserts,
