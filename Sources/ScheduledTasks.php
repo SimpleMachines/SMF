@@ -477,6 +477,11 @@ function scheduled_daily_digest()
 		if ($frequency < 3 || $frequency == 4 && !$is_weekly || $frequency == 3 && $is_weekly || $notify_types == 4)
 			continue;
 
+		// Write to this member in their own language. $langs was collected from
+		// the same lngfile values as $members, so there are strings here for
+		// every member, including those whose lngfile is empty.
+		$lang = $member['lang'];
+
 		// Right character set!
 		$context['character_set'] = empty($modSettings['global_character_set']) ? $langtxt[$lang]['char_set'] : $modSettings['global_character_set'];
 
@@ -555,7 +560,7 @@ function scheduled_daily_digest()
 			$email['body'] .= "\n";
 
 		// Then just say our goodbyes!
-		$email['body'] .= "\n\n" . sprintf($txt['regards_team'], $context['forum_name']);
+		$email['body'] .= "\n\n" . $langtxt[$lang]['bye'];
 
 		// Send it - low priority!
 		sendmail($email['email'], $email['subject'], $email['body'], null, 'digest', false, 4);
