@@ -88,7 +88,7 @@ class Post2 extends Post
 	 *********************/
 
 	/**
-	 * @var \SMF\Msg
+	 * @var Msg
 	 *
 	 * An instance of SMF\Msg for the existing post.
 	 * Only used when editing a post.

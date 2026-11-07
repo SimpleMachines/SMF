@@ -56,7 +56,7 @@ interface ToolsInterface
 	 *
 	 * If a tool does not have steps, it should return an empty array.
 	 *
-	 * @return \SMF\Maintenance\Step[]
+	 * @return Step[]
 	 */
 	public function getSteps(): array;
 

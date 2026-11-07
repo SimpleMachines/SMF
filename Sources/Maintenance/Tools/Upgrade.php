@@ -477,7 +477,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	/**
 	 * Upgrade Steps
 	 *
-	 * @return \SMF\Maintenance\Step[]
+	 * @return Step[]
 	 */
 	public function getSteps(): array
 	{
@@ -1377,7 +1377,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	/**
 	 * Actually backup a table.
 	 *
-	 * @param mixed $table_name Name of the table to be backed up.
+	 * @param mixed $table Name of the table to be backed up.
 	 * @return bool True if successful, false otherwise.
 	 */
 	public function doBackupTable($table): bool

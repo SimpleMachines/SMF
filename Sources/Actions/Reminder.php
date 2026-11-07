@@ -52,7 +52,7 @@ class Reminder implements ActionInterface, Routable
 	public string $subaction = 'main';
 
 	/**
-	 * @var \SMF\User
+	 * @var User
 	 *
 	 * SMF\User object for the member.
 	 */

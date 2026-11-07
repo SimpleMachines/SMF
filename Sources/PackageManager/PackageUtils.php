@@ -38,7 +38,7 @@ class PackageUtils
 	 **************************/
 
 	/**
-	 * @var mixed
+	 * @var FtpConnection|false|null
 	 *
 	 * An instance of SMF\PackageManger\FtpConnection.
 	 */

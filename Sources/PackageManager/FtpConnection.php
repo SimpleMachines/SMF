@@ -33,12 +33,12 @@ class FtpConnection
 	public $connection;
 
 	/**
-	 * @var string Holds any errors
+	 * @var ?string Holds any errors
 	 */
 	public $error;
 
 	/**
-	 * @var string Holds the last message from the server
+	 * @var ?string Holds the last message from the server
 	 */
 	public $last_message;
 

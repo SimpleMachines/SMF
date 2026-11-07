@@ -112,7 +112,7 @@ abstract class WebFetchApi implements WebFetchApiInterface
 	 * - If $post_data is supplied, the value and length is posted to the given
 	 *   URL as form data.
 	 *
-	 * @param \SMF\Url|string $url An HTTP or FTP URL.
+	 * @param Url|string $url An HTTP or FTP URL.
 	 * @param string|array $post_data The data to post to the given URL.
 	 *    Not applicable to FTP requests.
 	 * @param bool $keep_alive Whether to keep the connection alive for further

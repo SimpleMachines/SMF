@@ -216,7 +216,7 @@ abstract class DatabaseApi
 	public static array $package_log = [];
 
 	/**
-	 * @var object
+	 * @var object|false
 	 *
 	 * A static copy of $this->connection. This exists solely to facilitate
 	 * backward compatibility by populating the global $db_connection variable.

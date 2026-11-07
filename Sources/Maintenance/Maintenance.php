@@ -114,14 +114,14 @@ class Maintenance
 	public static string $query_string = '';
 
 	/**
-	 * @var \SMF\Maintenance\Tools\ToolsInterface|\SMF\Maintenance\Tools\Upgrade|\SMF\Maintenance\Tools\Install
+	 * @var ToolsInterface|\SMF\Maintenance\Tools\Upgrade|\SMF\Maintenance\Tools\Install
 	 *
 	 * Object containing the tool we are working with.
 	 */
 	public static ToolsInterface $tool;
 
 	/**
-	 * @var \SMF\Themes\default\MaintenanceTemplate
+	 * @var MaintenanceTemplate
 	 *
 	 * Object containing the tools template we are working with.
 	 *
@@ -690,7 +690,7 @@ class Maintenance
 	/**
 	 * Set our current start. This is public as our tool needs to update this.
 	 *
-	 * @param null|int $substep The starting position we on.  If null is passed, we will auto increment from the current.
+	 * @param null|int $start The starting position we on.  If null is passed, we will auto increment from the current.
 	 */
 	public static function setCurrentStart(?int $start = null): void
 	{

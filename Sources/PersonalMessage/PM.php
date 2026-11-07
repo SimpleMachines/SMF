@@ -1645,7 +1645,7 @@ class PM implements \ArrayAccess
 	 * Delete the specified personal messages.
 	 *
 	 * @param int|array|null $personal_messages An array containing the IDs of PMs to delete or null to delete all of them
-	 * @param string|null $folder Which "folder" to delete PMs from - 'sent' to delete them from the outbox, null or anything else to delete from the inbox
+	 * @param ?string $folder Which "folder" to delete PMs from - 'sent' to delete them from the outbox, null or anything else to delete from the inbox
 	 * @param array|int|null $owner An array of IDs of users whose PMs are being deleted, the ID of a single user or null to use the current user's ID
 	 */
 	public static function delete(int|array|null $personal_messages, ?string $folder = null, array|int|null $owner = null): void

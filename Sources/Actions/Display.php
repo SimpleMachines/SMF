@@ -194,7 +194,7 @@ class Display implements ActionInterface, Routable
 			return false;
 		}
 
-		/** @var \SMF\Msg $message */
+		/** @var Msg $message */
 		$message = Msg::$getter->current();
 		Msg::$getter->next();
 

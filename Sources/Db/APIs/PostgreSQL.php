@@ -115,7 +115,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	protected $language_ftx;
 
 	/**
-	 * @var object
+	 * @var \PgSql\Result|false
 	 *
 	 * Result of most recent query (a PgSql\Result object).
 	 */

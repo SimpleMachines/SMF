@@ -227,7 +227,7 @@ class Groups implements ActionInterface, Routable
 		// Load up the group details.
 		$groups = Group::load($_REQUEST['group']);
 
-		/** @var \SMF\Group $group */
+		/** @var Group $group */
 		if ($groups == [] || !($group = $groups[$_REQUEST['group']]) || empty($group->id)) {
 			ErrorHandler::fatalLang('membergroup_does_not_exist', false);
 		}
@@ -405,7 +405,7 @@ class Groups implements ActionInterface, Routable
 	 *
 	 * @param array &$members The IDs of the members.
 	 * @param int $membergroup The ID of the group.
-	 * @param int $limit How many members to show (null for no limit).
+	 * @param ?int $limit How many members to show (null for no limit).
 	 * @return bool True if there are more members to display, false otherwise.
 	 */
 	public static function listMembergroupMembers_Href(&$members, $membergroup, $limit = null): bool

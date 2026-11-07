@@ -982,7 +982,7 @@ class Main implements ActionInterface, Routable
 	 * The menu is always available as Menu::$loaded['profile'], but for
 	 * convenience, this method also returns it.
 	 *
-	 * @return \SMF\Menu The profile menu object.
+	 * @return Menu The profile menu object.
 	 */
 	protected function createMenu(): Menu
 	{

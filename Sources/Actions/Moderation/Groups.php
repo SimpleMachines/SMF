@@ -303,7 +303,7 @@ class Groups extends ViewGroups
 
 						$result = false;
 
-						/** @var \SMF\Group $group */
+						/** @var Group $group */
 						if ($groups != [] && ($group = $groups[$group_id]) && $group instanceof Group) {
 							$result = $group->addMembers($members);
 						}
