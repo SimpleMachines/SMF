@@ -75,3 +75,29 @@ upgrade-helper.php
 .vscode/
 
 vendor/
+
+# Local dev environment #
+##########################
+/.env
+/compose.override.yaml
+/compose.override.yml
+/install.php
+/install_2-1_mysql.sql
+/install_2-1_postgresql.sql
+# Written by the baseline's package-log seeding, and by the package manager on
+# any real install. It travels inside the artifacts, not in the checkout.
+/Packages/installed.list
+
+# Baseline generator #
+#######################
+# Scratch space: the upstream Populate.php download and its patched copy.
+/.docker/baseline/cache/
+# Only the profiles small enough to live in git are committed. Bigger ones are
+# generated on demand and stay local.
+/.docker/baseline/artifacts/*/medium/
+/.docker/baseline/artifacts/*/large/
+
+# ...but the baseline artifacts themselves are the deliverable, and the rules
+# above (*.sql, *.gz, attachments/) would otherwise swallow every one of them.
+!/.docker/baseline/artifacts/**/*.sql
+!/.docker/baseline/artifacts/**/*.tgz

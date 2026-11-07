@@ -1,0 +1,140 @@
+# SMF 2.1 development environment.
+#
+#   docker compose up -d --build
+#   -> http://localhost:8180/install.php
+#
+# Or, to build the migration-test baseline in one command:
+#
+#   .docker/baseline/make-baseline.sh --engine both --profile small
+#
+# Both database engines SMF supports are running. MySQL is what the forum is
+# pointed at by default; set SMF_DB_TYPE=postgresql in .env to use the other.
+#
+# Every port here is offset from the SMF 3.0 environment's (8080/8081/8025/
+# 3307/5433) so both stacks can run at the same time -- which is the point,
+# since migration testing needs a 2.1 forum and a 3.0 checkout side by side.
+#
+# Everything below has a working default, so no .env file is required. Copy
+# .docker/env.example to .env if you want to change ports or credentials.
+
+name: smf-21-baseline
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: .docker/php/Dockerfile
+      args:
+        PHP_VERSION: ${PHP_VERSION:-8.2}
+    ports:
+      - "${WEB_PORT:-8180}:80"
+    volumes:
+      # The checkout is bind-mounted, so edits on the host are live immediately.
+      - .:/var/www/html
+    environment:
+      # Which engine the generated Settings.php points at: mysql or postgresql.
+      SMF_DB_TYPE: ${SMF_DB_TYPE:-mysql}
+      SMF_DB_NAME: ${DB_NAME:-smf}
+      SMF_DB_USER: ${DB_USER:-smf}
+      SMF_DB_PASSWD: ${DB_PASSWORD:-smf}
+      # Per-engine host and port, so switching SMF_DB_TYPE is the only change
+      # needed. These are container-internal, not the host ports below.
+      SMF_MYSQL_SERVER: mysql
+      SMF_MYSQL_PORT: "3306"
+      SMF_POSTGRES_SERVER: postgres
+      SMF_POSTGRES_PORT: "5432"
+      SMF_BOARDURL: http://localhost:${WEB_PORT:-8180}
+      SMF_MBNAME: ${SMF_MBNAME:-SMF 2.1 Baseline}
+    depends_on:
+      mysql:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  mysql:
+    # Pinned, not floating. MySQL 9 removes the utf8/utf8mb3 aliases that SMF
+    # 2.1's DDL is written against. 8.4 also matches the 3.0 environment, so an
+    # upgrade test stays a forum upgrade and does not accidentally become a
+    # database upgrade too.
+    image: mysql:${MYSQL_VERSION:-8.4}
+    ports:
+      # Offset from the 3.0 environment's 3307, and from any local mysql.
+      - "${MYSQL_PORT:-3407}:3306"
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-smf}
+      MYSQL_USER: ${DB_USER:-smf}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-smf}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-smf}
+    # SMF 2.1 creates its tables as `ENGINE=InnoDB DEFAULT CHARSET=utf8
+    # COLLATE=utf8_general_ci` -- that is utf8mb3, not utf8mb4. ($db_mb4 in
+    # Settings.php is the opt-in, and it defaults to null.) Matching the server
+    # default to that is deliberate: it makes this a genuine pre-utf8mb4 2.1
+    # forum, which is exactly what SMF 3.0's UTF-8 conversion step has to
+    # convert. Changing it changes what the migration test exercises.
+    command:
+      - --character-set-server=utf8mb3
+      - --collation-server=utf8mb3_general_ci
+      - --default-storage-engine=InnoDB
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./.docker/mysql/init:/docker-entrypoint-initdb.d:ro
+      # So mysqldump can write straight to the host instead of streaming the
+      # dump back over `docker compose exec` stdout.
+      - ./.docker/baseline/artifacts:/artifacts
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 --silent"]
+      interval: 3s
+      timeout: 5s
+      retries: 40
+      start_period: 20s
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:${POSTGRES_VERSION:-17-alpine}
+    ports:
+      # Offset from the 3.0 environment's 5433, and from any local postgres.
+      - "${POSTGRES_PORT:-5533}:5432"
+    environment:
+      POSTGRES_DB: ${DB_NAME:-smf}
+      POSTGRES_USER: ${DB_USER:-smf}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-smf}
+      # Dev-only: skip the password prompt cost for local connections.
+      POSTGRES_HOST_AUTH_METHOD: scram-sha-256
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./.docker/postgres/init:/docker-entrypoint-initdb.d:ro
+      - ./.docker/baseline/artifacts:/artifacts
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-smf} -d ${DB_NAME:-smf}"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  # Catches every mail the forum sends. Nothing leaves the machine.
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "${MAILPIT_PORT:-8125}:8025"
+    restart: unless-stopped
+
+  # Browse and query either database at http://localhost:8181. The server field
+  # is pre-filled with whichever engine the forum is using; type the other
+  # service name in to look at it instead.
+  adminer:
+    image: adminer:latest
+    ports:
+      - "${ADMINER_PORT:-8181}:8080"
+    environment:
+      # Service name, not engine name: mysql or postgres.
+      ADMINER_DEFAULT_SERVER: ${ADMINER_SERVER:-mysql}
+      ADMINER_DESIGN: dracula
+    depends_on:
+      - mysql
+      - postgres
+    restart: unless-stopped
+
+volumes:
+  db-data:
+  mysql-data:
