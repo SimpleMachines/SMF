@@ -1878,7 +1878,7 @@ class Profile extends User implements \ArrayAccess
 			$loaded = self::load($user, $type, UserDataset::Profile);
 
 			if (empty($loaded)) {
-				ErrorHandler::fatalLang('not_a_user', false);
+				ErrorHandler::fatalLang('not_a_user', false, array(), 404);
 			}
 
 			self::$member = current($loaded);
