@@ -51,7 +51,7 @@ function ModifyProfile($post_errors = array())
 
 	// Check if loadMemberData() has returned a valid result.
 	if (!$memberResult)
-		fatal_lang_error('not_a_user', false, array(), 404);
+		fatal_lang_error('not_a_user', false);
 
 	// If all went well, we have a valid member ID!
 	list ($memID) = $memberResult;
