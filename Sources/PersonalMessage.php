@@ -2121,7 +2121,7 @@ function MessageDrafts()
 	// validate with loadMemberData()
 	$memberResult = loadMemberData($user_info['id'], false);
 	if (!$memberResult)
-		fatal_lang_error('not_a_user', false, 404);
+		fatal_lang_error('not_a_user', false, array(), 404);
 	list ($memID) = $memberResult;
 
 	// drafts is where the functions reside
