@@ -207,7 +207,7 @@ class GroupMembership implements ActionInterface
 			if ($new_group_info['type'] == 2 && !\in_array($new_group_id, Profile::$member->groups)) {
 				ErrorHandler::fatalLang('no_access', false);
 			}
-		} else if ($this->change_type === 'primary') {
+		} elseif ($this->change_type === 'primary') {
 			if (!\in_array($new_group_id, Profile::$member->groups)) {
 				ErrorHandler::fatalLang('no_access', false);
 			}
