@@ -339,13 +339,9 @@ class TimeZone extends \DateTimeZone
 			'Afghanistan' => 'Asia/Kabul',
 			'Africa_Central' => 'Africa/Maputo',
 			'Africa_Eastern' => 'Africa/Nairobi',
-			'Africa_FarWestern' => 'Africa/El_Aaiun',
 			'Africa_Southern' => 'Africa/Johannesburg',
 			'Africa_Western' => 'Africa/Lagos',
-			'Aktyubinsk' => 'Asia/Aqtobe',
 			'Alaska' => 'America/Juneau',
-			'Alaska_Hawaii' => 'America/Anchorage',
-			'Almaty' => 'Asia/Almaty',
 			'Amazon' => 'America/Manaus',
 			'America_Central' => 'America/Chicago',
 			'America_Eastern' => 'America/New_York',
@@ -353,13 +349,10 @@ class TimeZone extends \DateTimeZone
 			'America_Pacific' => 'America/Los_Angeles',
 			'Anadyr' => 'Asia/Anadyr',
 			'Apia' => 'Pacific/Apia',
-			'Aqtau' => 'Asia/Aqtau',
-			'Aqtobe' => 'Asia/Aqtobe',
 			'Arabian' => 'Asia/Riyadh',
 			'Argentina' => 'America/Argentina/Buenos_Aires',
 			'Argentina_Western' => 'America/Argentina/San_Luis',
 			'Armenia' => 'Asia/Yerevan',
-			'Ashkhabad' => 'Asia/Ashgabat',
 			'Atlantic' => 'America/Halifax',
 			'Australia_Central' => 'Australia/Adelaide',
 			'Australia_CentralWestern' => 'Australia/Eucla',
@@ -367,12 +360,9 @@ class TimeZone extends \DateTimeZone
 			'Australia_Western' => 'Australia/Perth',
 			'Azerbaijan' => 'Asia/Baku',
 			'Azores' => 'Atlantic/Azores',
-			'Baku' => 'Asia/Baku',
 			'Bangladesh' => 'Asia/Dhaka',
-			'Bering' => 'America/Adak',
 			'Bhutan' => 'Asia/Thimphu',
 			'Bolivia' => 'America/La_Paz',
-			'Borneo' => 'Asia/Kuching',
 			'Brasilia' => 'America/Sao_Paulo',
 			'British' => 'Europe/London',
 			'Brunei' => 'Asia/Brunei',
@@ -387,12 +377,8 @@ class TimeZone extends \DateTimeZone
 			'Colombia' => 'America/Bogota',
 			'Cook' => 'Pacific/Rarotonga',
 			'Cuba' => 'America/Havana',
-			'Dacca' => 'Asia/Dhaka',
 			'Davis' => 'Antarctica/Davis',
-			'Dominican' => 'America/Santo_Domingo',
 			'DumontDUrville' => 'Antarctica/DumontDUrville',
-			'Dushanbe' => 'Asia/Dushanbe',
-			'Dutch_Guiana' => 'America/Paramaribo',
 			'East_Timor' => 'Asia/Dili',
 			'Easter' => 'Pacific/Easter',
 			'Ecuador' => 'America/Guayaquil',
@@ -404,18 +390,14 @@ class TimeZone extends \DateTimeZone
 			'Fiji' => 'Pacific/Fiji',
 			'French_Guiana' => 'America/Cayenne',
 			'French_Southern' => 'Indian/Kerguelen',
-			'Frunze' => 'Asia/Bishkek',
 			'GMT' => 'Atlantic/Reykjavik',
 			'Galapagos' => 'Pacific/Galapagos',
 			'Gambier' => 'Pacific/Gambier',
 			'Georgia' => 'Asia/Tbilisi',
 			'Gilbert_Islands' => 'Pacific/Tarawa',
-			'Goose_Bay' => 'America/Goose_Bay',
 			'Greenland' => 'America/Nuuk',
-			'Greenland_Central' => 'America/Scoresbysund',
 			'Greenland_Eastern' => 'America/Scoresbysund',
 			'Greenland_Western' => 'America/Nuuk',
-			'Guam' => 'Pacific/Guam',
 			'Gulf' => 'Asia/Dubai',
 			'Guyana' => 'America/Guyana',
 			'Hawaii' => 'Pacific/Honolulu',
@@ -434,24 +416,16 @@ class TimeZone extends \DateTimeZone
 			'Israel' => 'Asia/Jerusalem',
 			'Japan' => 'Asia/Tokyo',
 			'Kamchatka' => 'Asia/Kamchatka',
-			'Karachi' => 'Asia/Karachi',
 			'Kazakhstan' => 'Asia/Almaty',
 			'Kazakhstan_Eastern' => 'Asia/Almaty',
 			'Kazakhstan_Western' => 'Asia/Aqtobe',
-			'Kizilorda' => 'Asia/Qyzylorda',
 			'Korea' => 'Asia/Seoul',
 			'Kosrae' => 'Pacific/Kosrae',
 			'Krasnoyarsk' => 'Asia/Krasnoyarsk',
-			'Kuybyshev' => 'Europe/Samara',
-			'Kwajalein' => 'Pacific/Kwajalein',
 			'Kyrgystan' => 'Asia/Bishkek',
-			'Lanka' => 'Asia/Colombo',
-			'Liberia' => 'Africa/Monrovia',
 			'Line_Islands' => 'Pacific/Kiritimati',
 			'Lord_Howe' => 'Australia/Lord_Howe',
-			'Macau' => 'Asia/Macau',
 			'Magadan' => 'Asia/Magadan',
-			'Malaya' => 'Asia/Kuala_Lumpur',
 			'Malaysia' => 'Asia/Kuching',
 			'Maldives' => 'Indian/Maldives',
 			'Marquesas' => 'Pacific/Marquesas',
@@ -470,10 +444,8 @@ class TimeZone extends \DateTimeZone
 			'Niue' => 'Pacific/Niue',
 			'Norfolk' => 'Pacific/Norfolk',
 			'Noronha' => 'America/Noronha',
-			'North_Mariana' => 'Pacific/Saipan',
 			'Novosibirsk' => 'Asia/Novosibirsk',
 			'Omsk' => 'Asia/Omsk',
-			'Oral' => 'Asia/Oral',
 			'Pakistan' => 'Asia/Karachi',
 			'Palau' => 'Pacific/Palau',
 			'Papua_New_Guinea' => 'Pacific/Port_Moresby',
@@ -485,33 +457,26 @@ class TimeZone extends \DateTimeZone
 			'Pitcairn' => 'Pacific/Pitcairn',
 			'Ponape' => 'Pacific/Guadalcanal',
 			'Pyongyang' => 'Asia/Pyongyang',
-			'Qyzylorda' => 'Asia/Qyzylorda',
 			'Reunion' => 'Indian/Reunion',
 			'Rothera' => 'Antarctica/Rothera',
 			'Sakhalin' => 'Asia/Sakhalin',
 			'Samara' => 'Europe/Samara',
-			'Samarkand' => 'Asia/Samarkand',
 			'Samoa' => 'Pacific/Pago_Pago',
 			'Seychelles' => 'Indian/Mahe',
-			'Shevchenko' => 'Asia/Aqtau',
 			'Singapore' => 'Asia/Singapore',
 			'Solomon' => 'Pacific/Guadalcanal',
 			'South_Georgia' => 'Atlantic/South_Georgia',
 			'Suriname' => 'America/Paramaribo',
-			'Sverdlovsk' => 'Asia/Yekaterinburg',
 			'Syowa' => 'Antarctica/Syowa',
 			'Tahiti' => 'Pacific/Tahiti',
 			'Taipei' => 'Asia/Taipei',
 			'Tajikistan' => 'Asia/Dushanbe',
-			'Tashkent' => 'Asia/Tashkent',
-			'Tbilisi' => 'Asia/Tbilisi',
 			'Tokelau' => 'Pacific/Fakaofo',
 			'Tonga' => 'Pacific/Tongatapu',
 			'Truk' => 'Pacific/Port_Moresby',
 			'Turkey' => 'Europe/Istanbul',
 			'Turkmenistan' => 'Asia/Ashgabat',
 			'Tuvalu' => 'Pacific/Funafuti',
-			'Uralsk' => 'Asia/Oral',
 			'Uruguay' => 'America/Montevideo',
 			'Urumqi' => 'Asia/Urumqi',
 			'Uzbekistan' => 'Asia/Tashkent',
@@ -524,7 +489,6 @@ class TimeZone extends \DateTimeZone
 			'Wallis' => 'Pacific/Wallis',
 			'Yakutsk' => 'Asia/Yakutsk',
 			'Yekaterinburg' => 'Asia/Yekaterinburg',
-			'Yerevan' => 'Asia/Yerevan',
 			'Yukon' => 'America/Whitehorse',
 		],
 		'AD' => [
@@ -663,9 +627,6 @@ class TimeZone extends \DateTimeZone
 		'GA' => [
 			'Africa_Western' => 'Africa/Libreville',
 		],
-		'GB' => [
-			'GMT' => 'Europe/London',
-		],
 		'GD' => [
 			'Atlantic' => 'America/Grenada',
 		],
@@ -696,9 +657,6 @@ class TimeZone extends \DateTimeZone
 		'GT' => [
 			'America_Central' => 'America/Guatemala',
 		],
-		'GU' => [
-			'Chamorro' => 'Pacific/Guam',
-		],
 		'HN' => [
 			'America_Central' => 'America/Tegucigalpa',
 		],
@@ -710,9 +668,6 @@ class TimeZone extends \DateTimeZone
 		],
 		'HU' => [
 			'Europe_Central' => 'Europe/Budapest',
-		],
-		'IE' => [
-			'GMT' => 'Europe/Dublin',
 		],
 		'IQ' => [
 			'Arabian' => 'Asia/Baghdad',
@@ -1933,6 +1888,27 @@ class TimeZone extends \DateTimeZone
 	/**
 	 * @var array
 	 *
+	 * A list of time zones where the TZDB and the CLDR handle daylight saving
+	 * time changes differently.
+	 *
+	 * This info is used by TimeZone::getDstType() and TimeZone::useDstAtTime()
+	 * to decide whether they need to check the relevant SMF\Calendar\VTimeZone
+	 * class for CLDR-derived DST data in certain situations such as time zones
+	 * that use permanent daylight saving time or, in Europe/Dublin's case, a
+	 * negative daylight saving (daylight losing?) time.
+	 *
+	 * Developers: Do not update the data in this array manually. Instead,
+	 * run "php -f other/update_timezones.php" on the command line.
+	 */
+	protected static array $cldr_dst = [
+		'Africa/Windhoek', 'America/Coyhaique', 'America/Edmonton',
+		'America/Inuvik', 'America/Punta_Arenas', 'America/Vancouver',
+		'America/Winnipeg', 'Europe/Dublin',
+	];
+
+	/**
+	 * @var array
+	 *
 	 * Time zone identifiers sorted into a prioritized list based on the country
 	 * codes in Config::$modSettings['timezone_priority_countries'].
 	 *
@@ -2035,7 +2011,7 @@ class TimeZone extends \DateTimeZone
 			list($when, $later) = self::getTimeRange($when);
 
 			foreach ($this->getTransitions($when, $later) as $transition) {
-				$dst_type = $transition['isdst'] ? 'daylight' : 'standard';
+				$dst_type = $this->usesDstAtTime('@' . $transition['ts'], cldr: true) ? 'daylight' : 'standard';
 
 				if (Lang::txtExists([$metazone, $dst_type, 'short'], var: 'tztxt')) {
 					$abbrs[] = Lang::getTxt([$metazone, $dst_type, 'short'], var: 'tztxt');
@@ -2087,9 +2063,9 @@ class TimeZone extends \DateTimeZone
 		// For dates since the Unix Epoch, look it up in the VTimeZone class for this time zone.
 		if (
 			$when->getTimestamp() >= 0
-			&& Calendar\VTimeZone::exists($this->getName())
+			&& Calendar\VTimeZone::exists(self::getCanonical($this->getName()))
 		) {
-			$vtimezone = Calendar\VTimeZone::load($this->getName());
+			$vtimezone = Calendar\VTimeZone::load(self::getCanonical($this->getName()));
 
 			foreach ($vtimezone->metazones as $entry) {
 				if ($when < (new \DateTimeImmutable($entry['ts']))) {
@@ -2222,78 +2198,21 @@ class TimeZone extends \DateTimeZone
 		// The country code might become relevant.
 		$cc = $this->getLocation()['country_code'];
 
-		// A few time zones have special overrides.
-		if (
-			// Special exceptions given in the CLDR data.
-			Lang::txtExists($this->getName(), var: 'tztxt')
-			// Antarctic stations can be weird. To avoid confusion, just label
-			// each as "<station name> Time" and be done with it.
-			|| $cc === 'AQ'
-		) {
-			if ($when === null) {
-				switch ($this->getName()) {
-					case 'Europe/Dublin':
-					case 'Europe/London':
-						return Lang::formatText(
-							Lang::getTxt('region_format', var: 'tztxt'),
-							[
-								Lang::getTxt(
-									['iso3166', $this->getLocation()['country_code']],
-									file: 'Timezones',
-								),
-							],
-						);
-
-					default:
-						$metazone = $this->getName();
-						break;
-				}
-			} else {
-				switch ($this->getName()) {
-					case 'Europe/Dublin':
-						// Note that this is intentionally inverted. Ireland
-						// defines its summer time, IST, as its standard time,
-						// and its winter time, GMT, as a negative daylight
-						// saving (daylight losing?) time. PHP follows Ireland's
-						// legal definition and marks GMT as daylight saving
-						// time and IST as standard time for Europe/Dublin.
-						// However, in CLDR, from which our $tztxt strings are
-						// derived, IST is categorized as daylight time and GMT
-						// as standard time for Europe/Dublin. This discrepancy
-						// means that we need to invert what PHP says in order
-						// to find the right CLDR strings.
-						$dst_type = $when->format('I') ? 'standard' : 'daylight';
-						break;
-
-					case 'Europe/London':
-						$dst_type = $when->format('I') ? 'daylight' : 'standard';
-						break;
-				}
-
-				switch ($this->getName()) {
-					case 'Europe/Dublin':
-					case 'Europe/London':
-						$metazone = Lang::txtExists([$this->getName(), $dst_type], var: 'tztxt') ? $this->getName() : $this->getMetaZone($when, $allow_fallbacks);
-						break;
-
-					default:
-						$metazone = $this->getName();
-						break;
-				}
-			}
-		}
-		// This is the vast majority of cases.
-		else {
+		// Antarctic stations can be weird. To avoid confusion, just label
+		// each as "<station name> Time" and be done with it.
+		if ($cc === 'AQ') {
+			$metazone = $this->getName();
+		} else {
 			$metazone = $this->getMetaZone($when ?? 'now', $allow_fallbacks);
 		}
 
-		$dst_type ??= match ($this->getDstType()) {
+		$dst_type ??= match ($this->getDstType($when ?? 'now', cldr: true)) {
 			self::DST_NEVER => 'standard',
 			self::DST_ALWAYS => 'daylight',
 			default => match (true) {
 				$when === null => 'generic',
-				!$when->format('I') => 'standard',
-				(bool) $when->format('I') => 'daylight',
+				$this->usesDstAtTime($when, cldr: true) => 'daylight',
+				!$this->usesDstAtTime($when, cldr: true) => 'standard',
 			},
 		};
 
@@ -2386,9 +2305,12 @@ class TimeZone extends \DateTimeZone
 	 *    interested in. May be an instance of \DateTimeInterface, a Unix
 	 *    timestamp, or any string that strtotime() can understand.
 	 *    Default: 'now'.
+	 * @param bool $cldr If true, answer the question according to CLDR data
+	 *    instead of TZDB data.
+	 *    Default: false.
 	 * @return int One of this class's three DST_* constants.
 	 */
-	public function getDstType(\DateTimeInterface|int|string $when = 'now'): int
+	public function getDstType(\DateTimeInterface|int|string $when = 'now', bool $cldr = false): int
 	{
 		list($when, $later) = self::getTimeRange($when);
 
@@ -2398,11 +2320,55 @@ class TimeZone extends \DateTimeZone
 			return self::DST_SWITCHES;
 		}
 
-		if ($tzinfo[0]['isdst']) {
-			return self::DST_ALWAYS;
+		return $this->usesDstAtTime($when, $cldr) ? self::DST_ALWAYS : self::DST_NEVER;
+	}
+
+	/**
+	 * Returns whether Daylight Saving Time is in effect in this time zone at
+	 * the specified moment.
+	 *
+	 * @param \DateTimeInterface|int|string $when The date/time we are
+	 *    interested in. May be an instance of \DateTimeInterface, a Unix
+	 *    timestamp, or any string that strtotime() can understand.
+	 *    Default: 'now'.
+	 * @param bool $cldr If true, answer the question according to CLDR data
+	 *    instead of TZDB data.
+	 *    Default: false.
+	 * @return bool Whether DST is in effect at the specified moment.
+	 */
+	public function usesDstAtTime(\DateTimeInterface|int|string $when = 'now', bool $cldr = false): bool
+	{
+		if ($when instanceof \DateTimeInterface) {
+			$when->setTimezone($this);
+		} elseif (ctype_digit((string) $when)) {
+			$when = new Time('@' . $when, $this);
+		} else {
+			$when = new Time($when, $this);
 		}
 
-		return self::DST_NEVER;
+		$is_dst = (bool) $when->format('I');
+
+		if (
+			$cldr
+			&& \in_array(self::getCanonical($this->getName()), self::$cldr_dst)
+			&& Calendar\VTimeZone::exists(self::getCanonical($this->getName()))
+		) {
+			$vtimezone = Calendar\VTimeZone::load(self::getCanonical($this->getName()));
+
+			foreach ($vtimezone->metazones ?? [] as $entry) {
+				if ($when < (new \DateTimeImmutable($entry['ts']))) {
+					break;
+				}
+
+				if (!isset($entry['dst_offset'])) {
+					continue;
+				}
+
+				$is_dst = $when->format('Z') == $entry['dst_offset'] * 3600;
+			}
+		}
+
+		return $is_dst;
 	}
 
 	/**
@@ -2883,7 +2849,7 @@ class TimeZone extends \DateTimeZone
 	 */
 	public static function getCanonical(string $tzid): string
 	{
-		return Calendar\VTimeZone::CANONICAL_LINKS[$tzid] ?? $tzid;
+		return self::CANONICAL_LINKS[$tzid] ?? $tzid;
 	}
 
 	/*************************

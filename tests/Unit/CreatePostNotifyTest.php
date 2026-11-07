@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Unit;
@@ -17,6 +28,12 @@ class CreatePostNotifyTest extends TestCase
 	 * Public methods
 	 ****************/
 
+	/**
+	 * The offset is relative to the forum's own time zone.
+	 *
+	 * Expected: with default_timezone set to Etc/GMT-2,
+	 *           getTimeOffset('Etc/GMT-5') returns 3.0.
+	 */
 	public function testTheOffsetIsRelativeToTheForumTimezone(): void
 	{
 		Config::$modSettings['default_timezone'] = 'Etc/GMT-2';
@@ -28,6 +45,13 @@ class CreatePostNotifyTest extends TestCase
 	// the first member carries an attribute. The SMF/section_comments fixer inserts
 	// the banner between the attribute and its method, which is why the data provider
 	// case is second rather than first.
+	/**
+	 * A time zone is reported as its offset in hours from the forum time zone.
+	 *
+	 * Expected: each case in timezoneProvider() returns the expected offset
+	 *           from UTC as a float, keeping half and quarter hours and
+	 *           treating an empty time zone as no offset.
+	 */
 	#[DataProvider('timezoneProvider')]
 	public function testGetTimeOffset(string $timezone, float $expected): void
 	{

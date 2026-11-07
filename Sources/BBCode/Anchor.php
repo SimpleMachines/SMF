@@ -57,5 +57,5 @@ class Anchor extends BBCode
 	/**
 	 *
 	 */
-	public string $trim = 'none';
+	public string $trim = '';
 }

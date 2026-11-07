@@ -75,7 +75,7 @@ class Noronha extends VTimeZone
 		2 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19320401T000000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYMONTHDAY=1;UNTIL=19330401T010000Z',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYMONTHDAY=31;UNTIL=19330401T010000Z',
 			'TZNAME' => 'UTC-02',
 			'TZOFFSETFROM' => '-0100',
 			'TZOFFSETTO' => '-0200',
@@ -105,7 +105,7 @@ class Noronha extends VTimeZone
 		6 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19510401T000000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=4;BYMONTHDAY=1;UNTIL=19520401T010000Z',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYMONTHDAY=31;UNTIL=19520401T010000Z',
 			'TZNAME' => 'UTC-02',
 			'TZOFFSETFROM' => '-0100',
 			'TZOFFSETTO' => '-0200',
@@ -140,7 +140,7 @@ class Noronha extends VTimeZone
 		],
 		11 => [
 			'type' => 'STANDARD',
-			'DTSTART' => '19650331T000000',
+			'DTSTART' => '19650401T000000',
 			'TZNAME' => 'UTC-02',
 			'TZOFFSETFROM' => '-0100',
 			'TZOFFSETTO' => '-0200',
@@ -154,8 +154,7 @@ class Noronha extends VTimeZone
 		],
 		13 => [
 			'type' => 'STANDARD',
-			'DTSTART' => '19660301T000000',
-			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYMONTHDAY=1;UNTIL=19680301T010000Z',
+			'DTSTART' => '19660301T010000',
 			'TZNAME' => 'UTC-02',
 			'TZOFFSETFROM' => '-0100',
 			'TZOFFSETTO' => '-0200',
@@ -169,90 +168,98 @@ class Noronha extends VTimeZone
 			'TZOFFSETTO' => '-0100',
 		],
 		15 => [
+			'type' => 'STANDARD',
+			'DTSTART' => '19670301T000000',
+			'RRULE' => 'FREQ=YEARLY;BYMONTH=3;BYMONTHDAY=1;UNTIL=19680301T010000Z',
+			'TZNAME' => 'UTC-02',
+			'TZOFFSETFROM' => '-0100',
+			'TZOFFSETTO' => '-0200',
+		],
+		16 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19851102T000000',
 			'TZNAME' => 'UTC-01',
 			'TZOFFSETFROM' => '-0200',
 			'TZOFFSETTO' => '-0100',
 		],
-		16 => [
+		17 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19860315T000000',
 			'TZNAME' => 'UTC-02',
 			'TZOFFSETFROM' => '-0100',
 			'TZOFFSETTO' => '-0200',
 		],
-		17 => [
+		18 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19861025T000000',
 			'TZNAME' => 'UTC-01',
 			'TZOFFSETFROM' => '-0200',
 			'TZOFFSETTO' => '-0100',
 		],
-		18 => [
+		19 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19870214T000000',
 			'TZNAME' => 'UTC-02',
 			'TZOFFSETFROM' => '-0100',
 			'TZOFFSETTO' => '-0200',
 		],
-		19 => [
+		20 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19871025T000000',
 			'TZNAME' => 'UTC-01',
 			'TZOFFSETFROM' => '-0200',
 			'TZOFFSETTO' => '-0100',
 		],
-		20 => [
+		21 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19880207T000000',
 			'TZNAME' => 'UTC-02',
 			'TZOFFSETFROM' => '-0100',
 			'TZOFFSETTO' => '-0200',
 		],
-		21 => [
+		22 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19881016T000000',
 			'TZNAME' => 'UTC-01',
 			'TZOFFSETFROM' => '-0200',
 			'TZOFFSETTO' => '-0100',
 		],
-		22 => [
+		23 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19890129T000000',
 			'TZNAME' => 'UTC-02',
 			'TZOFFSETFROM' => '-0100',
 			'TZOFFSETTO' => '-0200',
 		],
-		23 => [
+		24 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19891015T000000',
 			'TZNAME' => 'UTC-01',
 			'TZOFFSETFROM' => '-0200',
 			'TZOFFSETTO' => '-0100',
 		],
-		24 => [
+		25 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '19900211T000000',
 			'TZNAME' => 'UTC-02',
 			'TZOFFSETFROM' => '-0100',
 			'TZOFFSETTO' => '-0200',
 		],
-		25 => [
+		26 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '19991003T000000',
 			'TZNAME' => 'UTC-01',
 			'TZOFFSETFROM' => '-0200',
 			'TZOFFSETTO' => '-0100',
 		],
-		26 => [
+		27 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20000227T000000',
 			'TZNAME' => 'UTC-02',
 			'TZOFFSETFROM' => '-0100',
 			'TZOFFSETTO' => '-0200',
 		],
-		27 => [
+		28 => [
 			'type' => 'DAYLIGHT',
 			'DTSTART' => '20001008T000000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=10;BYDAY=2SU;UNTIL=20011014T020000Z',
@@ -260,14 +267,14 @@ class Noronha extends VTimeZone
 			'TZOFFSETFROM' => '-0200',
 			'TZOFFSETTO' => '-0100',
 		],
-		28 => [
+		29 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20001015T000000',
 			'TZNAME' => 'UTC-02',
 			'TZOFFSETFROM' => '-0100',
 			'TZOFFSETTO' => '-0200',
 		],
-		29 => [
+		30 => [
 			'type' => 'STANDARD',
 			'DTSTART' => '20010218T000000',
 			'RRULE' => 'FREQ=YEARLY;BYMONTH=2;BYDAY=3SU;UNTIL=20060219T010000Z',

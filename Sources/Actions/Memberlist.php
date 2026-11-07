@@ -557,8 +557,10 @@ class Memberlist implements ActionInterface, Routable
 
 			$where = [];
 
+			// The columns were folded above, so the search is folded to match.
+			// The email search was folded when it was built.
 			foreach ($fields as $field) {
-				$where[] = $field . ($_POST['search'] == '' ? ' = {empty}' : ' LIKE {string:' . ($field === 'email_address_ci' ? 'email_search' : 'search') . '}');
+				$where[] = $field . ($_POST['search'] == '' ? ' = {empty}' : ' LIKE ' . ($field === 'email_address_ci' ? '{string:email_search}' : '{string_ci:search}'));
 			}
 
 			$where = implode("\n\t\t\t\t\t\tOR ", $where);

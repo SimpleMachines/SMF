@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Integration;
@@ -35,6 +46,12 @@ class ModSettingsTest extends IntegrationTestCase
 	 * Public methods
 	 ****************/
 
+	/**
+	 * Writing a value stores it, in the database and in Config::$modSettings.
+	 *
+	 * Expected: updateModSettings([$name => '41']) makes rawSetting() and
+	 *           Config::$modSettings both return '41'.
+	 */
 	public function testWritesAValue(): void
 	{
 		Config::updateModSettings([self::COUNTER => '41']);
@@ -43,6 +60,20 @@ class ModSettingsTest extends IntegrationTestCase
 		$this->assertSame('41', Config::$modSettings[self::COUNTER]);
 	}
 
+	/**
+	 * Passing true as a value adds one to the setting.
+	 *
+	 * Expected: after updateModSettings([$name => true], true) on a setting of
+	 *           41, the setting is 42.
+	 * Guards:   the increment was emitted as SET value = value + 1 against
+	 *           settings.value, which is a text column. MySQL coerces that;
+	 *           PostgreSQL rejects it, and because its API discarded failed
+	 *           queries without a word, the statement did nothing. Counters such
+	 *           as totalMessages and totalMembers stayed frozen at the last full
+	 *           recount.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/pull/9340
+	 */
 	public function testIncrementsACounter(): void
 	{
 		Config::updateModSettings([self::COUNTER => '41']);
@@ -56,6 +87,16 @@ class ModSettingsTest extends IntegrationTestCase
 		);
 	}
 
+	/**
+	 * Passing false as a value takes one away from the setting.
+	 *
+	 * Expected: after updateModSettings([$name => false], true) on a setting of
+	 *           41, the setting is 40.
+	 * Guards:   the decrement was emitted as SET value = value - 1 against a text
+	 *           column, which PostgreSQL rejects, as it did for the increment.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/pull/9340
+	 */
 	public function testDecrementsACounter(): void
 	{
 		Config::updateModSettings([self::COUNTER => '41']);
@@ -65,8 +106,12 @@ class ModSettingsTest extends IntegrationTestCase
 	}
 
 	/**
+	 * An incremented counter stays a plain integer.
+	 *
 	 * The value has to stay something the next increment can read back, so a
 	 * cast that leaves '42.0000' behind is not good enough.
+	 *
+	 * Expected: after an increment, rawSetting() matches ~^\d+$~.
 	 */
 	public function testAnIncrementedCounterStaysAPlainInteger(): void
 	{
@@ -80,10 +125,17 @@ class ModSettingsTest extends IntegrationTestCase
 		);
 	}
 
+	/**
+	 * A counter can be incremented repeatedly.
+	 *
+	 * It starts at 10 rather than 0 on purpose: see
+	 * testDoesNotCreateANewSettingHoldingAFalsyValue() for why a brand new
+	 * setting cannot be created holding a falsy value.
+	 *
+	 * Expected: three increments of a setting of 10 leave it at 13.
+	 */
 	public function testCountersCanBeIncrementedRepeatedly(): void
 	{
-		// Starts at 10 rather than 0 on purpose: see the test below for why a
-		// brand new setting cannot be created holding a falsy value.
 		Config::updateModSettings([self::COUNTER => '10']);
 
 		for ($i = 0; $i < 3; $i++) {
@@ -94,10 +146,15 @@ class ModSettingsTest extends IntegrationTestCase
 	}
 
 	/**
+	 * A new setting is not created holding a falsy value.
+	 *
 	 * A setting that does not exist yet and would only be set to nothingness is
 	 * skipped rather than written. That is deliberate, and it is a sharp edge:
 	 * seeding a counter at zero looks like it worked and leaves no row, so the
 	 * first increment then has nothing to increment.
+	 *
+	 * Expected: updateModSettings([$name => '0']) leaves rawSetting() null, while
+	 *           a setting that already exists can be set to '0'.
 	 */
 	public function testDoesNotCreateANewSettingHoldingAFalsyValue(): void
 	{
@@ -112,6 +169,12 @@ class ModSettingsTest extends IntegrationTestCase
 		$this->assertSame('0', $this->rawSetting(self::COUNTER));
 	}
 
+	/**
+	 * Updating settings logs no errors.
+	 *
+	 * Expected: after a write, an increment and a decrement,
+	 *           assertNoErrorsLogged() passes.
+	 */
 	public function testUpdatingSettingsLogsNoErrors(): void
 	{
 		Config::updateModSettings([self::COUNTER => '1']);

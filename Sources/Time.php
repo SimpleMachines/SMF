@@ -110,13 +110,6 @@ class Time extends \DateTime implements \ArrayAccess
 	 ****************************/
 
 	/**
-	 * @var object
-	 *
-	 * \DateTimeZone instance for the user's time zone.
-	 */
-	protected static object $user_tz;
-
-	/**
 	 * @var string
 	 *
 	 * Short version of user's preferred time format.
@@ -187,9 +180,7 @@ class Time extends \DateTime implements \ArrayAccess
 	 */
 	public function __construct(string $datetime = 'now', \DateTimeZone|string|null $timezone = null)
 	{
-		if (!isset(self::$user_tz)) {
-			self::$user_tz = TimeZone::create(User::$me?->timezone ?? Config::$modSettings['default_timezone'] ?? date_default_timezone_get());
-		}
+		$timezone ??= $this->getDefaultTimeZone();
 
 		if (\is_string($timezone)) {
 			$timezone = TimeZone::create($timezone);
@@ -216,9 +207,9 @@ class Time extends \DateTime implements \ArrayAccess
 			|| str_contains($datetime, 'ago')
 		) {
 			parent::__construct($datetime);
-			$this->setTimezone($timezone ?? self::$user_tz);
+			$this->setTimezone($timezone);
 		} else {
-			parent::__construct($datetime, $timezone ?? self::$user_tz);
+			parent::__construct($datetime, $timezone);
 		}
 	}
 
@@ -242,7 +233,7 @@ class Time extends \DateTime implements \ArrayAccess
 			case 'date_local':
 			case 'time_local':
 				$tz = $this->getTimezone();
-				$this->setTimezone(self::$user_tz);
+				$this->setTimezone(new \DateTimeZone($this->getDefaultTimeZone()));
 				$this->modify($value);
 				$this->setTimezone($tz);
 				break;
@@ -353,11 +344,11 @@ class Time extends \DateTime implements \ArrayAccess
 				break;
 
 			case 'date_local':
-				$value = (clone $this)->setTimezone(self::$user_tz)->format(self::getDateFormat());
+				$value = (clone $this)->setTimezone(new \DateTimeZone($this->getDefaultTimeZone()))->format(self::getDateFormat());
 				break;
 
 			case 'time_local':
-				$value = (clone $this)->setTimezone(self::$user_tz)->format(self::getShortTimeFormat());
+				$value = (clone $this)->setTimezone(new \DateTimeZone($this->getDefaultTimeZone()))->format(self::getShortTimeFormat());
 				break;
 
 			case 'year':
@@ -1207,6 +1198,21 @@ class Time extends \DateTime implements \ArrayAccess
 		$date = strtr($date, $placeholders);
 
 		return $date;
+	}
+
+	/******************
+	 * Internal methods
+	 ******************/
+
+	/**
+	 * Gets a default time zone to use: either the current user's time zone,
+	 * or else the forum's default time zone.
+	 *
+	 * @return string A time zone identifier string.
+	 */
+	protected function getDefaultTimeZone(): string
+	{
+		return User::$me?->timezone ?? Config::$modSettings['default_timezone'] ?? date_default_timezone_get();
 	}
 
 	/*************************

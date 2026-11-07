@@ -254,6 +254,18 @@ abstract class Parser
 	 */
 	private static array $results = [];
 
+	/**
+	 * @var array
+	 *
+	 * Placeholders used to protect certain strings from processing
+	 * by other parsers.
+	 */
+	private static array $placeholder_strings = [
+		'bbcode' => [],
+		'smileys' => [],
+		'markdown' => [],
+	];
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -280,7 +292,7 @@ abstract class Parser
 	 * @param int $input_types Bitmask of this class's INPUT_* constants.
 	 *    Only the indicated types of markup will be parsed in the input string.
 	 *    Default: self::INPUT_BBC | self::INPUT_MARKDOWN | self::INPUT_SMILEYS
-	 * @param int $output_type One of this class's INPUT_* constants.
+	 * @param int $output_type One of this class's OUTPUT_* constants.
 	 *    Default: self::OUTPUT_HTML
 	 * @param array $options Various parser options. See self::$default_options.
 	 * @return string The transformed string.
@@ -449,10 +461,10 @@ abstract class Parser
 		// Clean out any other funky stuff.
 		$message = Utils::sanitizeChars($message, 0);
 
-		// Clean up after nobbc ;).
+		// Clean up after nobbc and tt.
 		$message = preg_replace_callback(
-			'~\[nobbc[^\]]*\](.+?)\[/nobbc\]~is',
-			fn($matches) => '[nobbc]' . strtr($matches[1], ['[' => '&#91;', ']' => '&#93;', ':' => '&#58;', '@' => '&#64;']) . '[/nobbc]',
+			'~\[(nobbc|tt)[^\]]*\](.+?)\[/\1\]~is',
+			fn($matches) => '[' . $matches[1] . ']' . strtr($matches[2], ['[' => '&#91;', ']' => '&#93;', ':' => '&#58;', '@' => '&#64;']) . '[/' . $matches[1] . ']',
 			$message,
 		);
 
@@ -994,6 +1006,11 @@ abstract class Parser
 
 		$input_types = $input_types | ($smileys ? self::INPUT_SMILEYS : 0);
 
+		// Protect the content of Markdown code blocks and spans.
+		if ($input_types & self::INPUT_MARKDOWN) {
+			$string = self::protectMarkdownCode($string);
+		}
+
 		// Parse the BBCode.
 		if ($input_types & self::INPUT_BBC) {
 			$string = BBcodeParser::load(!empty($options['for_print']))->parse($string, !empty($input_types & self::INPUT_SMILEYS), $options['cache_id'], $options['parse_tags']);
@@ -1009,6 +1026,7 @@ abstract class Parser
 
 		// Parse the Markdown.
 		if ($input_types & self::INPUT_MARKDOWN) {
+			$string = strtr($string, self::$placeholder_strings['markdown']);
 			$string = MarkdownParser::load(self::OUTPUT_HTML)->parse($string, true, $options);
 		}
 
@@ -1337,5 +1355,37 @@ abstract class Parser
 		}
 
 		return $message;
+	}
+
+	/**
+	 * Replaces the contents of Markdown code blocks and spans with placeholders
+	 * to protect them from being parsed by BBCodeParser and/or SmileyParser.
+	 *
+	 * @param string $string A string that might contain Markdown code.
+	 * @return string Updated version of the string.
+	 */
+	protected static function protectMarkdownCode(string $string): string
+	{
+		$string = preg_replace_callback(
+			'/(?<!`)`([^`]*)`(?!`)/',
+			function ($matches) {
+				self::$placeholder_strings['markdown'][md5($matches[1])] = $matches[1];
+
+				return '`' . md5($matches[1]) . '`';
+			},
+			$string,
+		);
+
+		$string = preg_replace_callback(
+			'/(?<!`)(`{3,})([^\n]*)(\X*?)(`{3,})/',
+			function ($matches) {
+				self::$placeholder_strings['markdown'][md5($matches[2])] = $matches[2];
+
+				return $matches[1] . md5($matches[2]) . $matches[3];
+			},
+			$string,
+		);
+
+		return $string;
 	}
 }

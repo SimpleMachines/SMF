@@ -124,7 +124,7 @@ class GenericBBCode extends BBCode
 					},
 					ARRAY_FILTER_USE_BOTH,
 				);
-			 }
+			}
 		}
 
 		if (\is_string($definition['test'] ?? null)) {

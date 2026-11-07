@@ -44,10 +44,6 @@ class Dhaka extends VTimeZone
 	 */
 	public array $metazones = [
 		0 => [
-			'ts' => '1970-01-01T00:00:00+0000',
-			'metazone' => 'Dacca',
-		],
-		1 => [
 			'ts' => '1971-03-25T18:00:00+0000',
 			'metazone' => 'Bangladesh',
 		],

@@ -243,15 +243,15 @@ class ErrorHandler
 	/**
 	 * Gets the error handler service used by this facade.
 	 *
-	 * @throws \LogicException If the error handler service has not been initialized.
+	 * Forum sets this up from its container, but cron.php, SSI.php,
+	 * proxy.php and subscriptions.php never create a Forum. They still
+	 * report errors through here, and an error that cannot be reported
+	 * becomes a fatal one, so they get a service of their own.
+	 *
 	 * @return ErrorHandlerService The error handler service instance.
 	 */
 	protected static function getService(): ErrorHandlerService
 	{
-		if (self::$service === null) {
-			throw new \LogicException('ErrorHandlerService has not been initialized.');
-		}
-
-		return self::$service;
+		return self::$service ??= new ErrorHandlerService();
 	}
 }

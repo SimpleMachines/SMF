@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Unit;
@@ -32,6 +43,14 @@ class XmlArrayTest extends TestCase
 	 * Public methods
 	 ****************/
 
+	/**
+	 * Every accessor agrees about a path that matches elements.
+	 *
+	 * Expected: for each case in providePathCases(), the path exists, path()
+	 *           returns an XmlArray, count() is the expected number, to_array()
+	 *           is a non-empty array, set() is a list of that many XmlArray
+	 *           instances, and create_xml() returns a string.
+	 */
 	#[DataProvider('providePathCases')]
 	public function testPath(string $path, int $count): void
 	{
@@ -48,6 +67,14 @@ class XmlArrayTest extends TestCase
 		$this->assertIsString($result->create_xml($path));
 	}
 
+	/**
+	 * Every accessor agrees about a path that ends at an attribute.
+	 *
+	 * Expected: for each case in provideAttributeCases(), the path exists,
+	 *           path() and fetch() return the attribute value, count() is 0,
+	 *           to_array() and set() are empty arrays, and create_xml() returns
+	 *           false.
+	 */
 	#[DataProvider('provideAttributeCases')]
 	public function testAttribute(string $path, string $name): void
 	{
@@ -64,6 +91,15 @@ class XmlArrayTest extends TestCase
 		$this->assertFalse($result->create_xml($path));
 	}
 
+	/**
+	 * to_array(), name(), fetch(), count() and set() read the sample document.
+	 *
+	 * Expected: to_array('characters[0]') and to_array() give the last
+	 *           character's name and weapon ('Sauron' and 'Evil Eye'), name()
+	 *           is '', fetch('characters[0]/character[1]/@film') is 'LOTR',
+	 *           count('characters') is 1, and set('characters[0]/character')
+	 *           has 2 elements.
+	 */
 	public function testBasicOperations(): void
 	{
 		$result = new XmlArray(self::XML);
@@ -101,6 +137,13 @@ class XmlArrayTest extends TestCase
 		$this->assertCount(2, $result->set('characters[0]/character'));
 	}
 
+	/**
+	 * create_xml() reproduces the document it was built from.
+	 *
+	 * Expected: create_xml() on the sample document equals the sample document
+	 *           once the CDATA markers and all whitespace are removed from
+	 *           both.
+	 */
 	public function testCreateXml(): void
 	{
 		$result = new XmlArray(self::XML);
@@ -120,6 +163,12 @@ class XmlArrayTest extends TestCase
 		);
 	}
 
+	/**
+	 * A missing path raises a notice when the error level asks for one.
+	 *
+	 * Expected: with an error handler that throws and new XmlArray(XML, true,
+	 *           E_ALL), to_array('error') throws an ErrorException.
+	 */
 	public function testMissingPathRaisesNotice(): void
 	{
 		set_error_handler(
@@ -138,6 +187,13 @@ class XmlArrayTest extends TestCase
 		}
 	}
 
+	/**
+	 * A missing path is silent when the error level is 0.
+	 *
+	 * Expected: for the path 'error', exists(), path(), fetch() and
+	 *           create_xml() return false, count() is 0, and to_array() and
+	 *           set() return empty arrays.
+	 */
 	public function testSilentMissingPath(): void
 	{
 		$result = new XmlArray(self::XML, true, 0);

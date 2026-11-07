@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Unit;
@@ -40,9 +51,16 @@ class PageIndexTest extends TestCase
 	 ****************/
 
 	/**
+	 * A start is clamped to the first position of a real page.
+	 *
 	 * Negative starts are invalid, but are clamped to zero. The invalid state
 	 * is retained so that page 1 is rendered as a link rather than as the
 	 * current page.
+	 *
+	 * Expected: each case in pageIndexProvider() leaves both the start that was
+	 *           passed in and PageIndex::$start at the expected start, sets
+	 *           Utils::$context['current_page'] to the expected zero-based
+	 *           page, and keeps all three after the object is cast to a string.
 	 */
 	#[DataProvider('pageIndexProvider')]
 	public function testStartIsNormalised(int $start, int $num_items, int $num_per_page, int $expected_start, int $expected_page): void
@@ -61,8 +79,12 @@ class PageIndexTest extends TestCase
 	}
 
 	/**
-	 * The rendered current page is one-based, while current_page in the
-	 * context is zero-based.
+	 * The rendered current page is one-based, while current_page is zero-based.
+	 *
+	 * Expected: each case in pageRenderingProvider() sets
+	 *           Utils::$context['current_page'] to the expected page minus one
+	 *           and renders the expected page in a
+	 *           <span class="current_page"> element.
 	 */
 	#[DataProvider('pageRenderingProvider')]
 	public function testCurrentPageIsRendered(int $start, int $num_items, int $num_per_page, int $expected_page): void
@@ -74,6 +96,21 @@ class PageIndexTest extends TestCase
 		$this->assertStringContainsString(\sprintf('<span class="current_page">%d</span>', $expected_page), (string) $page_index);
 	}
 
+	/**
+	 * A negative start links the first page instead of marking it as current.
+	 *
+	 * Expected: new PageIndex() with a start of -1, 100 items and 20 per page
+	 *           clamps the start to 0 and, cast to a string, links page 1 with
+	 *           start=0 and contains no current_page.
+	 * Guards:   __toString() clamped the start a second time, found nothing
+	 *           wrong with the 0 it was now given, and overwrote the record
+	 *           that the caller's start had been out of bounds. Page 1 came out
+	 *           as plain text rather than a link, so the first page of every
+	 *           multi-page topic on the message index could not be clicked.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/7887c1b28 Introduced by "Implements SMF\PageIndex"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9453
+	 */
 	public function testANegativeStartLinksTheFirstPageInsteadOfMarkingIt(): void
 	{
 		$start = -1;
@@ -88,6 +125,19 @@ class PageIndexTest extends TestCase
 		$this->assertStringNotContainsString('current_page', $page_index);
 	}
 
+	/**
+	 * A negative start shows neither a previous nor a next page link.
+	 *
+	 * Expected: new PageIndex() with a start of -1, 100 items and 20 per page
+	 *           renders a string containing neither previous_page nor
+	 *           next_page.
+	 * Guards:   the record that the start was out of bounds was lost when
+	 *           __toString() clamped the start again, so page 1 was treated as
+	 *           the current page and got a next page link beside it.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/7887c1b28 Introduced by "Implements SMF\PageIndex"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9453
+	 */
 	public function testANegativeStartShowsNeitherPreviousNorNextLinks(): void
 	{
 		$start = -1;
@@ -100,9 +150,13 @@ class PageIndexTest extends TestCase
 	}
 
 	/**
+	 * Casting to a string twice gives the same string both times.
+	 *
 	 * The string is built in __toString() rather than the constructor so that
 	 * it reflects any property the caller changed in between, which means it
 	 * has to survive being asked more than once.
+	 *
+	 * Expected: (string) $page_index returns the same value on a second call.
 	 */
 	public function testAskingTwiceGivesTheSameAnswer(): void
 	{
@@ -112,6 +166,12 @@ class PageIndexTest extends TestCase
 		$this->assertSame((string) $page_index, (string) $page_index);
 	}
 
+	/**
+	 * The start value is clamped and handed back to the caller.
+	 *
+	 * Expected: new PageIndex() with a start of -1 sets the variable passed in
+	 *           to 0.
+	 */
 	public function testTheStartValueIsClampedAndHandedBackToTheCaller(): void
 	{
 		$start = -1;
@@ -122,8 +182,15 @@ class PageIndexTest extends TestCase
 	}
 
 	/**
-	 * The control. A start that names a real page marks that page as the
-	 * current one and links the pages either side of it.
+	 * A start that names a page marks that page as current.
+	 *
+	 * This is the control for the negative start tests. A start that names a
+	 * real page marks that page as the current one and links the pages either
+	 * side of it.
+	 *
+	 * Expected: new PageIndex() with a start of 40, 100 items and 20 per page
+	 *           sets current_page to 2, marks page 3 as current, and renders
+	 *           both previous_page and next_page.
 	 */
 	public function testAStartThatNamesAPageMarksThatPageAsCurrent(): void
 	{
@@ -139,8 +206,14 @@ class PageIndexTest extends TestCase
 	}
 
 	/**
+	 * A start in the middle of a page is moved to the start of that page.
+	 *
 	 * A start in the middle of a page belongs to that page, and the caller is
 	 * told which page that turned out to be.
+	 *
+	 * Expected: new PageIndex() with a start of 45, 100 items and 20 per page
+	 *           sets both the passed variable and PageIndex::$start to 40,
+	 *           sets current_page to 2, and marks page 3 as current.
 	 */
 	public function testAStartInTheMiddleOfAPageIsMovedToItsStart(): void
 	{
@@ -155,8 +228,15 @@ class PageIndexTest extends TestCase
 	}
 
 	/**
+	 * A start past the end lands on the last page.
+	 *
 	 * A start past the end is clamped to the last page, and that is a real
 	 * page, so it is marked rather than linked.
+	 *
+	 * Expected: new PageIndex() with a start of 500, 100 items and 20 per page
+	 *           sets both the passed variable and PageIndex::$start to 80,
+	 *           sets current_page to 4, marks page 5 as current, and renders
+	 *           no next_page.
 	 */
 	public function testAStartPastTheEndLandsOnTheLastPage(): void
 	{
@@ -173,6 +253,13 @@ class PageIndexTest extends TestCase
 		$this->assertStringNotContainsString('next_page', $page_index);
 	}
 
+	/**
+	 * The short format puts the bare offset into the URL.
+	 *
+	 * Expected: new PageIndex('index.php?board=1.%1$d', ..., 100, 20, true)
+	 *           links page 1 as index.php?board=1.0 and page 5 as
+	 *           index.php?board=1.80.
+	 */
 	public function testShortFormatUsesOffsetInTheUrl(): void
 	{
 		$start = 20;
@@ -184,6 +271,13 @@ class PageIndexTest extends TestCase
 		$this->assertStringContainsString('href="index.php?board=1.80">5</a>', $page_index);
 	}
 
+	/**
+	 * The default format appends a start parameter to the URL.
+	 *
+	 * Expected: new PageIndex('index.php?board=1', ..., 100, 20) links page 1
+	 *           as index.php?board=1;start=0 and page 3 as
+	 *           index.php?board=1;start=40.
+	 */
 	public function testDefaultFormatUsesStartParameterInTheUrl(): void
 	{
 		$start = 20;
@@ -196,6 +290,13 @@ class PageIndexTest extends TestCase
 		$this->assertStringContainsString('href="index.php?board=1;start=40"', $page_index);
 	}
 
+	/**
+	 * Previous and next page links can be switched off.
+	 *
+	 * Expected: new PageIndex() with show_prevnext false, on page 3 of 5,
+	 *           renders neither previous_page nor next_page and still marks
+	 *           page 3 as current.
+	 */
 	public function testPreviousAndNextLinksCanBeDisabled(): void
 	{
 		$start = 40;
@@ -208,6 +309,13 @@ class PageIndexTest extends TestCase
 		$this->assertStringContainsString('<span class="current_page">3</span>', $page_index);
 	}
 
+	/**
+	 * Template overrides replace the default templates.
+	 *
+	 * Expected: with overrides for current_page, page, previous_page and
+	 *           next_page, the string contains the overridden current page,
+	 *           page link, PREVIOUS and NEXT.
+	 */
 	public function testTemplateOverridesReplaceDefaultTemplates(): void
 	{
 		$start = 20;
@@ -227,6 +335,12 @@ class PageIndexTest extends TestCase
 		$this->assertStringContainsString('NEXT', $page_index);
 	}
 
+	/**
+	 * An override for a template that does not exist is ignored.
+	 *
+	 * Expected: new PageIndex() given an override named does_not_exist renders
+	 *           a string that does not contain that override's text.
+	 */
 	public function testUnknownTemplateOverrideIsIgnored(): void
 	{
 		$start = 0;
@@ -238,6 +352,13 @@ class PageIndexTest extends TestCase
 		$this->assertStringNotContainsString('unexpected', (string) $page_index);
 	}
 
+	/**
+	 * Template overrides can be applied after construction.
+	 *
+	 * Expected: calling setTemplateOverrides() on an existing PageIndex makes
+	 *           its string contain the overridden current page, BACK and
+	 *           FORWARD.
+	 */
 	public function testSetTemplateOverridesCanBeAppliedAfterConstruction(): void
 	{
 		$start = 20;
@@ -257,6 +378,12 @@ class PageIndexTest extends TestCase
 		$this->assertStringContainsString('FORWARD', $page_index);
 	}
 
+	/**
+	 * Compact pages can be disabled.
+	 *
+	 * Expected: with compactTopicPagesEnable at 0, a start of 40, 300 items and
+	 *           20 per page renders all of pages 1 to 15 and no expandPages.
+	 */
 	public function testCompactPagesCanBeDisabled(): void
 	{
 		Config::$modSettings['compactTopicPagesEnable'] = 0;
@@ -273,6 +400,13 @@ class PageIndexTest extends TestCase
 		$this->assertStringNotContainsString('expandPages', $page_index);
 	}
 
+	/**
+	 * Compact pages can be enabled.
+	 *
+	 * Expected: with compactTopicPagesEnable at 1 and
+	 *           compactTopicPagesContiguous at 5, a start of 140, 300 items and
+	 *           20 per page marks page 8 as current and renders expandPages.
+	 */
 	public function testCompactPagesCanBeEnabled(): void
 	{
 		Config::$modSettings['compactTopicPagesEnable'] = 1;
@@ -288,6 +422,12 @@ class PageIndexTest extends TestCase
 		$this->assertStringContainsString('expandPages', $page_index);
 	}
 
+	/**
+	 * An odd number of contiguous compact pages is rounded down.
+	 *
+	 * Expected: with compactTopicPagesContiguous at 4, a start of 140, 300
+	 *           items and 20 per page still marks page 8 as current.
+	 */
 	public function testOddCompactPageCountIsRoundedDown(): void
 	{
 		Config::$modSettings['compactTopicPagesEnable'] = 1;

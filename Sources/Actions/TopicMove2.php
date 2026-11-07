@@ -209,6 +209,8 @@ class TopicMove2 implements ActionInterface, Routable
 				'body' => $_POST['reason'],
 				'icon' => 'moved',
 				'smileys_enabled' => 1,
+				// It only points at the topic, whose watchers hear about the move.
+				'send_notifications' => false,
 			];
 
 			$topicOptions = [

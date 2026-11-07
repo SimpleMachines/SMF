@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\BBCode;
 
 use SMF\Url;
+use SMF\Utils;
 
 /**
  * Represents the img BBCode.
@@ -74,7 +75,7 @@ class Img extends BBCode
 			$url = $url->proxied();
 		}
 
-		$alt = !empty($params['{alt}']) ? ' alt="' . $params['{alt}'] . '"' : ' alt=""';
+		$alt = !empty($params['{alt}']) ? ' alt="' . Utils::htmlspecialchars($params['{alt}'], ENT_QUOTES) . '"' : ' alt=""';
 		$title = !empty($params['{title}']) ? ' title="' . $params['{title}'] . '"' : '';
 
 		$data = isset($disabled[$bbc->tag]) ? $url : '<img src="' . $url . '"' . $alt . $title . $params['{width}'] . $params['{height}'] . ' class="bbc_img' . (!empty($params['{width}']) || !empty($params['{height}']) ? ' resized' : '') . '" loading="lazy">';

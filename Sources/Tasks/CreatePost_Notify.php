@@ -172,27 +172,56 @@ class CreatePost_Notify extends BackgroundTask
 
 		Db::$db->free_result($request);
 
-		// Find the people interested in receiving notifications for this topic
-		$request = Db::$db->query(
-			'SELECT
-				ln.id_member, ln.id_board, ln.id_topic, ln.sent,
-				mem.email_address, mem.lngfile, mem.pm_ignore_list,
-				mem.id_group, mem.id_post_group, mem.additional_groups,
-				mem.smiley_set, mem.time_format, mem.timezone,
-				t.id_member_started, t.id_member_updated
-			FROM {db_prefix}log_notify AS ln
-				INNER JOIN {db_prefix}members AS mem ON (ln.id_member = mem.id_member)
-				LEFT JOIN {db_prefix}topics AS t ON (t.id_topic = ln.id_topic)
-			WHERE ' . ($type == 'topic' ? 'ln.id_board = {int:board}' : 'ln.id_topic = {int:topic}') . '
-				AND ln.id_member != {int:member}',
-			[
-				'member' => $posterOptions['id'],
-				'topic' => $topicOptions['id'],
-				'board' => $topicOptions['board'],
-			],
-		);
+		// Find the people interested in receiving notifications for this topic.
+		// A removed topic is gone, along with the list of who watched it, by the
+		// time this runs, so Mail::sendNotifications() hands that list over.
+		$watchers = isset($this->_details['watchers']) ? array_map('intval', (array) $this->_details['watchers']) : null;
+
+		if ($watchers !== null) {
+			$request = Db::$db->query(
+				'SELECT
+					mem.id_member, 0 AS id_board, {int:topic} AS id_topic, 0 AS sent,
+					mem.email_address, mem.lngfile, mem.pm_ignore_list,
+					mem.id_group, mem.id_post_group, mem.additional_groups,
+					mem.smiley_set, mem.time_format, mem.timezone,
+					{int:started} AS id_member_started, {int:updated} AS id_member_updated
+				FROM {db_prefix}members AS mem
+				WHERE mem.id_member IN ({array_int:watchers})
+					AND mem.id_member != {int:member}',
+				[
+					'member' => $posterOptions['id'],
+					'topic' => $topicOptions['id'],
+					'watchers' => array_keys($watchers) ?: [0],
+					'started' => (int) ($this->_details['started_by'] ?? 0),
+					'updated' => (int) ($this->_details['updated_by'] ?? 0),
+				],
+			);
+		} else {
+			$request = Db::$db->query(
+				'SELECT
+					ln.id_member, ln.id_board, ln.id_topic, ln.sent,
+					mem.email_address, mem.lngfile, mem.pm_ignore_list,
+					mem.id_group, mem.id_post_group, mem.additional_groups,
+					mem.smiley_set, mem.time_format, mem.timezone,
+					t.id_member_started, t.id_member_updated
+				FROM {db_prefix}log_notify AS ln
+					INNER JOIN {db_prefix}members AS mem ON (ln.id_member = mem.id_member)
+					LEFT JOIN {db_prefix}topics AS t ON (t.id_topic = ln.id_topic)
+				WHERE ' . ($type == 'topic' ? 'ln.id_board = {int:board}' : 'ln.id_topic = {int:topic}') . '
+					AND ln.id_member != {int:member}',
+				[
+					'member' => $posterOptions['id'],
+					'topic' => $topicOptions['id'],
+					'board' => $topicOptions['board'],
+				],
+			);
+		}
 
 		while ($row = Db::$db->fetch_assoc($request)) {
+			if ($watchers !== null) {
+				$row['sent'] = $watchers[$row['id_member']] ?? 0;
+			}
+
 			// Skip members who aren't allowed to see this board
 			$groups = array_merge([$row['id_group'], $row['id_post_group']], (empty($row['additional_groups']) ? [] : explode(',', $row['additional_groups'])));
 
@@ -547,7 +576,7 @@ class CreatePost_Notify extends BackgroundTask
 						$message_type .= '_body';
 					}
 
-					if (!empty($frequency)) {
+					if ($frequency == self::FREQUENCY_FIRST_UNREAD_MSG) {
 						$message_type .= '_once';
 					}
 				}
@@ -654,7 +683,7 @@ class CreatePost_Notify extends BackgroundTask
 					'POSTERNAME' => Utils::htmlspecialcharsDecode(User::$loaded[$posterOptions['id']]->name ?? $posterOptions['name']),
 					'TOPICLINK' => Config::$scripturl . '?topic=' . $topicOptions['id'] . '.new#new',
 					'MESSAGE' => $parsed_message[$localization]['body'],
-					'UNSUBSCRIBELINK' => Config::$scripturl . '?action=notify' . $content_type . ';' . $content_type . '=' . $itemID . ';sa=off;u=' . $member_data['id_member'] . ';token=' . $token,
+					'UNSUBSCRIBELINK' => Config::$scripturl . '?action=notify' . $content_type . ';item=' . $itemID . ';sa=off;u=' . $member_data['id_member'] . ';token=' . $token,
 				];
 
 				$emaildata = Mail::loadEmailTemplate($message_type, $replacements, $member_data['lngfile']);

@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 /**
@@ -26,4 +37,16 @@ function my_integrated_service(array &$factories): void
 
 		return new UserRepository($db);
 	};
+}
+
+/**
+ * Intercepts a redirect and throws its target instead of allowing
+ * Utils::redirectexit() to terminate the process.
+ *
+ * @param string $set_location The URL or query string being redirected to.
+ */
+function my_integrated_redirect(string $set_location): void
+{
+	// Stop execution before Utils::obExit() can terminate the process.
+	throw new \Exception($set_location);
 }

@@ -38,7 +38,7 @@ jobs:
         php ./vendor/simplemachines/build-tools/check-version.php
 
     - name: Setup PHP 8.5
-      uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 #2.37.2
+      uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 #2.40.0
       with:
         php-version: 8.5
         coverage: none
@@ -64,7 +64,7 @@ jobs:
         echo "version=${PHP_VERSION}" >> $GITHUB_OUTPUT
 
     - name: Setup PHP ${{ matrix.php }}
-      uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 #2.37.2
+      uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 #2.40.0
       if: ${{ matrix.php != steps.php-version.outputs.version }}
       with:
         php-version: ${{ matrix.php }}
@@ -88,6 +88,6 @@ jobs:
 
     - name: Check PHP syntax errors
       if: ${{ matrix.php != 8 }}
-      uses: overtrue/phplint@f9d3fb3c6b6af49fce0fa8d712da1c38da41fe65 #9.7.2
+      uses: overtrue/phplint@722f95a6c8924b9e0cfcbdd1e49bb8c31c858a77 #9.8.0
       with:
         options: --exclude .git --exclude vendor

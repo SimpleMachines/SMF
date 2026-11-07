@@ -46,6 +46,8 @@ class Winnipeg extends VTimeZone
 		0 => [
 			'ts' => '1970-01-01T00:00:00+0000',
 			'metazone' => 'America_Central',
+			'std_offset' => '-06',
+			'dst_offset' => '-05',
 		],
 	];
 

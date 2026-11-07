@@ -1358,7 +1358,7 @@ class ServerSideIncludes
 			return null;
 		}
 
-			return Utils::$context['common_stats']['latest_member'];
+		return Utils::$context['common_stats']['latest_member'];
 	}
 
 	/**

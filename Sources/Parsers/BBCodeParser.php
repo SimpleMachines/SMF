@@ -136,6 +136,15 @@ class BBCodeParser extends Parser
 	 */
 	private string $placeholder_template = "\u{E03C}" . '%1$s' . "\u{E03E}";
 
+	/**
+	 * @var string
+	 *
+	 * Used to divide strings into sections for smiley parsing.
+	 *
+	 * We always transform "\r\n" into "\n", so we can use "\r" for this task.
+	 */
+	private string $smiley_section_divider = "\r";
+
 	/****************************
 	 * Internal static properties
 	 ****************************/
@@ -280,7 +289,7 @@ class BBCodeParser extends Parser
 		['class' => \SMF\BBCode\Iurl1::class],
 		['class' => \SMF\BBCode\Iurl2::class],
 		['class' => \SMF\BBCode\Justify::class],
-		['class' => \SMF\BBCode\Right::class],
+		['class' => \SMF\BBCode\Left::class],
 		['class' => \SMF\BBCode\Li::class],
 		['class' => \SMF\BBCode\List1::class],
 		['class' => \SMF\BBCode\List2::class],
@@ -377,7 +386,15 @@ class BBCodeParser extends Parser
 
 		usort(
 			self::$codes,
-			fn($a, $b) => $a->tag <=> $b->tag,
+			static function ($a, $b): int {
+				$tag_compare = $a->tag <=> $b->tag;
+
+				if ($tag_compare !== 0) {
+					return $tag_compare;
+				}
+
+				return \count($b->parameters ?? []) <=> \count($a->parameters ?? []);
+			},
 		);
 	}
 
@@ -400,6 +417,9 @@ class BBCodeParser extends Parser
 		if (\strval($message) === '') {
 			return '';
 		}
+
+		// This should never happen, but just in case...
+		$message = strtr($message, ["\r\n" => "\n", "\r" => "\n"]);
 
 		// Ensure we start with a clean slate.
 		$this->resetRuntimeProperties();
@@ -442,9 +462,6 @@ class BBCodeParser extends Parser
 	 */
 	public function unparse(string $string): string
 	{
-		// Replace newlines with spaces, as that's how browsers usually interpret them.
-		$string = preg_replace('~\s*[\r\n]+\s*~', ' ', $string);
-
 		// Though some of us love paragraphs, the parser will do better with breaks.
 		$string = preg_replace('~</p>\s*?<p~i', '</p><br><p', $string);
 		$string = preg_replace('~</p>\s*(?!<)~i', '</p><br>', $string);
@@ -1053,11 +1070,11 @@ class BBCodeParser extends Parser
 			'~</sup>~i' => function () {
 				return '[/sup]';
 			},
-			'~<tt(\s(.)*?)*?' . '>~i' => function () {
-				return '[tt]';
+			'~<tt\b[^>]*>((?>[^<]|<(?!/?tt\b)|(?R))*)</tt>~i' => function ($matches) {
+				return '[tt]' . strtr($matches[1], ['[' => '&#91;']) . '[/tt]';
 			},
-			'~</tt>~i' => function () {
-				return '[/tt]';
+			'~<code\b[^>]+class="bbc_tt"[^>]*>((?>[^<]|<(?!/?code\b)|(?R))*)</code>~i' => function ($matches) {
+				return '[tt]' . strtr($matches[1], ['[' => '&#91;']) . '[/tt]';
 			},
 			'~<table(\s(.)*?)*?' . '>~i' => function () {
 				return '[table]';
@@ -1083,11 +1100,14 @@ class BBCodeParser extends Parser
 			'~<br(?:\s[^<>]*?)?' . '>~i' => function () {
 				return "\n";
 			},
-			'~<hr[^<>]*>(\n)?~i' => function ($matches) {
-				return "[hr]\n" . $matches[0];
+			'~<hr[^<>]*>~i' => function () {
+				return '[hr]';
 			},
-			'~(\n)?\[hr\]~i' => function () {
+			'~(?<!\n)\[hr\]~i' => function () {
 				return "\n[hr]";
+			},
+			'~\[hr\](?!\n)~i' => function () {
+				return "[hr]\n";
 			},
 			'~^\n\[hr\]~i' => function () {
 				return '[hr]';
@@ -1189,7 +1209,7 @@ class BBCodeParser extends Parser
 
 		$string = self::legalise($string);
 
-		return $string;
+		return Utils::htmlTrimRight($string);
 	}
 
 	/**
@@ -1423,8 +1443,8 @@ class BBCodeParser extends Parser
 				elseif ($this->inside !== null && !empty($this->inside->require_children)) {
 					array_pop($this->open_bbc);
 
-					$this->message = substr($this->message, 0, $this->pos) . "\n" . $this->inside->after . "\n" . substr($this->message, $this->pos);
-					$this->pos += \strlen($this->inside->after) - 1 + 2;
+					$this->message = substr($this->message, 0, $this->pos) . $this->smiley_section_divider . $this->inside->after . $this->smiley_section_divider . substr($this->message, $this->pos);
+					$this->pos += \strlen($this->inside->after) - 1 + (2 * \strlen($this->smiley_section_divider));
 				}
 
 				continue;
@@ -1453,12 +1473,12 @@ class BBCodeParser extends Parser
 
 		// Close any remaining BBCodes.
 		while ($bbc = array_pop($this->open_bbc)) {
-			$this->message .= "\n" . $bbc->after . "\n";
+			$this->message .= $this->smiley_section_divider . $bbc->after . ($bbc->block_level ? '&#13;' : '') . $this->smiley_section_divider;
 		}
 
 		// Parse the smileys within the parts where it can be done safely.
 		if ($this->smileys === true) {
-			$message_parts = explode("\n", $this->message);
+			$message_parts = explode($this->smiley_section_divider, $this->message);
 
 			for ($i = 0, $n = \count($message_parts); $i < $n; $i += 2) {
 				$message_parts[$i] = SmileyParser::load()->parse($message_parts[$i]);
@@ -1468,7 +1488,7 @@ class BBCodeParser extends Parser
 		}
 		// No smileys, just get rid of the markers.
 		else {
-			$this->message = strtr($this->message, ["\n" => '']);
+			$this->message = strtr($this->message, [$this->smiley_section_divider => '']);
 		}
 
 		// Transform the first table row into a table header and wrap the rest
@@ -1485,6 +1505,8 @@ class BBCodeParser extends Parser
 
 		// Cleanup whitespace.
 		$this->message = strtr($this->message, ['  ' => ' &nbsp;', "\r" => '', "\n" => '<br>', '<br> ' => '<br>&nbsp;', '&#13;' => "\n"]);
+
+		$this->message = trim($this->message, "\n");
 	}
 
 	/**
@@ -1714,14 +1736,7 @@ class BBCodeParser extends Parser
 				}
 
 				// The idea is, if we are LOOKING for a block level BBCode, we can close them on the way.
-				if (\strlen($look_for) > 0 && isset($this->bbc_codes[$look_for[0]])) {
-					foreach ($this->bbc_codes[$look_for[0]] as $temp) {
-						if ($temp->tag == $look_for) {
-							$block_level = !empty($temp->block_level);
-							break;
-						}
-					}
-				}
+				$block_level = $bbc->block_level;
 
 				if ($block_level !== true) {
 					$block_level = false;
@@ -1761,8 +1776,8 @@ class BBCodeParser extends Parser
 		}
 
 		foreach ($to_close as $bbc) {
-			$this->message = substr($this->message, 0, $this->pos) . "\n" . $bbc->after . "\n" . substr($this->message, $pos2 + 1);
-			$this->pos += \strlen($bbc->after) + 2;
+			$this->message = substr($this->message, 0, $this->pos) . $this->smiley_section_divider . $bbc->after . $this->smiley_section_divider . substr($this->message, $pos2 + 1);
+			$this->pos += \strlen($bbc->after) + (2 * \strlen($this->smiley_section_divider));
 			$pos2 = $this->pos - 1;
 
 			// See the comment at the end of the big loop - just eating whitespace ;).
@@ -1890,22 +1905,6 @@ class BBCodeParser extends Parser
 
 			$this->pos1 = $this->pos + 1 + $pt_strlen + 1;
 
-			// Quotes can have alternate styling, we do this php-side due to all the permutations of quotes.
-			if ($possible->tag == 'quote') {
-				// Start with standard
-				$quote_alt = false;
-
-				foreach ($this->open_bbc as $open_quote) {
-					// Every parent quote this quote has flips the styling
-					if ($open_quote->tag == 'quote') {
-						$quote_alt = !$quote_alt;
-					}
-				}
-
-				// Add a class to the quote to style alternating blockquotes
-				$possible->before = strtr($possible->before, ['<blockquote>' => '<blockquote class="bbc_' . ($quote_alt ? 'alternate' : 'standard') . '_quote">']);
-			}
-
 			// This is long, but it makes things much easier and cleaner.
 			if (!empty($possible->parameters)) {
 				// Build a regular expression for each parameter for the current BBCode.
@@ -1915,7 +1914,7 @@ class BBCodeParser extends Parser
 					$params_regexes[$regex_key] = '';
 
 					foreach ($possible->parameters as $p => $info) {
-						$params_regexes[$regex_key] .= '(\s+' . $p . '=' . (empty($info['quoted']) ? '' : '(?:&quot;)' . ($info['quoted'] === 'optional' ? '?' : '')) . ($info['match'] ?? '(.+?)') . (empty($info['quoted']) ? '' : '(?:&quot;)' . ($info['quoted'] === 'optional' ? '?' : '')) . '\s*)' . (empty($info['optional']) ? '' : '?');
+						$params_regexes[$regex_key] .= '(\s+' . $p . '=' . (empty($info['quoted']) ? '' : '(?:&quot;|")' . ($info['quoted'] === 'optional' ? '?' : '')) . ($info['match'] ?? '(.+?)') . (empty($info['quoted']) ? '' : '(?:&quot;|")' . ($info['quoted'] === 'optional' ? '?' : '')) . '\s*)' . (empty($info['optional']) ? '' : '?');
 					}
 				}
 
@@ -2001,6 +2000,22 @@ class BBCodeParser extends Parser
 				$bbc = clone $possible;
 				$params = [];
 			}
+
+			// Quotes can have alternate styling, we do this php-side due to all the permutations of quotes.
+			if ($possible->tag == 'quote') {
+				// Start with standard
+				$quote_alt = false;
+
+				foreach ($this->open_bbc as $open_quote) {
+					// Every parent quote this quote has flips the styling
+					if ($open_quote->tag == 'quote') {
+						$quote_alt = !$quote_alt;
+					}
+				}
+
+				// Add a class to the quote to style alternating blockquotes
+				$bbc->before = strtr($bbc->before, ['<blockquote>' => '<blockquote class="bbc_' . ($quote_alt ? 'alternate' : 'standard') . '_quote">']);
+			}
 			break;
 		}
 
@@ -2045,9 +2060,9 @@ class BBCodeParser extends Parser
 		// First, open the tag...
 		$html .= '<li' . ($type == '' ? '' : ' type="' . $type . '"') . '>';
 
-		$this->message = substr($this->message, 0, $this->pos) . "\n" . $html . "\n" . substr($this->message, $this->pos + 3);
+		$this->message = substr($this->message, 0, $this->pos) . $this->smiley_section_divider . $html . $this->smiley_section_divider . substr($this->message, $this->pos + 3);
 
-		$this->pos += \strlen($html) - 1 + 2;
+		$this->pos += \strlen($html) - 1 + (2 * \strlen($this->smiley_section_divider));
 
 		// Next, find the next break (if any.)  If there's more itemcode after it, keep it going - otherwise close!
 		$pos2 = strpos($this->message, '<br>', $this->pos);
@@ -2082,11 +2097,11 @@ class BBCodeParser extends Parser
 
 		// Close all the non block level BBCodes so this BBCode isn't surrounded by them.
 		for ($i = \count($this->open_bbc) - 1; $i > $n; $i--) {
-			$this->message = substr($this->message, 0, $this->pos) . "\n" . $this->open_bbc[$i]['after'] . "\n" . substr($this->message, $this->pos);
+			$this->message = substr($this->message, 0, $this->pos) . $this->smiley_section_divider . $this->open_bbc[$i]['after'] . $this->smiley_section_divider . substr($this->message, $this->pos);
 
 			$ot_strlen = \strlen($this->open_bbc[$i]['after']);
-			$this->pos += $ot_strlen + 2;
-			$this->pos1 += $ot_strlen + 2;
+			$this->pos += $ot_strlen + (2 * \strlen($this->smiley_section_divider));
+			$this->pos1 += $ot_strlen + (2 * \strlen($this->smiley_section_divider));
 
 			// Trim or eat trailing stuff...
 			$whitespace_regex = '';
@@ -2143,9 +2158,9 @@ class BBCodeParser extends Parser
 
 			$this->open_bbc[] = $bbc;
 
-			$this->message = substr($this->message, 0, $this->pos) . "\n" . $bbc->before . "\n" . substr($this->message, $this->pos1);
+			$this->message = substr($this->message, 0, $this->pos) . $this->smiley_section_divider . ($bbc->block_level ? '&#13;' : '') . $bbc->before . $this->smiley_section_divider . substr($this->message, $this->pos1);
 
-			$this->pos += \strlen($bbc->before) - 1 + 2;
+			$this->pos += \strlen($bbc->before) - 1 + (2 * \strlen($this->smiley_section_divider)) + ($bbc->block_level ? 5 : 0);
 		}
 		// Don't parse the content, just skip it.
 		elseif ($bbc->type == BBCode::TYPE_UNPARSED_CONTENT) {
@@ -2165,9 +2180,9 @@ class BBCodeParser extends Parser
 
 			$html = strtr($bbc->content, ['$1' => $data]);
 
-			$this->message = substr($this->message, 0, $this->pos) . "\n" . $html . "\n" . substr($this->message, $pos2 + 3 + $tag_strlen);
+			$this->message = substr($this->message, 0, $this->pos) . $this->smiley_section_divider . ($bbc->block_level ? '&#13;' : '') . $html . ($bbc->block_level ? '&#13;' : '') . $this->smiley_section_divider . substr($this->message, $pos2 + 3 + $tag_strlen);
 
-			$this->pos += \strlen($html) - 1 + 2;
+			$this->pos += \strlen($html) - 1 + (2 * \strlen($this->smiley_section_divider)) + ($bbc->block_level ? 10 : 0);
 			$this->last_pos = $this->pos + 1;
 		}
 		// Don't parse the content, just skip it.
@@ -2217,9 +2232,9 @@ class BBCodeParser extends Parser
 
 			$html = strtr($bbc->content, ['$1' => $data[0], '$2' => $data[1]]);
 
-			$this->message = substr($this->message, 0, $this->pos) . "\n" . $html . "\n" . substr($this->message, $pos3 + 3 + $tag_strlen);
+			$this->message = substr($this->message, 0, $this->pos) . $this->smiley_section_divider . ($bbc->block_level ? '&#13;' : '') . $html . ($bbc->block_level ? '&#13;' : '') . $this->smiley_section_divider . substr($this->message, $pos3 + 3 + $tag_strlen);
 
-			$this->pos += \strlen($html) - 1 + 2;
+			$this->pos += \strlen($html) - 1 + (2 * \strlen($this->smiley_section_divider)) + ($bbc->block_level ? 10 : 0);
 		}
 		// A closed BBCode, with no content or value.
 		elseif ($bbc->type == BBCode::TYPE_CLOSED) {
@@ -2230,9 +2245,9 @@ class BBCodeParser extends Parser
 
 			$bbc->validate($bbc, $data, $this->disabled, $params);
 
-			$this->message = substr($this->message, 0, $this->pos) . "\n" . $bbc->content . "\n" . substr($this->message, $pos2 + 1);
+			$this->message = substr($this->message, 0, $this->pos) . $this->smiley_section_divider . ($bbc->block_level ? '&#13;' : '') . $bbc->content . ($bbc->block_level ? '&#13;' : '') . $this->smiley_section_divider . substr($this->message, $pos2 + 1);
 
-			$this->pos += \strlen($bbc->content) - 1 + 2;
+			$this->pos += \strlen($bbc->content) - 1 + (2 * \strlen($this->smiley_section_divider)) + ($bbc->block_level ? 10 : 0);
 		}
 		// This one is sorta ugly... :/.  Unfortunately, it's needed for flash.
 		elseif ($bbc->type == BBCode::TYPE_UNPARSED_COMMAS_CONTENT) {
@@ -2260,9 +2275,9 @@ class BBCodeParser extends Parser
 				$html = strtr($html, ['$' . ($k + 1) => trim($d)]);
 			}
 
-			$this->message = substr($this->message, 0, $this->pos) . "\n" . $html . "\n" . substr($this->message, $pos3 + 3 + $tag_strlen);
+			$this->message = substr($this->message, 0, $this->pos) . $this->smiley_section_divider . ($bbc->block_level ? '&#13;' : '') . $html . ($bbc->block_level ? '&#13;' : '') . $this->smiley_section_divider . substr($this->message, $pos3 + 3 + $tag_strlen);
 
-			$this->pos += \strlen($html) - 1 + 2;
+			$this->pos += \strlen($html) - 1 + (2 * \strlen($this->smiley_section_divider)) + ($bbc->block_level ? 10 : 0);
 		}
 		// This has parsed content, and a csv value which is unparsed.
 		elseif ($bbc->type == BBCode::TYPE_UNPARSED_COMMAS) {
@@ -2290,9 +2305,9 @@ class BBCodeParser extends Parser
 				$html = strtr($html, ['$' . ($k + 1) => trim($d)]);
 			}
 
-			$this->message = substr($this->message, 0, $this->pos) . "\n" . $html . "\n" . substr($this->message, $pos2 + 1);
+			$this->message = substr($this->message, 0, $this->pos) . $this->smiley_section_divider . ($bbc->block_level ? '&#13;' : '') . $html . $this->smiley_section_divider . substr($this->message, $pos2 + 1);
 
-			$this->pos += \strlen($html) - 1 + 2;
+			$this->pos += \strlen($html) - 1 + (2 * \strlen($this->smiley_section_divider)) + ($bbc->block_level ? 5 : 0);
 		}
 		// A BBCode set to a value, parsed or not.
 		elseif ($bbc->type == BBCode::TYPE_UNPARSED_EQUALS || $bbc->type == BBCode::TYPE_PARSED_EQUALS) {
@@ -2341,17 +2356,34 @@ class BBCodeParser extends Parser
 			$bbc->validate($bbc, $data, $this->disabled, $params);
 
 			// For parsed content, we must recurse to avoid security problems.
-			if ($bbc->type != BBCode::TYPE_UNPARSED_EQUALS) {
-				$smileys = $this->smileys;
+			if ($bbc->type === BBCode::TYPE_PARSED_EQUALS) {
+				$message = $this->message;
+				$bbc_codes = $this->bbc_codes;
 				$parse_tags = $this->parse_tags;
+				$open_bbc = $this->open_bbc;
+				$inside = $this->inside;
+				$pos = $this->pos;
+				$last_pos = $this->last_pos;
+				$placeholders = $this->placeholders;
+				$placeholders_counter = $this->placeholders_counter;
+				$smileys = $this->smileys;
 
-				$this->smileys = empty($bbc->parsed_tags_allowed);
-				$this->parse_tags = !empty($bbc->parsed_tags_allowed) ? $bbc->parsed_tags_allowed : [];
+				$data = $this->parse(
+					message: $data,
+					smileys: empty($bbc->parsed_tags_allowed),
+					parse_tags: $bbc->parsed_tags_allowed ?? [],
+				);
 
-				$data = $this->parse($data);
-
-				$this->smileys = $smileys;
+				$this->message = $message;
+				$this->bbc_codes = $bbc_codes;
 				$this->parse_tags = $parse_tags;
+				$this->open_bbc = $open_bbc;
+				$this->inside = $inside;
+				$this->pos = $pos;
+				$this->last_pos = $last_pos;
+				$this->placeholders = $placeholders;
+				$this->placeholders_counter = $placeholders_counter;
+				$this->smileys = $smileys;
 			}
 
 			$bbc->after = strtr($bbc->after, ['$1' => $data]);
@@ -2360,18 +2392,25 @@ class BBCodeParser extends Parser
 
 			$html = strtr($bbc->before, ['$1' => $data]);
 
-			$this->message = substr($this->message, 0, $this->pos) . "\n" . $html . "\n" . substr($this->message, $pos2 + ($quoted == false ? 1 : 1 + \strlen($quot)));
+			$this->message = substr($this->message, 0, $this->pos) . $this->smiley_section_divider . ($bbc->block_level ? '&#13;' : '') . $html . $this->smiley_section_divider . substr($this->message, $pos2 + ($quoted == false ? 1 : 1 + \strlen($quot)));
 
-			$this->pos += \strlen($html) - 1 + 2;
+			$this->pos += \strlen($html) - 1 + (2 * \strlen($this->smiley_section_divider)) + ($bbc->block_level ? 5 : 0);
 		}
 
 		// If this is block level, eat any breaks after it.
-		if (!empty($bbc->block_level) && substr($this->message, $this->pos + 1, 4) == '<br>') {
+		if (
+			!empty($bbc->block_level)
+			&& substr($this->message, $this->pos + 1, 4) == '<br>'
+		) {
 			$this->message = substr($this->message, 0, $this->pos + 1) . substr($this->message, $this->pos + 5);
 		}
 
 		// Are we trimming outside this BBCode?
-		if (!empty($bbc->trim) && $bbc->trim != 'outside' && preg_match('~(<br>|&nbsp;|\s)*~', substr($this->message, $this->pos + 1), $matches) != 0) {
+		if (
+			!empty($bbc->trim)
+			&& $bbc->trim != 'outside'
+			&& preg_match('~(<br>|&nbsp;|\s)*~', substr($this->message, $this->pos + 1), $matches)
+		) {
 			$this->message = substr($this->message, 0, $this->pos + 1) . substr($this->message, $this->pos + 1 + \strlen($matches[0]));
 		}
 	}
@@ -2542,6 +2581,7 @@ class BBCodeParser extends Parser
 		if (\count($parts = preg_split(\sprintf('~(\[)(/?)(%1$s)((?:[\s=][^\]\[]*)?\])~', implode('|', array_keys($valid_tags))), $string, -1, PREG_SPLIT_DELIM_CAPTURE)) > 1) {
 			// Start outside [nobbc] or [code] blocks.
 			$in_code = false;
+			$in_tt = false;
 			$in_nobbc = false;
 
 			// A buffer containing all opened inline elements.
@@ -2566,6 +2606,31 @@ class BBCodeParser extends Parser
 					continue;
 				}
 
+				// Special case: inside [tt] tags any code is left untouched.
+				if ($tag === 'tt') {
+					// We're inside a code span and closing it.
+					if ($in_tt && $is_closing_tag) {
+						$in_tt = false;
+
+						// Reopen BBCodes that were closed before the code block.
+						if (!empty($inline_elements)) {
+							$parts[$i + 4] .= '[' . implode('][', array_keys($inline_elements)) . ']';
+						}
+					}
+					// We're outside a coding and nobbc block and opening it.
+					elseif (!$in_code && !$in_tt && !$in_nobbc && $is_opening_tag) {
+						// If there are still inline elements left open, close them now.
+						if (!empty($inline_elements)) {
+							$parts[$i] .= '[/' . implode('][/', array_reverse($inline_elements)) . ']';
+						}
+
+						$in_tt = true;
+					}
+
+					// Nothing further to do.
+					continue;
+				}
+
 				// Special case: inside [code] blocks any code is left untouched.
 				if ($tag === 'code') {
 					// We're inside a code block and closing it.
@@ -2578,7 +2643,7 @@ class BBCodeParser extends Parser
 						}
 					}
 					// We're outside a coding and nobbc block and opening it.
-					elseif (!$in_code && !$in_nobbc && $is_opening_tag) {
+					elseif (!$in_code && !$in_tt && !$in_nobbc && $is_opening_tag) {
 						// If there are still inline elements left open, close them now.
 						if (!empty($inline_elements)) {
 							$parts[$i] .= '[/' . implode('][/', array_reverse($inline_elements)) . ']';
@@ -2603,7 +2668,7 @@ class BBCodeParser extends Parser
 						}
 					}
 					// We're outside a nobbc and coding block and opening it.
-					elseif (!$in_nobbc && !$in_code && $is_opening_tag) {
+					elseif (!$in_nobbc && !$in_code && !$in_tt && $is_opening_tag) {
 						// Can't have inline elements still opened.
 						if (!empty($inline_elements)) {
 							$parts[$i] .= '[/' . implode('][/', array_reverse($inline_elements)) . ']';
@@ -2616,7 +2681,9 @@ class BBCodeParser extends Parser
 				}
 
 				// So, we're inside one of the special blocks: ignore any tag.
-				if ($in_code || $in_nobbc) {
+				if ($in_code || $in_tt || $in_nobbc) {
+					$parts[$i + 1] = '&#91;';
+					$parts[$i + 4] = strtr($parts[$i + 4], [']' => '&#93;']);
 					continue;
 				}
 
@@ -2767,6 +2834,8 @@ class BBCodeParser extends Parser
 			// Close the code BBCodes.
 			if ($in_code) {
 				$parts[$i] .= '[/code]';
+			} elseif ($in_tt) {
+				$parts[$i] .= '[/tt]';
 			}
 			// The same for nobbc BBCodes.
 			elseif ($in_nobbc) {

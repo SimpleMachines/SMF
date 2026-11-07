@@ -31,6 +31,7 @@ use SMF\QueryString;
 use SMF\Sapi;
 use SMF\SecurityToken;
 use SMF\Session;
+use SMF\Statistics;
 use SMF\Tasks\FetchSMFiles;
 use SMF\Tasks\UpdateSpoofDetectorNames;
 use SMF\Themes\default\MaintenanceTemplate;
@@ -187,6 +188,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Migration\v3_0\PermissionChanges::class,
 			Migration\v3_0\BoardPostsCount::class,
 			Migration\v3_0\ValidationCodeLength::class,
+			Migration\v3_0\ReportCommentLength::class,
 		],
 	];
 
@@ -775,7 +777,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		// Next, check the custom avatar directory...  Note this is optional in 2.0.
 		if (!empty(Config::$modSettings['custom_avatar_dir']) && !is_dir(Config::$modSettings['custom_avatar_dir'])) {
-				Maintenance::$warnings[] = Lang::getTxt('warning_custom_av_missing', file: 'Maintenance');
+			Maintenance::$warnings[] = Lang::getTxt('warning_custom_av_missing', file: 'Maintenance');
 			$this->logProgress(Lang::getTxt('warning_custom_av_missing', file: 'Maintenance'));
 		}
 
@@ -1380,7 +1382,10 @@ class Upgrade extends ToolsBase implements ToolsInterface
 	 */
 	public function doBackupTable($table): bool
 	{
-		return Db::$db->backup_table($table, 'backup_' . $table);
+		// The database layer answers with whatever its query returned, which is
+		// a result object on PostgreSQL and true on MySQL. Only an outright
+		// false means the table was not copied.
+		return Db::$db->backup_table($table, 'backup_' . $table) !== false;
 	}
 
 	/******************
@@ -1574,35 +1579,10 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		) {
 			Utils::$context['allow_sm_stats'] = true;
 
-			// Attempt to register the site etc.
-			$fp = @fsockopen('www.simplemachines.org', 443, $errno, $errstr);
+			$uid = Statistics::register();
 
-			if (!$fp) {
-				$fp = @fsockopen('www.simplemachines.org', 80, $errno, $errstr);
-			}
-
-			if (!$fp) {
-				return;
-			}
-
-			$out = 'GET /smf/stats/register_stats.php?site=' . base64_encode(Config::$boardurl) . ' HTTP/1.1' . "\r\n";
-			$out .= 'Host: www.simplemachines.org' . "\r\n";
-			$out .= 'Connection: Close' . "\r\n\r\n";
-			fwrite($fp, $out);
-
-			$return_data = '';
-
-			while (!feof($fp)) {
-				$return_data .= fgets($fp, 128);
-			}
-
-			fclose($fp);
-
-			// Get the unique site ID.
-			preg_match('~SITE-ID:\s(\w{10})~', $return_data, $ID);
-
-			if (!empty($ID[1])) {
-				$settings['sm_stats_key'] = $ID[1];
+			if (!empty($uid)) {
+				$settings['sm_stats_key'] = $uid;
 				$settings['enable_sm_stats'] = 1;
 			}
 		}

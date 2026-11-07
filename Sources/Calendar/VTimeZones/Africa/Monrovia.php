@@ -44,11 +44,7 @@ class Monrovia extends VTimeZone
 	 */
 	public array $metazones = [
 		0 => [
-			'ts' => '1970-01-01T00:00:00+0000',
-			'metazone' => 'Liberia',
-		],
-		1 => [
-			'ts' => '1972-01-07T00:45:00+0000',
+			'ts' => '1972-01-07T00:44:30+0000',
 			'metazone' => 'GMT',
 		],
 	];

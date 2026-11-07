@@ -44,18 +44,10 @@ class Aqtobe extends VTimeZone
 	 */
 	public array $metazones = [
 		0 => [
-			'ts' => '1970-01-01T00:00:00+0000',
-			'metazone' => 'Aktyubinsk',
-		],
-		1 => [
-			'ts' => '1991-12-15T19:00:00+0000',
-			'metazone' => 'Aqtobe',
-		],
-		2 => [
 			'ts' => '2004-10-30T21:00:00+0000',
 			'metazone' => 'Kazakhstan_Western',
 		],
-		3 => [
+		1 => [
 			'ts' => '2024-02-29T18:00:00+0000',
 			'metazone' => 'Kazakhstan',
 		],

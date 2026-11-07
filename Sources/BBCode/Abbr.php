@@ -62,7 +62,7 @@ class Abbr extends BBCode
 	/**
 	 *
 	 */
-	public string $trim = 'none';
+	public string $trim = '';
 
 	/**
 	 *

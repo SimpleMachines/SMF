@@ -98,11 +98,14 @@ class NormalizeBannedEmailAddresses extends MigrationBase
 
 			Db::$db->free_result($request);
 
+			$do_update = false;
+
 			// Build each column's complete SET statement.
 			foreach ($set as $column => $to_set) {
 				$statement = $column . ' = CASE';
 
 				foreach ($to_set as $id => $value) {
+					$do_update = true;
 					$statement .= "\n\t\t\t\t\t\t" . 'WHEN id_ban = ' . $id . ' THEN ' . $value;
 				}
 
@@ -112,16 +115,18 @@ class NormalizeBannedEmailAddresses extends MigrationBase
 				$set[$column] = $statement;
 			}
 
-			// Perform the updates.
-			$this->query(
-				'UPDATE {db_prefix}ban_items
-				SET
-					' . implode(",\n\t\t\t\t", $set) . '
-				WHERE id_ban IN ({array_int:ids})',
-				$params,
-			);
+			// Perform the updates, if we have one to perform.
+			if ($do_update) {
+				$this->query(
+					'UPDATE {db_prefix}ban_items
+					SET
+						' . implode(",\n\t\t\t\t", $set) . '
+					WHERE id_ban IN ({array_int:ids})',
+					$params,
+				);
+			}
 
-			$this->handleTimeout(max($params['ids']));
+			$this->handleTimeout(empty($params['ids']) ? Maintenance::getCurrentStart() + $this->limit : max($params['ids']));
 		}
 
 		return true;

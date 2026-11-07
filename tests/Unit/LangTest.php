@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Unit;
@@ -47,6 +58,13 @@ class LangTest extends TestCase
 	 * Public methods
 	 ****************/
 
+	/**
+	 * Language strings load in a process with no database.
+	 *
+	 * Expected: load('General') returns 'en_US', and Lang::$txt
+	 *           then has the 'number_of_days' and 'days'
+	 *           strings.
+	 */
 	public function testItLoadsLanguageStringsWithNoDatabase(): void
 	{
 		$this->assertSame('en_US', Lang::load('General'));
@@ -55,18 +73,32 @@ class LangTest extends TestCase
 		$this->assertArrayHasKey('days', Lang::$txt);
 	}
 
+	/**
+	 * With no current user, the language defaults to the forum language.
+	 *
+	 * User::$me is a typed static with no default, and reading an
+	 * uninitialized one throws rather than yielding null. load() gets away
+	 * with `User::$me->language ?? Config::$language` only because ??
+	 * evaluates its left side in an isset() context, which is easy to break
+	 * by "tidying" it into something that reads the property first.
+	 *
+	 * Expected: with User::$me unset, load('General') returns
+	 *           Config::$language.
+	 */
 	public function testItDefaultsToTheForumLanguageWhenThereIsNoUser(): void
 	{
-		// User::$me is a typed static with no default, and reading an
-		// uninitialized one throws rather than yielding null. load() gets away
-		// with `User::$me->language ?? Config::$language` only because ??
-		// evaluates its left side in an isset() context, which is easy to
-		// break by "tidying" it into something that reads the property first.
 		$this->assertFalse(isset(User::$me));
 
 		$this->assertSame(Config::$language, Lang::load('General'));
 	}
 
+	/**
+	 * With no theme, only the languages directory is searched.
+	 *
+	 * Expected: after addDirs(), the private Lang::$dirs holds
+	 *           just the canonical path of
+	 *           Config::$languagesdir.
+	 */
 	public function testItSearchesOnlyTheLanguagesDirectoryWhenThereIsNoTheme(): void
 	{
 		Lang::addDirs();
@@ -83,6 +115,13 @@ class LangTest extends TestCase
 		);
 	}
 
+	/**
+	 * A custom directory that does not exist is ignored.
+	 *
+	 * Expected: after addDirs() is given a path that is not
+	 *           there, Lang::$dirs holds just the canonical path
+	 *           of Config::$languagesdir.
+	 */
 	public function testItIgnoresACustomDirectoryThatIsNotThere(): void
 	{
 		Lang::addDirs(Config::$boarddir . '/no/such/directory');
@@ -95,6 +134,13 @@ class LangTest extends TestCase
 		);
 	}
 
+	/**
+	 * The installed languages are listed with their names and locations.
+	 *
+	 * Expected: get(false) includes 'en_US', named 'English
+	 *           (US)', located at the canonical path of
+	 *           en_US/General.php in Config::$languagesdir.
+	 */
 	public function testItListsTheInstalledLanguages(): void
 	{
 		$languages = Lang::get(false);
@@ -111,6 +157,12 @@ class LangTest extends TestCase
 		);
 	}
 
+	/**
+	 * Naming a file when asking for a string loads that file.
+	 *
+	 * Expected: getTxt('number_of_days', [1], file: 'General')
+	 *           returns '1 day' and, with 2, returns '2 days'.
+	 */
 	public function testItLoadsTheFileAStringWasAskedForFrom(): void
 	{
 		// Nothing has been loaded at this point; naming the file is what makes
@@ -119,6 +171,14 @@ class LangTest extends TestCase
 		$this->assertSame('2 days', Lang::getTxt('number_of_days', [2], file: 'General'));
 	}
 
+	/**
+	 * A string that only exists in a file on disk can be found.
+	 *
+	 * Expected: txtExists('actual_theme_dir') is false until
+	 *           file: 'Themes' is named, when it is true;
+	 *           txtExists('no_such_string_anywhere', file:
+	 *           'Themes') is false.
+	 */
 	public function testItFindsAStringThatOnlyExistsInAFileOnDisk(): void
 	{
 		$this->assertFalse(Lang::txtExists('actual_theme_dir'));
@@ -127,6 +187,21 @@ class LangTest extends TestCase
 		$this->assertFalse(Lang::txtExists('no_such_string_anywhere', file: 'Themes'));
 	}
 
+	/**
+	 * The language that was asked for is loaded, not the forum default.
+	 *
+	 * Expected: after load('TestStrings', 'de_DE', false) against
+	 *           the fixture languages,
+	 *           Lang::$txt['test_in_all_three'] is 'German'.
+	 * Guards:   load() stopped at the first file it found, which
+	 *           after the attempts were reversed was the forum
+	 *           default's, so a member whose language was
+	 *           anything else read the forum, and received
+	 *           email, in the forum default.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/d33481a33 Introduced by "Uses consistent logic to load both standard and legacy language files"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9612
+	 */
 	public function testItLoadsTheLanguageItWasAskedForRatherThanTheForumDefault(): void
 	{
 		Lang::addDirs(self::fixtureLanguages());
@@ -143,12 +218,29 @@ class LangTest extends TestCase
 		$this->assertSame('German', Lang::$txt['test_in_all_three']);
 	}
 
+	/**
+	 * A string missing from a translation falls back to the forum default,
+	 * then English.
+	 *
+	 * The forum's default language need not be English, and then there are
+	 * three files in play rather than two. Each string below is defined in
+	 * a different subset of them, so together they say how far down the
+	 * chain each one had to go.
+	 *
+	 * Expected: with the forum default es_ES, load('TestStrings',
+	 *           'de_DE', false) gives 'German' for
+	 *           test_in_all_three, 'Spanish' for
+	 *           test_not_in_german and 'English' for
+	 *           test_english_only.
+	 * Guards:   load() stopped at the first file it found, which
+	 *           was the forum default's, so the language that
+	 *           was asked for was never loaded.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/d33481a33 Introduced by "Uses consistent logic to load both standard and legacy language files"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9612
+	 */
 	public function testItFallsBackThroughTheForumDefaultToEnglishStringByString(): void
 	{
-		// The forum's default language need not be English, and then there are
-		// three files in play rather than two. Each string below is defined in
-		// a different subset of them, so together they say how far down the
-		// chain each one had to go.
 		Config::$language = 'es_ES';
 
 		Lang::addDirs(self::fixtureLanguages());
@@ -171,6 +263,22 @@ class LangTest extends TestCase
 		// leaving a partial translation full of gaps.
 	}
 
+	/**
+	 * With the English fallback disabled, loading stops at the forum
+	 * default.
+	 *
+	 * Expected: with disable_language_fallback on and es_ES as
+	 *           the forum default, load('TestStrings', 'de_DE',
+	 *           false) gives 'German' and 'Spanish' for the
+	 *           strings they define, and leaves
+	 *           test_english_only out of Lang::$txt.
+	 * Guards:   load() stopped at the first file it found, which
+	 *           was the forum default's, so the language that
+	 *           was asked for was never loaded.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/d33481a33 Introduced by "Uses consistent logic to load both standard and legacy language files"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9612
+	 */
 	public function testItStopsAtTheForumDefaultWhenTheEnglishFallbackIsDisabled(): void
 	{
 		Config::$language = 'es_ES';

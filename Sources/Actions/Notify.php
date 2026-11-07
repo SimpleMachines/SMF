@@ -18,6 +18,7 @@ namespace SMF\Actions;
 use SMF\ActionInterface;
 use SMF\ActionSuffixRouter;
 use SMF\ActionTrait;
+use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\ErrorHandler;
@@ -25,6 +26,7 @@ use SMF\Lang;
 use SMF\OutputTypeInterface;
 use SMF\OutputTypes;
 use SMF\Theme;
+use SMF\Topic;
 use SMF\User;
 use SMF\Utils;
 
@@ -119,6 +121,20 @@ abstract class Notify implements ActionInterface
 	 * Public methods
 	 ****************/
 
+	/**
+	 * Lets an unsubscribe link through when guest access is off.
+	 *
+	 * The member following one is often not logged in, and the link carries
+	 * its own proof of who it is for, which setMemberInfo() checks before
+	 * anything is changed.
+	 *
+	 * @return bool Whether this request came from an unsubscribe link.
+	 */
+	public function isRestrictedGuestAccessAllowed(): bool
+	{
+		return isset($_REQUEST['u'], $_REQUEST['token']);
+	}
+
 	public function isSimpleAction(): bool
 	{
 		return isset($_REQUEST['xml']);
@@ -134,8 +150,10 @@ abstract class Notify implements ActionInterface
 	 */
 	public function execute(): void
 	{
-		$this->setMemberInfo();
+		// The ID comes first, because an unsubscribe token is only good for
+		// the board or topic it was made for.
 		$this->setId();
+		$this->setMemberInfo();
 		$this->setMode();
 
 		if (!isset($this->mode)) {
@@ -276,9 +294,11 @@ abstract class Notify implements ActionInterface
 	 * Verifies a member's unsubscribe token, then returns some member info.
 	 *
 	 * @param string $type The type of notification the token is for (e.g. 'board', 'topic', etc.)
+	 * @param ?int $item_id The ID of the board or topic the token is for.
+	 *    If null, the current board or topic is used.
 	 * @return array The id and email address of the specified member
 	 */
-	public static function getMemberWithToken(string $type): array
+	public static function getMemberWithToken(string $type, ?int $item_id = null): array
 	{
 		// Keep it sanitary, folks
 		$id_member = !empty($_REQUEST['u']) ? (int) $_REQUEST['u'] : 0;
@@ -305,8 +325,14 @@ abstract class Notify implements ActionInterface
 		self::$member_info = Db::$db->fetch_assoc($request);
 		Db::$db->free_result($request);
 
+		$item_id ??= match ($type) {
+			'board' => isset(Board::$info) ? (int) Board::$info->id : 0,
+			'topic' => (int) Topic::$topic_id,
+			default => 0,
+		};
+
 		// What token are we expecting?
-		$expected_token = Notify::createUnsubscribeToken((int) self::$member_info['id'], self::$member_info['email'], $type, \in_array($type, ['board', 'topic']) && !empty($$type) ? $$type : 0);
+		$expected_token = Notify::createUnsubscribeToken((int) self::$member_info['id'], self::$member_info['email'], $type, $item_id);
 
 		// Don't do anything if the token they gave is wrong
 		if (!hash_equals($expected_token, $_REQUEST['token'])) {
@@ -350,7 +376,7 @@ abstract class Notify implements ActionInterface
 	protected function setMemberInfo(): void
 	{
 		if (isset($_REQUEST['u'], $_REQUEST['token'])) {
-			self::$member_info = self::getMemberWithToken($this->type);
+			self::$member_info = self::getMemberWithToken($this->type, $this->id ?? 0);
 			$this->token = $_REQUEST['token'];
 		}
 		// No token, so try with the current user.
@@ -365,6 +391,28 @@ abstract class Notify implements ActionInterface
 	 * For board and topic, make sure we have the necessary ID.
 	 */
 	abstract protected function setId(): void;
+
+	/**
+	 * Takes the board or topic ID from an unsubscribe link, if this is one.
+	 *
+	 * Those links name the board or topic as 'item' rather than as 'board' or
+	 * 'topic', which keeps Board::load() away from it. The member following
+	 * one is often not logged in, and Board::load() sends a guest to the login
+	 * form for any board that guests cannot see. The token is only good for
+	 * this one board or topic, so it is all the permission that is needed.
+	 *
+	 * @return bool Whether the ID was set.
+	 */
+	protected function setIdFromLink(): bool
+	{
+		if (!isset($_REQUEST['u'], $_REQUEST['token'], $_REQUEST['item'])) {
+			return false;
+		}
+
+		$this->id = (int) $_REQUEST['item'];
+
+		return true;
+	}
 
 	/**
 	 * Converts $_GET['sa'] to $_GET['mode'].
@@ -443,14 +491,12 @@ abstract class Notify implements ActionInterface
 			// while leaving the alert preference unchanged.
 			case self::MODE_NO_EMAIL:
 				// Use bitwise operator to turn off the email part of the setting.
-				$perfs = self::getNotifyPrefs((int) self::$member_info['id'], [$this->type . '_notify_' . $this->id], true);
-				$this->alert_pref = ((int) $perfs[(int) self::$member_info['id']][$this->type . '_notify_' . $this->id]) & self::PREF_ALERT;
+				$this->alert_pref = $this->getCurrentPref() & self::PREF_ALERT;
 				break;
 
 			// And its mirror image: turn off the alerts and keep the emails.
 			case self::MODE_NO_ALERT:
-				$perfs = self::getNotifyPrefs((int) self::$member_info['id'], [$this->type . '_notify_' . $this->id], true);
-				$this->alert_pref = ((int) $perfs[(int) self::$member_info['id']][$this->type . '_notify_' . $this->id]) & self::PREF_EMAIL;
+				$this->alert_pref = $this->getCurrentPref() & self::PREF_EMAIL;
 				break;
 
 			// $this->mode comes straight from the query string, so it can be
@@ -461,6 +507,24 @@ abstract class Notify implements ActionInterface
 				$this->alert_pref = self::PREF_NONE;
 				break;
 		}
+	}
+
+	/**
+	 * Gets the member's current notification preference for the board or topic.
+	 *
+	 * A member watching because they posted with "notify me" ticked has no
+	 * preference for this board or topic of their own, and is notified
+	 * according to their general one, so that is the one in force.
+	 *
+	 * @return int The preference.
+	 */
+	protected function getCurrentPref(): int
+	{
+		$member = (int) self::$member_info['id'];
+
+		$prefs = self::getNotifyPrefs($member, [$this->type . '_notify_' . $this->id, $this->type . '_notify'], true)[$member] ?? [];
+
+		return (int) (!empty($prefs[$this->type . '_notify_' . $this->id]) ? $prefs[$this->type . '_notify_' . $this->id] : ($prefs[$this->type . '_notify'] ?? 0));
 	}
 
 	/**
@@ -485,7 +549,7 @@ abstract class Notify implements ActionInterface
 				],
 				[
 					[
-						User::$me->id,
+						(int) self::$member_info['id'],
 						$id_topic,
 						$id_board,
 					],

@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\AutoReview;
@@ -52,8 +63,11 @@ class LicenseTest extends TestCase
 	 ****************/
 
 	/**
-	 * Tests that every PHP file that is not explicitly ignored has a valid
-	 * SMF license header.
+	 * Every PHP file that is not explicitly ignored has a valid SMF license
+	 * header.
+	 *
+	 * Expected: the contents of each file from getPhpFiles() match
+	 *           getLicensePattern().
 	 */
 	public function testFilesHaveValidLicense(): void
 	{
@@ -83,8 +97,14 @@ class LicenseTest extends TestCase
 	}
 
 	/**
-	 * Tests that files whose headers contain the current software version and
-	 * year use the values defined by index.php.
+	 * Files whose headers carry the software version and year use the current
+	 * ones.
+	 *
+	 * The current values are the ones defined by index.php.
+	 *
+	 * Expected: each file matching VERSION_AND_YEAR_FILES matches
+	 *           getLicensePattern() with SMF_SOFTWARE_YEAR and SMF_VERSION from
+	 *           index.php.
 	 */
 	public function testFilesHaveCurrentVersionAndYear(): void
 	{

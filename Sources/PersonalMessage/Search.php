@@ -494,12 +494,12 @@ class Search
 		if (Db::$db->num_rows($request) > $this->max_members_to_search) {
 			$this->user_query = '';
 		} else {
-				$clauses = [];
+			$clauses = [];
 
-				foreach ($possible_users as $k => $v) {
-					$this->searchq_parameters['name_' . $k] = $v;
-					$clauses[] = '{column_ci:pm.from_name} LIKE {string:name_' . $k . '}';
-				}
+			foreach ($possible_users as $k => $v) {
+				$this->searchq_parameters['name_' . $k] = $v;
+				$clauses[] = '{column_ci:pm.from_name} LIKE {string:name_' . $k . '}';
+			}
 
 			if (Db::$db->num_rows($request) == 0) {
 				$this->user_query = 'AND pm.id_member_from = 0 AND (' . implode(' OR ', $clauses) . ')';

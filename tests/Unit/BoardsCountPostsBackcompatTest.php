@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Simple Machines Forum (SMF)
+ *
+ * @package SMF
+ * @author Simple Machines https://www.simplemachines.org
+ * @copyright 2026 Simple Machines and individual contributors
+ * @license https://www.simplemachines.org/about/smf/license.php BSD
+ *
+ * @version 3.0 Alpha 5-dev
+ */
+
 declare(strict_types=1);
 
 namespace SMF\Tests\Unit;
@@ -22,13 +33,26 @@ class BoardsCountPostsBackcompatTest extends TestCase
 	 ****************/
 
 	/**
+	 * While installing or upgrading, queries naming count_posts are not
+	 * rewritten.
+	 *
 	 * The upgrader meets the boards table while it still has count_posts, and
-	 * its queries mean that column. Rewriting them to name posts_count made the
-	 * backup step fail with "Unknown column 'posts_count' in 'field list'", and
-	 * would have made the migration read the value it was in the middle of
-	 * writing.
+	 * its queries mean that column.
 	 *
 	 * Its own process, because SMF_INSTALLING cannot be undefined again.
+	 *
+	 * Expected: with SMF_INSTALLING defined, on both engines,
+	 *           backcompatQuoteFixes() returns each query in upgraderQueries()
+	 *           unchanged, and backcompatInsertFixes() returns a row naming
+	 *           count_posts unchanged.
+	 * Guards:   rewriting the upgrader's queries to name posts_count made the
+	 *           backup step fail with "Unknown column 'posts_count' in 'field
+	 *           list'", and would have made the migration read the value it was
+	 *           in the middle of writing.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/commit/59b22b12e Introduced by "Replace count_posts (where 0 = true) with posts_count (where 1 = true)"
+	 * @link https://github.com/SimpleMachines/SMF/commit/a4aec80eb Introduced by "Implements backcompatInsertFixes() in database APIs"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9677
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState(false)]
@@ -49,12 +73,26 @@ class BoardsCountPostsBackcompatTest extends TestCase
 		}
 	}
 
+	/**
+	 * A legacy query is still rewritten for a mod that sends one.
+	 *
+	 * Expected: each case in legacyQueryProvider() has its count_posts
+	 *           reference rewritten by backcompatQuoteFixes() to the new
+	 *           posts_count column and its inverted logic.
+	 */
 	#[DataProvider('legacyQueryProvider')]
 	public function testALegacyQueryIsStillRewrittenForAModThatSendsOne(string $class, string $query, string $expected): void
 	{
 		$this->assertSame($expected, $this->quoteFixes($class, $query));
 	}
 
+	/**
+	 * A legacy insert is still rewritten for a mod that sends one.
+	 *
+	 * Expected: for each engine in engineProvider(), backcompatInsertFixes()
+	 *           turns the column count_posts, its value and its key into
+	 *           posts_count with the value inverted.
+	 */
 	#[DataProvider('engineProvider')]
 	public function testALegacyInsertIsStillRewrittenForAModThatSendsOne(string $class): void
 	{
@@ -65,6 +103,13 @@ class BoardsCountPostsBackcompatTest extends TestCase
 		$this->assertSame(['posts_count'], $keys);
 	}
 
+	/**
+	 * Nothing is rewritten when backward compatibility is off.
+	 *
+	 * Expected: for each engine in engineProvider(), backcompatQuoteFixes()
+	 *           returns 'SELECT id_board, count_posts FROM smf_boards'
+	 *           unchanged.
+	 */
 	#[DataProvider('engineProvider')]
 	public function testNothingIsRewrittenWithoutBackwardCompatibility(string $class): void
 	{

@@ -44,10 +44,6 @@ class Paramaribo extends VTimeZone
 	 */
 	public array $metazones = [
 		0 => [
-			'ts' => '1970-01-01T00:00:00+0000',
-			'metazone' => 'Dutch_Guiana',
-		],
-		1 => [
 			'ts' => '1975-11-20T03:30:00+0000',
 			'metazone' => 'Suriname',
 		],
