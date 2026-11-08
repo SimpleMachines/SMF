@@ -379,7 +379,7 @@ class PersonalMessage implements ActionInterface, Routable
 	public function drafts(): void
 	{
 		if (empty(User::$me->id)) {
-			ErrorHandler::fatalLang('not_a_user', false, array(), 404);
+			ErrorHandler::fatalLang('not_a_user', false, [], 404);
 		}
 
 		DraftPM::showInProfile(User::$me->id);
