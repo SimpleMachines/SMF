@@ -3486,7 +3486,7 @@ class PackageUtils
 		];
 		$output_ext = \function_exists('gzopen') ? 'tgz' : 'tar';
 		$dirname = Config::$packagesdir . '/backups';
-		$output_file = self::package_unique_filename(
+		$output_file = self::generateUniqueFilename(
 			$dirname,
 			date('Y-m-d_') . preg_replace('/[$\\/:<>|?*"\']/', '', $id),
 			$output_ext,
@@ -3509,7 +3509,7 @@ class PackageUtils
 		}
 
 		if (!is_writable($dirname)) {
-			self::package_chmod($dirname);
+			self::chmod($dirname);
 		}
 
 		try {
