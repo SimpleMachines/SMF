@@ -44,10 +44,6 @@ class Kwajalein extends VTimeZone
 	 */
 	public array $metazones = [
 		0 => [
-			'ts' => '1970-01-01T00:00:00+0000',
-			'metazone' => 'Kwajalein',
-		],
-		1 => [
 			'ts' => '1993-08-21T12:00:00+0000',
 			'metazone' => 'Marshall_Islands',
 		],

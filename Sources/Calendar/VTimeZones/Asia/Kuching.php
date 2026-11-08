@@ -44,10 +44,6 @@ class Kuching extends VTimeZone
 	 */
 	public array $metazones = [
 		0 => [
-			'ts' => '1970-01-01T00:00:00+0000',
-			'metazone' => 'Borneo',
-		],
-		1 => [
 			'ts' => '1981-12-31T16:00:00+0000',
 			'metazone' => 'Malaysia',
 		],

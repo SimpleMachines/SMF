@@ -84,8 +84,8 @@ SMF\Lang::load('General+Maintenance', SMF\Config::$language);
 
 $replacements = [
 	'{$db_prefix}' => 'smf_',
-	'{$attachdir}' => json_encode([1 => addslashes(SMF\Config::$boarddir . '/attachments')]),
-	'{$boarddir}' => addslashes(SMF\Config::$boarddir),
+	'{$attachdir}' => json_encode([1 => SMF\Config::$boarddir . '/attachments']),
+	'{$boarddir}' => SMF\Config::$boarddir,
 	'{$boardurl}' => SMF\Config::$boardurl,
 	'{$enableCompressedOutput}' => 0,
 	'{$databaseSession_enable}' => 0,
@@ -97,7 +97,7 @@ $replacements = [
 
 foreach (SMF\Lang::$txt as $key => $value) {
 	if (substr($key, 0, 8) == 'default_') {
-		$replacements['{$' . $key . '}'] = addslashes($value);
+		$replacements['{$' . $key . '}'] = $value;
 	}
 }
 

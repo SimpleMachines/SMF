@@ -517,7 +517,7 @@ class MarkdownParser extends Parser
 					'</?' .
 					// A subset of possible HTML element names to match.
 					// (Basically, block level elements plus some other stuff.)
-					'(?' . '>iframe|ul|a(?' . '>ddress|rticle|side)|b(?' . '>lockquote|ase(?' . '>font|)|ody)|c(?' . '>aption|enter|ol(?' . '>group|))|d(?' . '>etails|d|i(?' . '>alog|r|v)|l|t)|f(?' . '>rame(?' . '>set|)|i(?' . '>eldset|g(?' . '>caption|ure))|o(?' . '>oter|rm))|h(?' . '>ead(?' . '>er|)|tml|1|2|3|4|5|6|r)|l(?' . '>egend|i(?' . '>nk|))|m(?' . '>ain|enu(?' . '>item|))|n(?' . '>oframes|av)|o(?' . '>pt(?' . '>group|ion)|l)|p(?' . '>aram|)|s(?' . '>ection|ummary|ource)|t(?' . '>able|body|foot|itle|d|h(?' . '>ead|)|r(?' . '>ack|)))' .
+					'(?' . '>iframe|ul|a(?' . '>ddress|rticle|side)|b(?' . '>lockquote|ase(?' . '>font|)|ody)|c(?' . '>aption|enter|ol(?' . '>group|))|d(?' . '>etails|d|i(?' . '>alog|r|v)|l|t)|f(?' . '>rame(?' . '>set|)|i(?' . '>eldset|g(?' . '>caption|ure))|o(?' . '>oter|rm))|h(?' . '>ead(?' . '>er|)|tml|1|2|3|4|5|6|r)|l(?' . '>egend|i(?' . '>nk|))|m(?' . '>a(?' . '>in|rquee)|enu(?' . '>item|))|n(?' . '>oframes|av)|o(?' . '>pt(?' . '>group|ion)|l)|p(?' . '>aram|)|s(?' . '>ection|ummary|ource)|t(?' . '>able|body|foot|itle|d|h(?' . '>ead|)|r(?' . '>ack|)))' .
 					// Followed by whitespace, `>`, `/>`, or the end of the line.
 					'(?=\h|/?' . '>|$)' .
 				'~ui',
@@ -885,11 +885,14 @@ class MarkdownParser extends Parser
 				// We do this because we use EN QUAD for special purposes.
 				'/\x{2000}/u' => fn($m) => "\u{2002}",
 
+				// Insert line breaks around the content of certain tags, if they already contain breaks inside.
+				'/(<(blockquote|li|h[1-6])\b[^>]*>)((?>[^<]|<(?!\/?\2\b)|(?R))*)(<\/?\2>)/ui' => fn($m) => $m[1] . (str_contains($m[3], "\n") ? "\n\n" . $m[3] . "\n\n" : $m[3]) . $m[4],
+
 				// Insert two line breaks after certain tags, if they are not followed by another tag.
 				'/<((?>div class="(?>inline-block|justifytext|centertext|bbc_float|righttext|lefttext)|blockquote|\/cite))\b[^>]*>(?!(?:\n\n|\s*(?:<|$)))/uim' => fn($m) => $m[0] . "\n\n",
 
 				// Insert two line breaks after certain other tags, always.
-				'/(<\/(?>picture|section|iframe|main|li|ol|ul|a(?>ddress|rticle|side)|d(?>etails|iv|d|l|t)|f(?>rame(?>set|)|i(?>eldset|gure)|o(?>oter|rm))|h(?>eader|[1-6]))\b[^>]*>)(\n{0,2})/uim' => fn($m) => $m[1] . "\n\n",
+				'/(<(?>hr|\/(?>picture|section|iframe|main|li|ol|ul|a(?>ddress|rticle|side)|d(?>etails|iv|d|l|t)|f(?>rame(?>set|)|i(?>eldset|gure)|o(?>oter|rm))|h(?>eader|[1-6])))\b[^>]*>)(\n{0,2})/uim' => fn($m) => $m[1] . "\n\n",
 
 				// Insert one line break before certain tags.
 				'/(^|[^>])\h*\K<\/((?>blockquote|marquee|div|h[1-6]|li|t(?>d|h)))>/uim' => fn($m) => "\n" . $m[0],
@@ -990,7 +993,7 @@ class MarkdownParser extends Parser
 	/**
 	 * Parses the string to build a structured series of block elements.
 	 *
-	 * The result is stored as $this->structured.
+	 * The result is stored as $this->structure.
 	 *
 	 * @param string $string The string to parse.
 	 */
@@ -1117,13 +1120,17 @@ class MarkdownParser extends Parser
 			}
 		}
 
-		// Finally, close the last open blocks.
+		// Close the last open blocks.
 		$this->findOpen();
 
 		foreach ($this->open as $o => $dummy) {
 			$this->getMethod($this->block_types[$this->open[$o]['type']]['close'] ?? 'closeBlock')($o);
 		}
 
+		// Avoid unnecessary breaks at the end when $this->hard_breaks is set to BR_LINES.
+		$this->last_block['properties']['blank_after'] = min(1, $this->last_block['properties']['blank_after'] ?? 0);
+
+		// Reset these.
 		$this->in_code = 0;
 		$this->info_string = '';
 		$this->in_html = 0;

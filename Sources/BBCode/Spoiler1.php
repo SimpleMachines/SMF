@@ -97,7 +97,7 @@ class Spoiler1 extends BBCode
 	 * In particular, if this spoiler tag contains multiple paragraphs, this
 	 * validate method will cause it to be rendered like a details tag.
 	 *
-	 * @param BBCodeInterface &$bbc This BBCode definition.
+	 * @param BBCodeInterface|BBCode &$bbc This BBCode definition.
 	 *    Passed in as an argument for historical reasons.
 	 * @param array|string &$data The data extracted from the particular
 	 *    occurrence of the BBCode in the text.

@@ -292,7 +292,7 @@ abstract class Parser
 	 * @param int $input_types Bitmask of this class's INPUT_* constants.
 	 *    Only the indicated types of markup will be parsed in the input string.
 	 *    Default: self::INPUT_BBC | self::INPUT_MARKDOWN | self::INPUT_SMILEYS
-	 * @param int $output_type One of this class's INPUT_* constants.
+	 * @param int $output_type One of this class's OUTPUT_* constants.
 	 *    Default: self::OUTPUT_HTML
 	 * @param array $options Various parser options. See self::$default_options.
 	 * @return string The transformed string.
@@ -461,10 +461,10 @@ abstract class Parser
 		// Clean out any other funky stuff.
 		$message = Utils::sanitizeChars($message, 0);
 
-		// Clean up after nobbc ;).
+		// Clean up after nobbc and tt.
 		$message = preg_replace_callback(
-			'~\[nobbc[^\]]*\](.+?)\[/nobbc\]~is',
-			fn($matches) => '[nobbc]' . strtr($matches[1], ['[' => '&#91;', ']' => '&#93;', ':' => '&#58;', '@' => '&#64;']) . '[/nobbc]',
+			'~\[(nobbc|tt)[^\]]*\](.+?)\[/\1\]~is',
+			fn($matches) => '[' . $matches[1] . ']' . strtr($matches[2], ['[' => '&#91;', ']' => '&#93;', ':' => '&#58;', '@' => '&#64;']) . '[/' . $matches[1] . ']',
 			$message,
 		);
 

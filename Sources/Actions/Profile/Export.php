@@ -425,7 +425,7 @@ class Export implements ActionInterface
 		if (!$finalized) {
 			array_walk_recursive(
 				self::$formats,
-				function (&$value, $key) {
+				function (&$value, string $key) {
 					if ($key === 'description') {
 						$value = Lang::txtExists($value, file: 'Profile') ? Lang::getTxt($value, file: 'Profile') : $value;
 					}

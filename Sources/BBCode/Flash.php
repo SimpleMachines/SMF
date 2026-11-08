@@ -65,7 +65,7 @@ class Flash extends BBCode
 		$data[0] = new Url(strtr(trim($data[0]), ['<br>' => '', ' ' => '%20']), true);
 
 		if (empty($data[0]->scheme)) {
-			$data[0] = new Url('//' . ltrim($data[0], ':/'));
+			$data[0] = new Url('//' . ltrim((string) $data[0], ':/'));
 		}
 
 		$ascii_url = (clone $data[0])->toAscii();
@@ -73,5 +73,7 @@ class Flash extends BBCode
 		if ((string) $ascii_url !== (string) $data[0]) {
 			$bbc->content = str_replace('href="$1"', 'href="' . $ascii_url . '"', $bbc->content);
 		}
+
+		$data[0] = (string) $data[0];
 	}
 }

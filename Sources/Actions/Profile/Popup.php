@@ -113,7 +113,7 @@ class Popup implements ActionInterface
 		// Finalize various string values.
 		array_walk_recursive(
 			$this->profile_items,
-			function (&$value, $key) {
+			function (&$value, string $key) {
 				if ($key === 'title') {
 					$value = Lang::txtExists($value, file: 'Profile') ? Lang::getTxt($value, file: 'Profile') : $value;
 				}

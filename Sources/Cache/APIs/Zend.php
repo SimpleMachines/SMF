@@ -96,7 +96,11 @@ class Zend extends CacheApi implements CacheApiInterface
 	{
 		$this->invalidateCache();
 
-		return zend_shm_cache_clear('SMF');
+		if (\function_exists('zend_shm_cache_clear')) {
+			return zend_shm_cache_clear('SMF');
+		}
+
+		return false;
 	}
 
 	/**

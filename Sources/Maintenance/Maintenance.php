@@ -114,14 +114,14 @@ class Maintenance
 	public static string $query_string = '';
 
 	/**
-	 * @var \SMF\Maintenance\Tools\ToolsInterface|\SMF\Maintenance\Tools\Upgrade|\SMF\Maintenance\Tools\Install
+	 * @var ToolsInterface|\SMF\Maintenance\Tools\Upgrade|\SMF\Maintenance\Tools\Install
 	 *
 	 * Object containing the tool we are working with.
 	 */
 	public static ToolsInterface $tool;
 
 	/**
-	 * @var \SMF\Themes\default\MaintenanceTemplate
+	 * @var MaintenanceTemplate
 	 *
 	 * Object containing the tools template we are working with.
 	 *
@@ -390,7 +390,7 @@ class Maintenance
 		} else {
 			$settingsText = trim(file_get_contents(SMF_SETTINGS_FILE));
 
-			if (substr($settingsText, 0, 5) == '<' . '?php') {
+			if (strncasecmp($settingsText, '<' . '?php', 5) === 0) {
 				$settingsText = substr($settingsText, 5);
 			}
 
@@ -502,7 +502,7 @@ class Maintenance
 			$valid = (
 				$contents !== false
 				// Must start with an opening PHP tag.
-				&& str_starts_with($contents, '<' . '?php')
+				&& strncasecmp($contents, '<' . '?php', 5) === 0
 				// Must not contain a closing tag.
 				&& !str_contains($contents, '?' . '>')
 				// Does it at least appear to have the expected contents?
@@ -690,7 +690,7 @@ class Maintenance
 	/**
 	 * Set our current start. This is public as our tool needs to update this.
 	 *
-	 * @param null|int $substep The starting position we on.  If null is passed, we will auto increment from the current.
+	 * @param null|int $start The starting position we on.  If null is passed, we will auto increment from the current.
 	 */
 	public static function setCurrentStart(?int $start = null): void
 	{

@@ -177,7 +177,7 @@ class RecurrenceIterator implements \Iterator
 	private RRule $rrule;
 
 	/**
-	 * @var \DateTimeInterface
+	 * @var \DateTimeInterface|\DateTime
 	 *
 	 * Date of the first occurrence of the event.
 	 */
@@ -508,7 +508,7 @@ class RecurrenceIterator implements \Iterator
 	 * Used for making exceptions to the general recurrence rule.
 	 * Note that calling this method always rewinds the iterator key.
 	 *
-	 * @param \DateTimeInterface $date The date to add.
+	 * @param \DateTimeInterface|\DateTime $date The date to add.
 	 * @param ?\DateInterval $duration Optional duration for this occurrence.
 	 *    Only necessary if the duration for this occurrence differs from the
 	 *    usual duration of the event.
@@ -581,7 +581,7 @@ class RecurrenceIterator implements \Iterator
 	/**
 	 * Checks whether the given date/time occurs in the recurrence set.
 	 *
-	 * @param \DateTimeInterface $date A date.
+	 * @param \DateTimeInterface|\DateTime $date A date.
 	 * @return bool Whether the date occurs in the recurrence set.
 	 */
 	public function dateOccurs(\DateTimeInterface $date): bool
@@ -790,6 +790,7 @@ class RecurrenceIterator implements \Iterator
 	/**
 	 * Adds an occurrence to $this->occurrences.
 	 *
+	 * @param \DateTimeInterface|\DateTime $occurrence A date.
 	 * @return bool True if the occurrence is a new addition; false if it is
 	 *    a duplicate or out of bounds.
 	 */
@@ -1022,10 +1023,10 @@ class RecurrenceIterator implements \Iterator
 	 * that the event recurs only at every hour during Tuesdays and Thursdays.
 	 * Occurrences that happen on any other day of the week are skipped.
 	 *
-	 * @param \DateTime $current A occurrence whose value we want to check.
+	 * @param \DateTime|\DateTimeImmutable $current A occurrence whose value we want to check.
 	 * @return bool Whether the occurrence is allowed.
 	 */
-	private function limit(\DateTime $current): bool
+	private function limit(\DateTime|\DateTimeImmutable $current): bool
 	{
 		if ($current < $this->limit_before || $current > $this->limit_after) {
 			return false;
@@ -1190,7 +1191,7 @@ class RecurrenceIterator implements \Iterator
 	 * @param \DateTime $current An occurrence of the event to expand.
 	 * @param string|null $break_after Name of a $this->by element. Used during
 	 *    recursive calls to this method.
-	 * @return Generator<\DateTimeImmutable>
+	 * @return \Generator<\DateTimeImmutable>
 	 */
 	private function expand(\DateTime $current, ?string $break_after = null): \Generator
 	{
@@ -1417,7 +1418,7 @@ class RecurrenceIterator implements \Iterator
 	 * @param \DateTime $current An occurrence of the event to expand.
 	 * @param array $expansion_values Values from the byday rule.
 	 * @param string $current_value The abbreviated name of the $current occurrence's weekday.
-	 * @return Generator<\DateTimeImmutable>
+	 * @return \Generator<\DateTimeImmutable>
 	 */
 	private function expandMonthByDay(\DateTime $current, array $expansion_values, string $current_value): \Generator
 	{
@@ -1564,7 +1565,7 @@ class RecurrenceIterator implements \Iterator
 	 * @param \DateTime $current An occurrence of the event to expand.
 	 * @param array $expansion_values Values from the byday rule.
 	 * @param string $current_value The abbreviated name of the $current occurrence's weekday.
-	 * @return Generator<\DateTimeImmutable>
+	 * @return \Generator<\DateTimeImmutable>
 	 */
 	private function expandYearByDay(\DateTime $current, array $expansion_values, string $current_value): \Generator
 	{

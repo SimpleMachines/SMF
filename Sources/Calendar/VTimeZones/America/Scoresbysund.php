@@ -44,14 +44,10 @@ class Scoresbysund extends VTimeZone
 	 */
 	public array $metazones = [
 		0 => [
-			'ts' => '1970-01-01T00:00:00+0000',
-			'metazone' => 'Greenland_Central',
-		],
-		1 => [
 			'ts' => '1981-03-29T02:00:00+0000',
 			'metazone' => 'Greenland_Eastern',
 		],
-		2 => [
+		1 => [
 			'ts' => '2024-03-31T01:00:00+0000',
 			'metazone' => 'Greenland',
 		],

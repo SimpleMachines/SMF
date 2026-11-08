@@ -1021,8 +1021,8 @@ class Lang
 	 * Returns 0 if $string1 is equivalent to $string2 for sorting purposes.
 	 * Returns -1 if $string1 is less than $string2 for sorting purposes.
 	 *
-	 * @param array $string1 The first string to compare.
-	 * @param array $string2 The second string to compare.
+	 * @param string $string1 The first string to compare.
+	 * @param string $string2 The second string to compare.
 	 * @return int The result of the comparison: either -1, 0, or 1.
 	 */
 	public static function compareStrings(string $string1, string $string2): int

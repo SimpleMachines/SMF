@@ -124,7 +124,7 @@ class BuddyIgnoreLists implements ActionInterface
 
 			IntegrationHook::call('integrate_remove_buddy', [Profile::$member->id]);
 
-			$_SESSION['prf-save'] = !\in_array(Profile::$member->buddies, (int) $_GET['remove']) ? Lang::getTxt('could_not_remove_person', file: 'Profile') : true;
+			$_SESSION['prf-save'] = !\in_array((int) $_GET['remove'], Profile::$member->buddies) ? Lang::getTxt('could_not_remove_person', file: 'Profile') : true;
 
 			// Heh, I'm lazy, do it the easy way...
 			Profile::$member->buddies = array_diff(Profile::$member->buddies, [(int) $_GET['remove']]);
@@ -308,7 +308,7 @@ class BuddyIgnoreLists implements ActionInterface
 		if (isset($_GET['remove'])) {
 			User::$me->checkSession('get');
 
-			$_SESSION['prf-save'] = !\in_array(Profile::$member->ignoreusers, (int) $_GET['remove']) ? Lang::getTxt('could_not_remove_person', file: 'Profile') : true;
+			$_SESSION['prf-save'] = !\in_array((int) $_GET['remove'], Profile::$member->ignoreusers) ? Lang::getTxt('could_not_remove_person', file: 'Profile') : true;
 
 			// Heh, I'm lazy, do it the easy way...
 			Profile::$member->ignoreusers = array_diff(Profile::$member->ignoreusers, [(int) $_GET['remove']]);

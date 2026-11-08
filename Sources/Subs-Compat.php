@@ -2147,8 +2147,8 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function display_db_error(): void
 	{
-		/** @var ?SMF\Services\ErrorHandlerService */
-		$svc = (SMF\Infrastructure\Container::get(SMF\Services\ErrorHandlerService::class));
+		/** @var SMF\Services\ErrorHandlerService */
+		$svc = new SMF\Services\ErrorHandlerService();
 		$svc->displayDbError();
 	}
 
@@ -2160,8 +2160,8 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function display_loadavg_error(): void
 	{
-		/** @var ?SMF\Services\ErrorHandlerService */
-		$svc = (SMF\Infrastructure\Container::get(SMF\Services\ErrorHandlerService::class));
+		/** @var SMF\Services\ErrorHandlerService */
+		$svc = new SMF\Services\ErrorHandlerService();
 		$svc->displayLoadAvgError();
 	}
 
@@ -2173,8 +2173,8 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function display_maintenance_message(): void
 	{
-		/** @var ?SMF\Services\ErrorHandlerService */
-		$svc = (SMF\Infrastructure\Container::get(SMF\Services\ErrorHandlerService::class));
+		/** @var SMF\Services\ErrorHandlerService */
+		$svc = new SMF\Services\ErrorHandlerService();
 		$svc->displayMaintenanceMessage();
 	}
 
@@ -2673,8 +2673,8 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function fatal_error(string $error, string|bool $log = 'general', int $status = 500): void
 	{
-		/** @var ?SMF\Services\ErrorHandlerService */
-		$svc = (SMF\Infrastructure\Container::get(SMF\Services\ErrorHandlerService::class));
+		/** @var SMF\Services\ErrorHandlerService */
+		$svc = new SMF\Services\ErrorHandlerService();
 		$svc->fatal($error, $log, $status);
 	}
 
@@ -2695,8 +2695,8 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function fatal_lang_error(string $error, string|bool $log = 'general', array $sprintf = [], int $status = 403)
 	{
-		/** @var ?SMF\Services\ErrorHandlerService */
-		$svc = (SMF\Infrastructure\Container::get(SMF\Services\ErrorHandlerService::class));
+		/** @var SMF\Services\ErrorHandlerService */
+		$svc = new SMF\Services\ErrorHandlerService();
 		$svc->fatalLang($error, $log, $sprintf, $status);
 	}
 
@@ -4174,8 +4174,8 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 		if (($bans['cannot_access']['email_address'] ?? null) == $email) {
 			SMF\Logging::logBan($bans['cannot_access']['ids']);
 
-			/** @var ?SMF\Services\ErrorHandlerService */
-			$svc = (SMF\Infrastructure\Container::get(SMF\Services\ErrorHandlerService::class));
+			/** @var SMF\Services\ErrorHandlerService */
+			$svc = new SMF\Services\ErrorHandlerService();
 			$svc->fatal(SMF\Lang::getTxt('your_ban', ['name' => SMF\Lang::getTxt('guest_title', file: 'General')]) . ($bans['cannot_access']['reason'] ?? ''), false, 403);
 		}
 
@@ -4183,8 +4183,8 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 		if (!empty($bans[$restriction]) && $bans[$restriction]['email_address'] == $email) {
 			SMF\Logging::logBan($bans[$restriction]['ids'], $email);
 
-			/** @var ?SMF\Services\ErrorHandlerService */
-			$svc = (SMF\Infrastructure\Container::get(SMF\Services\ErrorHandlerService::class));
+			/** @var SMF\Services\ErrorHandlerService */
+			$svc = new SMF\Services\ErrorHandlerService();
 			$svc->fatal($error . ($bans[$restriction]['reason'] ?? ''), false, 403);
 		}
 	}
@@ -4834,8 +4834,8 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 		string $file = '',
 		int $line = 0,
 	): string {
-		/** @var ?SMF\Services\ErrorHandlerService */
-		$svc = (SMF\Infrastructure\Container::get(SMF\Services\ErrorHandlerService::class));
+		/** @var SMF\Services\ErrorHandlerService */
+		$svc = new SMF\Services\ErrorHandlerService();
 
 		return $svc->log(
 			$error_message,
@@ -6884,7 +6884,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 *		When a empty string, nothing is done.
 	 *		When false we provide a list of BBC codes available.
 	 *		When a string, the message is parsed and bbc handled.
-	 * @param bool $smileys Whether to parse smileys as well
+	 * @param bool|string $smileys Whether to parse smileys as well
 	 * @param string $cache_id The cache ID
 	 * @param array $parse_tags If set, only parses these tags rather than all of them
 	 * @return string|array If $message is false, an array of available bbcodes, otherwise the parsed message
@@ -8471,8 +8471,9 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 			$o = new SMF\MailAgent\APIs\SMTP();
 			$o->compatServerParse($message, $socket, $code, $response);
 		} catch (\Throwable $e) {
-			return false;
 		}
+
+		return false;
 	}
 
 	/**
@@ -9030,8 +9031,8 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function smf_error_handler(int $error_level, string $error_string, string $file, int $line): void
 	{
-		/** @var ?SMF\Services\ErrorHandlerService */
-		$svc = (SMF\Infrastructure\Container::get(SMF\Services\ErrorHandlerService::class));
+		/** @var SMF\Services\ErrorHandlerService */
+		$svc = new SMF\Services\ErrorHandlerService();
 		$svc->call($error_level, $error_string, $file, $line);
 	}
 
@@ -9194,20 +9195,22 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 	 */
 	function smtp_mail(array $mail_to_array, string $subject, string $message, string $headers): bool
 	{
-		$old = Config::$modSettings['mail_type'];
+		$old = SMF\Config::$modSettings['mail_type'];
 
 		try {
-			if (Config::$modSettings['mail_type'] !== 'SMTP' && Config::$modSettings['mail_type'] !== 'SMTPTLS') {
-				Config::$modSettings['mail_type'] = 'SMTP';
+			if (SMF\Config::$modSettings['mail_type'] !== 'SMTP' && SMF\Config::$modSettings['mail_type'] !== 'SMTPTLS') {
+				SMF\Config::$modSettings['mail_type'] = 'SMTP';
 			}
 
-			$agent = MailAgent::load();
+			$agent = SMF\MailAgent\MailAgent::load();
 
 			if ($agent === false || !$agent->connect()) {
 				return false;
 			}
 
-			$result = $agent->send($to, $subject, $message, $headers);
+			foreach ($mail_to_array as $to) {
+				$result = $agent->send($to, $subject, $message, $headers);
+			}
 
 			$agent->disconnect();
 
@@ -9215,7 +9218,7 @@ if (!empty(SMF\Config::$backward_compatibility) && !function_exists('smf_error_h
 		} catch (\Throwable $e) {
 			return false;
 		} finally {
-			Config::$modSettings['mail_type'] = $old;
+			SMF\Config::$modSettings['mail_type'] = $old;
 		}
 	}
 

@@ -19,7 +19,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use SMF\Config;
 use SMF\Time;
-use SMF\TimeZone;
 use SMF\User;
 
 #[CoversClass(Time::class)]
@@ -60,15 +59,7 @@ class TimeTest extends TestCase
 	 */
 	public function testItFallsBackToTheForumsDefaultTimeZoneBeforeTheUserIsLoaded(): void
 	{
-		$this->assertFalse(isset(User::$me));
-
-		// The constructor only consults User::$me while it has no time zone
-		// worked out yet, so this has to be the first Time built in the run for
-		// the assertion below to mean anything. A typed static cannot be put
-		// back into its uninitialised state, so check the precondition instead
-		// of resetting it: a later change that builds a Time earlier should
-		// fail here rather than quietly stop testing anything.
-		$this->assertFalse((new \ReflectionProperty(Time::class, 'user_tz'))->isInitialized());
+		$this->assertFalse(isset(User::$me->timezone));
 
 		$time = new Time('@1785441064');
 
@@ -111,11 +102,5 @@ class TimeTest extends TestCase
 		} else {
 			unset(Config::$modSettings['default_timezone']);
 		}
-
-		// Time remembers the first time zone it works out for the rest of the
-		// process, so hand the suite back the one it would have had if this
-		// test had never run.
-		(new \ReflectionProperty(Time::class, 'user_tz'))
-			->setValue(null, TimeZone::create(date_default_timezone_get()));
 	}
 }

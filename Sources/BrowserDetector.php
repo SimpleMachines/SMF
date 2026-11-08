@@ -68,6 +68,13 @@ class BrowserDetector
 	 */
 	public function detectBrowser(): void
 	{
+		// Can't do anything without a user agent.
+		if (!isset($_SERVER['HTTP_USER_AGENT'])) {
+			Utils::$context['browser'] = [];
+
+			return;
+		}
+
 		// Initialize some values we'll set differently if necessary...
 		$this->_browsers['needs_size_fix'] = false;
 

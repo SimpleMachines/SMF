@@ -98,7 +98,7 @@ class AttachmentDirectory extends MigrationBase
 	/**
 	 * Updates
 	 *
-	 * @param mixed $value
+	 * @param array $attach_dirs
 	 * @return bool
 	 */
 	private function update(array $attach_dirs): bool

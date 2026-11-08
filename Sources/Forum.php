@@ -386,6 +386,13 @@ class Forum
 	 */
 	protected static ?ActionInterface $current_action = null;
 
+	/**
+	 * @var bool
+	 *
+	 * Whether the current action is being constructed right now.
+	 */
+	protected static bool $constructing_action = false;
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -548,14 +555,23 @@ class Forum
 	 */
 	public static function getCurrentAction(): ?ActionInterface
 	{
-		if (!isset(self::$current_action)) {
+		// Constructing an action can load the theme, and loading the theme asks
+		// for the current action. Profile\Main does exactly that for a guest,
+		// through User::kickIfGuest(), so until the action exists there is none.
+		if (!isset(self::$current_action) && !self::$constructing_action) {
 			$current_action = self::findAction($_REQUEST['action'] ?? null);
 
-			if (is_a($current_action, ActionInterface::class, true)) {
-				self::$current_action = \call_user_func([$current_action, 'load']);
-			} elseif (\is_callable($current_action)) {
-				self::$current_action = Actions\GenericAction::load();
-				self::$current_action->setCallable($current_action);
+			self::$constructing_action = true;
+
+			try {
+				if (is_a($current_action, ActionInterface::class, true)) {
+					self::$current_action = \call_user_func([$current_action, 'load']);
+				} elseif (\is_callable($current_action)) {
+					self::$current_action = Actions\GenericAction::load();
+					self::$current_action->setCallable($current_action);
+				}
+			} finally {
+				self::$constructing_action = false;
 			}
 		}
 

@@ -44,10 +44,6 @@ class Tbilisi extends VTimeZone
 	 */
 	public array $metazones = [
 		0 => [
-			'ts' => '1970-01-01T00:00:00+0000',
-			'metazone' => 'Tbilisi',
-		],
-		1 => [
 			'ts' => '1991-03-30T22:00:00+0000',
 			'metazone' => 'Georgia',
 		],

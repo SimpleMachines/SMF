@@ -748,7 +748,7 @@ class QueryString
 			!isset($new_url)
 			&& (
 				$requested_url->host === 'localhost'
-				|| IP::create($requested_url->host)->isValid()
+				|| IP::create($requested_url->host)->isPrivate()
 			)
 		) {
 			$new_url = strtr(Config::$boardurl, [$canonical_url->host => $requested_url->host]);

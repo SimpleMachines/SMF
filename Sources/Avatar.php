@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace SMF;
 
+use SMF\Db\DatabaseApi as Db;
+
 /**
  * Represents a user's avatar.
  *

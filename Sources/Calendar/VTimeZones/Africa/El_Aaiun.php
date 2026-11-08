@@ -44,14 +44,10 @@ class El_Aaiun extends VTimeZone
 	 */
 	public array $metazones = [
 		0 => [
-			'ts' => '1970-01-01T00:00:00+0000',
-			'metazone' => 'Africa_FarWestern',
-		],
-		1 => [
 			'ts' => '1976-04-14T01:00:00+0000',
 			'metazone' => 'Europe_Western',
 		],
-		2 => [
+		1 => [
 			'ts' => '2026-09-20T01:00:00+0000',
 			'metazone' => 'Europe_Western',
 		],

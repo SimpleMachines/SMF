@@ -42,10 +42,6 @@ class Saipan extends Guam
 	 */
 	public array $metazones = [
 		0 => [
-			'ts' => '1970-01-01T00:00:00+0000',
-			'metazone' => 'North_Mariana',
-		],
-		1 => [
 			'ts' => '2000-12-22T14:00:00+0000',
 			'metazone' => 'Chamorro',
 		],

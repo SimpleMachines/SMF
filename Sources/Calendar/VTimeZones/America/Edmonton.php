@@ -46,6 +46,8 @@ class Edmonton extends VTimeZone
 		0 => [
 			'ts' => '1970-01-01T00:00:00+0000',
 			'metazone' => 'America_Mountain',
+			'std_offset' => '-07',
+			'dst_offset' => '-06',
 		],
 	];
 
