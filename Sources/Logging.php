@@ -18,6 +18,7 @@ namespace SMF;
 use SMF\Actions\Moderation\ReportedContent;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\InsertType;
+use SMF\Db\ReturnMode;
 
 /**
  * This class concerns itself with logging and tracking statistics.
@@ -185,7 +186,7 @@ class Logging
 			],
 			$inserts,
 			['id_action'],
-			Db::INSERT_RETURN_MODE_SINGLE,
+			ReturnMode::SingleRow,
 		);
 
 		return $id_action;

@@ -17,6 +17,7 @@ namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\InsertType;
+use SMF\Db\ReturnMode;
 
 /**
  * Represents a post draft.
@@ -781,7 +782,7 @@ class Draft
 				[
 					'id_draft',
 				],
-				Db::INSERT_RETURN_MODE_SINGLE,
+				ReturnMode::SingleRow,
 			);
 
 			// Did everything go as expected?

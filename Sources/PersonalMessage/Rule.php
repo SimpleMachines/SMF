@@ -19,6 +19,7 @@ use SMF\ArrayAccessHelper;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\InsertType;
+use SMF\Db\ReturnMode;
 use SMF\ErrorHandler;
 use SMF\Group;
 use SMF\Lang;
@@ -191,7 +192,7 @@ class Rule implements \ArrayAccess
 					],
 				],
 				['id_rule'],
-				Db::INSERT_RETURN_MODE_SINGLE,
+				ReturnMode::SingleRow,
 			);
 
 			self::$loaded[$this->id] = $this;

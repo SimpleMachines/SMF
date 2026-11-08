@@ -17,6 +17,7 @@ namespace SMF\Db\Schema;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\ReturnMode;
 use SMF\Lang;
 use SMF\Utils;
 
@@ -541,7 +542,7 @@ abstract class Table
 		}
 
 		$method = $replace ? 'replace' : 'ignore';
-		$returnmode = isset($auto_col) ? Db::INSERT_RETURN_MODE_MULTI : Db::INSERT_RETURN_MODE_OFF;
+		$returnmode = isset($auto_col) ? ReturnMode::MultiRow : ReturnMode::Off;
 
 		// Only do this if we are replacing data or the table is empty.
 		if ($method !== 'replace') {

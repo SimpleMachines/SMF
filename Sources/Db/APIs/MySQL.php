@@ -19,6 +19,7 @@ use SMF\Config;
 use SMF\Db\DatabaseApi;
 use SMF\Db\DatabaseApiInterface;
 use SMF\Db\InsertType;
+use SMF\Db\ReturnMode;
 use SMF\Debug\DebugUtils;
 use SMF\ErrorHandler;
 use SMF\IP;
@@ -377,7 +378,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 *
 	 */
-	public function insert(string|InsertType $method, string $table, array $columns, array $data, array $keys, int $returnmode = DatabaseApi::INSERT_RETURN_MODE_OFF, ?object $connection = null): int|array|null
+	public function insert(string|InsertType $method, string $table, array $columns, array $data, array $keys, int|ReturnMode $returnmode = ReturnMode::Off, ?object $connection = null): int|array|null
 	{
 		$connection = $connection ?? $this->connection;
 
@@ -394,15 +395,21 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			$method = InsertType::tryFrom(strtolower($method)) ?? InsertType::Insert;
 		}
 
+		// Convert to the ReturnMode.
+		if (\is_int($returnmode)) {
+			// Force method to lower case
+			$returnmode = ReturnMode::tryFrom($returnmode) ?? ReturnMode::Off;
+		}
+
 		// Replace the prefix holder with the actual prefix.
 		$table = str_replace('{db_prefix}', $this->prefix, $table);
 
 		$with_returning = false;
 
-		if (!empty($keys) && (\count($keys) > 0) && $returnmode > DatabaseApi::INSERT_RETURN_MODE_OFF) {
+		if (!empty($keys) && (\count($keys) > 0) && $returnmode !== ReturnMode::Off) {
 			$with_returning = true;
 
-			if ($returnmode == DatabaseApi::INSERT_RETURN_MODE_MULTI) {
+			if ($returnmode === ReturnMode::MultiRow) {
 				$return_var = [];
 			}
 		}
@@ -564,7 +571,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 				}
 
 				switch ($returnmode) {
-					case DatabaseApi::INSERT_RETURN_MODE_MULTI:
+					case ReturnMode::MultiRow:
 						$return_var[] = $ai;
 						break;
 
@@ -576,9 +583,9 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 		}
 
 		if ($with_returning) {
-			if ($returnmode == DatabaseApi::INSERT_RETURN_MODE_SINGLE && empty($return_var)) {
+			if ($returnmode === ReturnMode::SingleRow && empty($return_var)) {
 				$return_var = $this->insert_id($table, $keys[0]) + \count($insertRows) - 1;
-			} elseif ($returnmode == DatabaseApi::INSERT_RETURN_MODE_MULTI && empty($return_var)) {
+			} elseif ($returnmode === ReturnMode::MultiRow && empty($return_var)) {
 				$return_var = [];
 
 				$count = \count($insertRows);

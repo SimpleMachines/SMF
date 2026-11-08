@@ -19,6 +19,7 @@ use SMF\Config;
 use SMF\Cookie;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\InsertType;
+use SMF\Db\ReturnMode;
 use SMF\Db\Schema\Table;
 use SMF\EmailAddress;
 use SMF\IP;
@@ -1134,7 +1135,7 @@ class Install extends ToolsBase implements ToolsInterface
 						],
 					],
 					['id_member'],
-					Db::INSERT_RETURN_MODE_SINGLE,
+					ReturnMode::SingleRow,
 				);
 
 				if ((int) Utils::$context['id_member'] > 0) {

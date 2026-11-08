@@ -21,6 +21,7 @@ use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\InsertType;
+use SMF\Db\ReturnMode;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Msg;
@@ -435,7 +436,7 @@ class ReportToMod implements ActionInterface, Routable
 					],
 				],
 				['id_report'],
-				Db::INSERT_RETURN_MODE_SINGLE,
+				ReturnMode::SingleRow,
 			);
 		}
 
@@ -463,7 +464,7 @@ class ReportToMod implements ActionInterface, Routable
 					],
 				],
 				['id_comment'],
-				Db::INSERT_RETURN_MODE_SINGLE,
+				ReturnMode::SingleRow,
 			);
 
 			// And get ready to notify people.
@@ -613,7 +614,7 @@ class ReportToMod implements ActionInterface, Routable
 					],
 				],
 				['id_report'],
-				Db::INSERT_RETURN_MODE_SINGLE,
+				ReturnMode::SingleRow,
 			);
 		}
 

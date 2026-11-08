@@ -19,6 +19,7 @@ use SMF\Config;
 use SMF\Cookie;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\InsertType;
+use SMF\Db\ReturnMode;
 use SMF\EmailAddress;
 use SMF\ErrorHandler;
 use SMF\Group;
@@ -768,7 +769,7 @@ class Register2 extends Register
 			$column_names,
 			[$values],
 			['id_member'],
-			Db::INSERT_RETURN_MODE_SINGLE,
+			ReturnMode::SingleRow,
 		);
 
 		// Call an optional function as notification of registration.

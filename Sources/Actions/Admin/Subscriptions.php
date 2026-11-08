@@ -20,6 +20,7 @@ use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\InsertType;
+use SMF\Db\ReturnMode;
 use SMF\EmailAddress;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
@@ -695,7 +696,7 @@ class Subscriptions implements ActionInterface
 						],
 					],
 					['id_subscribe'],
-					Db::INSERT_RETURN_MODE_SINGLE,
+					ReturnMode::SingleRow,
 				);
 			}
 			// Otherwise must be editing.
