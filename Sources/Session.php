@@ -107,7 +107,7 @@ class Session extends \SessionHandler implements \SessionHandlerInterface, \Sess
 					'session_id' => $id,
 				],
 			);
-			
+
 			// Make sure we actually have something first...
 			if (Db::$db->num_rows($result) != 0) {
 				list($sess_data) = Db::$db->fetch_row($result);
