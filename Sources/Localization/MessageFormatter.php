@@ -1162,7 +1162,7 @@ class MessageFormatter
 							}
 
 							// Do the job.
-							return $sign . strtr($currency_format, ['{0}' => $number, '¤' => $currency_symbol]);
+							return $sign . strtr($currency_format, ['{0}' => $number, '¤' => $symbol]);
 						};
 
 						break;

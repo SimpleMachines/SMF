@@ -28,7 +28,7 @@ interface BBCodeInterface
 	 * Validates a particular occurrence of the BBCode in the text that is
 	 * being parsed.
 	 *
-	 * @param BBCodeInterface &$bbc This BBCode definition.
+	 * @param BBCodeInterface|BBCode &$bbc This BBCode definition.
 	 *    Passed in as an argument for historical reasons.
 	 * @param array|string &$data The data extracted from the particular
 	 *    occurrence of the BBCode in the text.

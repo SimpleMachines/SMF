@@ -721,7 +721,7 @@ class Msg implements \ArrayAccess, Routable
 	 *
 	 * @param int|array $ids The ID numbers of one or more messages.
 	 * @param array $query_customizations Customizations to the SQL query.
-	 * @return array Instances of this class for the loaded messages.
+	 * @return array|Msg[] Instances of this class for the loaded messages.
 	 */
 	public static function load(array|int $ids, array $query_customizations = []): array
 	{

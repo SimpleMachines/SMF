@@ -131,7 +131,7 @@ class MsgDelete implements ActionInterface, Routable
 		}
 
 		if (!isset($params['topic'])) {
-			$params['topic'] = Msg::load($params['msg'])->id_topic;
+			$params['topic'] = array_first(Msg::load($params['msg']))->id_topic;
 		}
 
 		$route[] = $params['action'];

@@ -966,8 +966,8 @@ class Utf8ConverterStep extends Step
 			// Build a huge REPLACE statement.
 			$replace = '{identifier:column}';
 
-			if (isset($translation_tables[$from_charset])) {
-				foreach ($translation_tables[$from_charset] as $from => $to) {
+			if (isset(self::TRANSLATION_TABLES[$from_charset])) {
+				foreach (self::TRANSLATION_TABLES[$from_charset] as $from => $to) {
 					$replace = 'REPLACE(' . $replace . ', ' . $from . ', ' . $to . ')';
 				}
 			} else {

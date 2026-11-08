@@ -26,7 +26,6 @@ use SMF\Services\ErrorHandlerService;
  * This class acts as a facade/proxy to the ErrorHandlerService, providing
  * backward compatibility with the old static API while leveraging the
  * dependency injection container for proper service management.
- * @deprecated Use SMF\Services\ErrorHandlerService via Container
  */
 class ErrorHandler
 {

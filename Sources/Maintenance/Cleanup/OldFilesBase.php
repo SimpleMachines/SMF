@@ -149,7 +149,7 @@ abstract class OldFilesBase extends CleanupBase
 		}
 
 		if (!is_dir($path)) {
-			@unlink($pathname);
+			@unlink($path);
 		} else {
 			$dir = new \DirectoryIterator($path);
 
@@ -164,6 +164,6 @@ abstract class OldFilesBase extends CleanupBase
 			@rmdir($path);
 		}
 
-		return !file_exists($file);
+		return !file_exists($path);
 	}
 }

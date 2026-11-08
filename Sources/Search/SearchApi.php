@@ -790,7 +790,7 @@ abstract class SearchApi implements SearchApiInterface
 	/**
 	 * Creates a search API and returns the object.
 	 *
-	 * @return \SMF\Search\SearchApiInterface An instance of the search API interface.
+	 * @return \SMF\Search\SearchApiInterface|\SMF\Search\SearchApiSettingsiInterface An instance of the search API interface.
 	 */
 	final public static function load(): object
 	{

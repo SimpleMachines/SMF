@@ -663,7 +663,7 @@ class PackageUtils
 							'function' => function ($rowData) {
 								$formatTxt = Lang::getTxt($rowData['result'] == '' || $rowData['result'] == 'skipped' ? 'package_restore_permissions_pre_change' : 'package_restore_permissions_post_change', file: 'Packages');
 
-								return Lang::formatText($formatTxt, $rowData['cur_perms'], $rowData['new_perms'], $rowData['writable_message']);
+								return Lang::formatText($formatTxt, [$rowData['cur_perms'], $rowData['new_perms'], $rowData['writable_message']]);
 							},
 							'class' => 'smalltext',
 						],
@@ -3486,7 +3486,7 @@ class PackageUtils
 		];
 		$output_ext = \function_exists('gzopen') ? 'tgz' : 'tar';
 		$dirname = Config::$packagesdir . '/backups';
-		$output_file = self::package_unique_filename(
+		$output_file = self::generateUniqueFilename(
 			$dirname,
 			date('Y-m-d_') . preg_replace('/[$\\/:<>|?*"\']/', '', $id),
 			$output_ext,
@@ -3509,7 +3509,7 @@ class PackageUtils
 		}
 
 		if (!is_writable($dirname)) {
-			self::package_chmod($dirname);
+			self::chmod($dirname);
 		}
 
 		try {

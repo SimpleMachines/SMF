@@ -18,6 +18,7 @@ namespace SMF\Actions;
 use SMF\ActionInterface;
 use SMF\ActionRouter;
 use SMF\ActionTrait;
+use SMF\Avatar;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;

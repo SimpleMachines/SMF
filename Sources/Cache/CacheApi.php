@@ -484,7 +484,7 @@ abstract class CacheApi
 	 * @param string|array $function The function to call
 	 * @param array $params Parameters to be passed to the specified function
 	 * @param int $level The cache level
-	 * @return string The cached data
+	 * @return string|array The cached data
 	 */
 	final public static function quickGet(string $key, string $file, string|array $function, array $params, int $level = 1): mixed
 	{
