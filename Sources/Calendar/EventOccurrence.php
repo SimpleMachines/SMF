@@ -433,7 +433,7 @@ class EventOccurrence implements \ArrayAccess
 				return $end->{substr($prop, 4)};
 
 			case 'age':
-				if ($this->getParentEvent()->type === Event::TYPE_BIRTHDAY && $this->getParentEvent()->start->format('Y') === 1004) {
+				if ($this->getParentEvent()->type === Event::TYPE_BIRTHDAY && $this->getParentEvent()->start->format('Y') === '1004') {
 					return null;
 				}
 
