@@ -17,6 +17,7 @@ namespace SMF\Tests\Integration\Http;
 
 use PHPUnit\Framework\Attributes\CoversNothing;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 
 /**
  * The statistics centre's list of the members who started the most topics.
@@ -155,7 +156,7 @@ class StatsStartersTest extends HttpTestCase
 		$login = 'starter_' . bin2hex(random_bytes(4));
 
 		$id = (int) Db::$db->insert(
-			'insert',
+			InsertType::Insert,
 			'{db_prefix}members',
 			[
 				'member_name' => 'string',
@@ -189,7 +190,7 @@ class StatsStartersTest extends HttpTestCase
 		$message_id = 900000000 + $member_id * 10 + $n;
 
 		$this->topic_ids[] = (int) Db::$db->insert(
-			'insert',
+			InsertType::Insert,
 			'{db_prefix}topics',
 			[
 				'id_board' => 'int',

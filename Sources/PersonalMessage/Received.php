@@ -17,6 +17,7 @@ namespace SMF\PersonalMessage;
 
 use SMF\ArrayAccessHelper;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
@@ -284,7 +285,7 @@ class Received implements \ArrayAccess
 			}
 
 			Db::$db->insert(
-				'ignore',
+				InsertType::Ignore,
 				'{db_prefix}pm_labeled_messages',
 				['id_pm' => 'int', 'id_label' => 'int'],
 				$inserts,

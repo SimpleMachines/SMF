@@ -17,6 +17,7 @@ namespace SMF\Tests\Integration\Http;
 
 use PHPUnit\Framework\Attributes\CoversNothing;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Topic;
 
 /**
@@ -134,7 +135,7 @@ class MoveTopicTest extends HttpTestCase
 		$other = $this->queryRow('SELECT id_cat, id_profile FROM {db_prefix}boards WHERE id_board = {int:b}', ['b' => $next_to]);
 
 		return (int) Db::$db->insert(
-			'insert',
+			InsertType::Insert,
 			'{db_prefix}boards',
 			[
 				'id_cat' => 'int', 'board_order' => 'int', 'member_groups' => 'string', 'id_profile' => 'int',

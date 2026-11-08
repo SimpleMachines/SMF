@@ -17,6 +17,7 @@ namespace SMF;
 
 use SMF\Actions\Admin\ACP;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\WebFetch\WebFetchApi;
 
 /**
@@ -162,7 +163,7 @@ class Statistics
 
 		if (!empty($ID[1])) {
 			Db::$db->insert(
-				'replace',
+				InsertType::Replace,
 				'{db_prefix}settings',
 				[
 					'variable' => 'string',

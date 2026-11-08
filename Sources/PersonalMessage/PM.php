@@ -22,6 +22,7 @@ use SMF\Autolinker;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Editor;
 use SMF\ErrorHandler;
 use SMF\Group;
@@ -1464,7 +1465,7 @@ class PM implements \ArrayAccess
 
 		// Insert the message itself and then grab the last insert id.
 		$id_pm = Db::$db->insert(
-			'',
+			InsertType::Insert,
 			'{db_prefix}personal_messages',
 			[
 				'id_pm_head' => 'int',
@@ -1527,7 +1528,7 @@ class PM implements \ArrayAccess
 			}
 
 			Db::$db->insert(
-				'insert',
+				InsertType::Insert,
 				'{db_prefix}pm_recipients',
 				[
 					'id_pm' => 'int', 'id_member' => 'int', 'bcc' => 'int', 'deleted' => 'int', 'is_new' => 'int',

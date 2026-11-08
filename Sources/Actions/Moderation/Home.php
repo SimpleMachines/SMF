@@ -20,6 +20,7 @@ use SMF\ActionTrait;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -159,7 +160,7 @@ class Home implements ActionInterface
 			if (!empty($_POST['new_note'])) {
 				// Insert it into the database then!
 				Db::$db->insert(
-					'',
+					InsertType::Insert,
 					'{db_prefix}log_comments',
 					[
 						'id_member' => 'int',

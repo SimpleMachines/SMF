@@ -18,6 +18,7 @@ namespace SMF\Maintenance\Tools;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Db\Schema\Table;
 use SMF\IP;
 use SMF\Lang;
@@ -1219,7 +1220,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		// Queue up some background tasks that we want to run soon after upgrading.
 		Db::$db->insert(
-			'insert',
+			InsertType::Insert,
 			'{db_prefix}background_tasks',
 			[
 				'task_class' => 'string',
@@ -1237,7 +1238,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 		);
 
 		Db::$db->insert(
-			'insert',
+			InsertType::Insert,
 			'{db_prefix}background_tasks',
 			[
 				'task_class' => 'string',
@@ -1256,7 +1257,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 
 		// Log the action manually, so CLI still works.
 		Db::$db->insert(
-			'',
+			InsertType::Insert,
 			'{db_prefix}log_actions',
 			[
 				'log_time' => 'int',

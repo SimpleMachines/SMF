@@ -19,6 +19,7 @@ use SMF\Actions\Calendar;
 use SMF\ArrayAccessHelper;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -723,7 +724,7 @@ class Event implements \ArrayAccess
 			}
 
 			$this->id = Db::$db->insert(
-				'',
+				InsertType::Insert,
 				'{db_prefix}calendar',
 				$columns,
 				[$params],
@@ -1794,7 +1795,7 @@ class Event implements \ArrayAccess
 		// If this isn't tied to a topic, we need to notify people about it.
 		if (empty($event->topic)) {
 			Db::$db->insert(
-				'insert',
+				InsertType::Insert,
 				'{db_prefix}background_tasks',
 				[
 					'task_class' => 'string',

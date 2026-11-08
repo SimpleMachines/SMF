@@ -20,6 +20,7 @@ use SMF\ActionRouter;
 use SMF\ActionTrait;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Routable;
 use SMF\Theme;
 use SMF\User;
@@ -98,7 +99,7 @@ class ThemeSetOption implements ActionInterface, Routable
 
 		// Update the option.
 		Db::$db->insert(
-			'replace',
+			InsertType::Replace,
 			'{db_prefix}themes',
 			[
 				'id_theme' => 'int',

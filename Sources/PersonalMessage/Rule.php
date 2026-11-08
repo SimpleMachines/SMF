@@ -18,6 +18,7 @@ namespace SMF\PersonalMessage;
 use SMF\ArrayAccessHelper;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\ErrorHandler;
 use SMF\Group;
 use SMF\Lang;
@@ -169,7 +170,7 @@ class Rule implements \ArrayAccess
 
 		if (empty($this->id)) {
 			$this->id = Db::$db->insert(
-				'',
+				InsertType::Insert,
 				'{db_prefix}pm_rules',
 				[
 					'id_member' => 'int',
@@ -397,7 +398,7 @@ class Rule implements \ArrayAccess
 				}
 
 				Db::$db->insert(
-					'ignore',
+					InsertType::Ignore,
 					'{db_prefix}pm_labeled_messages',
 					['id_pm' => 'int', 'id_label' => 'int'],
 					$inserts,

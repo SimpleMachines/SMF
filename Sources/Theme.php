@@ -18,6 +18,7 @@ namespace SMF;
 use SMF\Actions\Notify;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Debug\DebugUtils;
 use SMF\WebFetch\WebFetchApi;
 
@@ -2207,7 +2208,7 @@ class Theme
 				// If the user is logged, save this to their profile
 				if (!User::$me->is_guest && \in_array($_SESSION['theme_colormode'], $this->settings['theme_colormodes'])) {
 					Db::$db->insert(
-						'replace',
+						InsertType::Replace,
 						'{db_prefix}themes',
 						['id_theme' => 'int', 'id_member' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'],
 						[[self::$current->settings['theme_id'], User::$me->id, 'theme_colormode', $_SESSION['theme_colormode']]],
@@ -2258,7 +2259,7 @@ class Theme
 				// If the user is logged, save this to their profile
 				if (!User::$me->is_guest && \in_array($_SESSION['id_variant'], $this->settings['theme_variants'])) {
 					Db::$db->insert(
-						'replace',
+						InsertType::Replace,
 						'{db_prefix}themes',
 						['id_theme' => 'int', 'id_member' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'],
 						[[self::$current->settings['theme_id'], User::$me->id, 'theme_variant', $_SESSION['id_variant']]],

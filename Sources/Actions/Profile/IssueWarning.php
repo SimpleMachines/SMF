@@ -19,6 +19,7 @@ use SMF\ActionInterface;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
@@ -455,7 +456,7 @@ class IssueWarning implements ActionInterface
 
 				// Log the notice!
 				$id_notice = Db::$db->insert(
-					'',
+					InsertType::Insert,
 					'{db_prefix}log_member_notices',
 					[
 						'subject' => 'string-255',
@@ -481,7 +482,7 @@ class IssueWarning implements ActionInterface
 			// Log what we've done!
 			if (!Profile::$member->is_me) {
 				Db::$db->insert(
-					'',
+					InsertType::Insert,
 					'{db_prefix}log_comments',
 					[
 						'id_member' => 'int',

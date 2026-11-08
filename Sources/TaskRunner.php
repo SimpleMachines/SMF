@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Debug\DebugUtils;
 use SMF\Tasks\BackgroundTask;
 use SMF\Tasks\ScheduledTask;
@@ -681,7 +682,7 @@ class TaskRunner
 			// If we have a valid background task, queue it up.
 			if (isset($task_details['task_class']) && class_exists($task_details['task_class'])) {
 				Db::$db->insert(
-					'insert',
+					InsertType::Insert,
 					'{db_prefix}background_tasks',
 					[
 						'task_file' => 'string-255',

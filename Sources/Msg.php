@@ -18,6 +18,7 @@ namespace SMF;
 use SMF\Actions\Moderation\ReportedContent;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Diff\EditDiff;
 use SMF\Search\SearchApi;
 
@@ -344,7 +345,7 @@ class Msg implements \ArrayAccess, Routable
 			IntegrationHook::call('integrate_create_post', [&$this->internal_data['msgOptions'], &$this->internal_data['topicOptions'], &$this->internal_data['posterOptions'], &$columns, &$params]);
 
 			$this->id = (int) Db::$db->insert(
-				'',
+				InsertType::Insert,
 				'{db_prefix}messages',
 				$columns,
 				[$params],
@@ -968,7 +969,7 @@ class Msg implements \ArrayAccess, Routable
 
 			// Add to the approval queue too.
 			Db::$db->insert(
-				'',
+				InsertType::Insert,
 				'{db_prefix}approval_queue',
 				['id_msg' => 'int'],
 				[[$msg->id]],
@@ -976,7 +977,7 @@ class Msg implements \ArrayAccess, Routable
 			);
 
 			Db::$db->insert(
-				'',
+				InsertType::Insert,
 				'{db_prefix}background_tasks',
 				[
 					'task_class' => 'string',
@@ -1000,7 +1001,7 @@ class Msg implements \ArrayAccess, Routable
 
 		if ($msgOptions['approved'] && empty($topicOptions['is_approved']) && $posterOptions['id'] != User::$me->id) {
 			Db::$db->insert(
-				'',
+				InsertType::Insert,
 				'{db_prefix}background_tasks',
 				[
 					'task_class' => 'string',
@@ -1068,7 +1069,7 @@ class Msg implements \ArrayAccess, Routable
 		// Queue createPost background notification
 		if ($msgOptions['send_notifications'] && $msgOptions['approved']) {
 			Db::$db->insert(
-				'',
+				InsertType::Insert,
 				'{db_prefix}background_tasks',
 				[
 					'task_class' => 'string',
@@ -1288,7 +1289,7 @@ class Msg implements \ArrayAccess, Routable
 			)
 		) {
 			Db::$db->insert(
-				'',
+				InsertType::Insert,
 				'{db_prefix}background_tasks',
 				[
 					'task_class' => 'string',
@@ -1563,7 +1564,7 @@ class Msg implements \ArrayAccess, Routable
 
 			if ($notify) {
 				Db::$db->insert(
-					'',
+					InsertType::Insert,
 					'{db_prefix}background_tasks',
 					[
 						'task_class' => 'string',
@@ -1603,7 +1604,7 @@ class Msg implements \ArrayAccess, Routable
 			}
 
 			Db::$db->insert(
-				'ignore',
+				InsertType::Ignore,
 				'{db_prefix}approval_queue',
 				['id_msg' => 'int'],
 				$msgInserts,
@@ -2069,7 +2070,7 @@ class Msg implements \ArrayAccess, Routable
 			// Insert a new topic in the recycle board if $id_recycle_topic is empty.
 			if (empty($id_recycle_topic)) {
 				$id_topic = Db::$db->insert(
-					'',
+					InsertType::Insert,
 					'{db_prefix}topics',
 					[
 						'id_board' => 'int',
@@ -2135,7 +2136,7 @@ class Msg implements \ArrayAccess, Routable
 				// Mark recycled topic as read.
 				if (!User::$me->is_guest) {
 					Db::$db->insert(
-						'replace',
+						InsertType::Replace,
 						'{db_prefix}log_topics',
 						[
 							'id_topic' => 'int',
@@ -2158,7 +2159,7 @@ class Msg implements \ArrayAccess, Routable
 				// Mark recycle board as seen, if it was marked as seen before.
 				if (!empty($isRead) && !User::$me->is_guest) {
 					Db::$db->insert(
-						'replace',
+						InsertType::Replace,
 						'{db_prefix}log_boards',
 						[
 							'id_board' => 'int',

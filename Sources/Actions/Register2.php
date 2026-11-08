@@ -18,6 +18,7 @@ namespace SMF\Actions;
 use SMF\Config;
 use SMF\Cookie;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\EmailAddress;
 use SMF\ErrorHandler;
 use SMF\Group;
@@ -762,7 +763,7 @@ class Register2 extends Register
 
 		// Register them into the database.
 		$member_id = Db::$db->insert(
-			'',
+			InsertType::Insert,
 			'{db_prefix}members',
 			$column_names,
 			[$values],
@@ -789,7 +790,7 @@ class Register2 extends Register
 			}
 
 			Db::$db->insert(
-				'insert',
+				InsertType::Insert,
 				'{db_prefix}themes',
 				['id_member' => 'int', 'variable' => 'string-255', 'value' => 'string-65534'],
 				$inserts,

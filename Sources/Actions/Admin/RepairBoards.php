@@ -20,6 +20,7 @@ use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -1213,7 +1214,7 @@ class RepairBoards implements ActionInterface
 
 		if (empty($this->salvage_category)) {
 			$this->salvage_category = Db::$db->insert(
-				'',
+				InsertType::Insert,
 				'{db_prefix}categories',
 				[
 					'name' => 'string-255',
@@ -1256,7 +1257,7 @@ class RepairBoards implements ActionInterface
 
 		if (empty($this->salvage_board)) {
 			$this->salvage_board = Db::$db->insert(
-				'',
+				InsertType::Insert,
 				'{db_prefix}boards',
 				[
 					'name' => 'string-255',
@@ -1321,7 +1322,7 @@ class RepairBoards implements ActionInterface
 		$memberUpdatedID = (int) Board::getMsgMemberID((int) $row['myid_last_msg']);
 
 		$newTopicID = Db::$db->insert(
-			'',
+			InsertType::Insert,
 			'{db_prefix}topics',
 			[
 				'id_board' => 'int',
@@ -1399,7 +1400,7 @@ class RepairBoards implements ActionInterface
 
 		if (empty($row['id_topic'])) {
 			$newMessageID = Db::$db->insert(
-				'',
+				InsertType::Insert,
 				'{db_prefix}messages',
 				[
 					'id_board' => 'int',
@@ -1436,7 +1437,7 @@ class RepairBoards implements ActionInterface
 			);
 
 			$row['id_topic'] = Db::$db->insert(
-				'',
+				InsertType::Insert,
 				'{db_prefix}topics',
 				[
 					'id_board' => 'int',
@@ -1477,7 +1478,7 @@ class RepairBoards implements ActionInterface
 		}
 
 		Db::$db->insert(
-			'',
+			InsertType::Insert,
 			'{db_prefix}polls',
 			[
 				'id_poll' => 'int',
@@ -1529,7 +1530,7 @@ class RepairBoards implements ActionInterface
 		$row['poster_name'] = !empty($row['poster_name']) ? $row['poster_name'] : Lang::getTxt('guest', file: 'General');
 
 		$newMessageID = Db::$db->insert(
-			'',
+			InsertType::Insert,
 			'{db_prefix}messages',
 			[
 				'id_board' => 'int',
@@ -1566,7 +1567,7 @@ class RepairBoards implements ActionInterface
 		);
 
 		$newTopicID = Db::$db->insert(
-			'',
+			InsertType::Insert,
 			'{db_prefix}topics',
 			[
 				'id_board' => 'int',
@@ -1752,7 +1753,7 @@ class RepairBoards implements ActionInterface
 		$row['my_num_posts'] = (int) $row['my_num_posts'];
 
 		$newBoardID = Db::$db->insert(
-			'',
+			InsertType::Insert,
 			'{db_prefix}boards',
 			[
 				'id_cat' => 'int',
@@ -2069,7 +2070,7 @@ class RepairBoards implements ActionInterface
 
 			if (\count($inserts) > 500) {
 				Db::$db->insert(
-					'ignore',
+					InsertType::Ignore,
 					'{db_prefix}log_search_subjects',
 					['word' => 'string', 'id_topic' => 'int'],
 					$inserts,
@@ -2082,7 +2083,7 @@ class RepairBoards implements ActionInterface
 
 		if (!empty($inserts)) {
 			Db::$db->insert(
-				'ignore',
+				InsertType::Ignore,
 				'{db_prefix}log_search_subjects',
 				['word' => 'string', 'id_topic' => 'int'],
 				$inserts,

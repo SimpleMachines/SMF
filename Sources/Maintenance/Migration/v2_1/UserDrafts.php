@@ -17,6 +17,7 @@ namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Db\Schema;
 use SMF\Maintenance\Maintenance;
 use SMF\Maintenance\Migration\MigrationBase;
@@ -92,7 +93,7 @@ class UserDrafts extends MigrationBase
 
 			if (!empty($inserts)) {
 				Db::$db->insert(
-					'ignore',
+					InsertType::Ignore,
 					'{db_prefix}board_permissions',
 					[
 						'id_group' => 'int',
@@ -126,7 +127,7 @@ class UserDrafts extends MigrationBase
 
 			if (!empty($inserts)) {
 				Db::$db->insert(
-					'ignore',
+					InsertType::Ignore,
 					'{db_prefix}permissions',
 					[
 						'id_group' => 'int',
@@ -149,7 +150,7 @@ class UserDrafts extends MigrationBase
 			]);
 
 			Db::$db->insert(
-				'ignore',
+				InsertType::Ignore,
 				'{db_prefix}themes',
 				[
 					'id_member' => 'int',

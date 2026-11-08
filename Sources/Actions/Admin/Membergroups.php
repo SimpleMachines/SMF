@@ -20,6 +20,7 @@ use SMF\Actions\Groups;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\ErrorHandler;
 use SMF\Group;
 use SMF\IntegrationHook;
@@ -413,7 +414,7 @@ class Membergroups implements ActionInterface
 					}
 
 					Db::$db->insert(
-						'insert',
+						InsertType::Insert,
 						'{db_prefix}board_permissions_view',
 						['id_group' => 'int', 'id_board' => 'int', 'deny' => 'int'],
 						$insert,

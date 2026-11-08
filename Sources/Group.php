@@ -18,6 +18,7 @@ namespace SMF;
 use SMF\Actions\Admin\Permissions;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Permissions\GroupPermissionSet;
 use SMF\Permissions\Permission;
 use SMF\Permissions\PermissionProfile;
@@ -453,7 +454,7 @@ class Group implements \ArrayAccess
 			];
 
 			$this->id = Db::$db->insert(
-				'',
+				InsertType::Insert,
 				'{db_prefix}membergroups',
 				$columns,
 				[$params],
@@ -530,7 +531,7 @@ class Group implements \ArrayAccess
 			}
 
 			Db::$db->insert(
-				'insert',
+				InsertType::Insert,
 				'{db_prefix}group_moderators',
 				['id_group' => 'int', 'id_member' => 'int'],
 				$inserts,
@@ -1522,7 +1523,7 @@ class Group implements \ArrayAccess
 
 		if (!empty($inserts)) {
 			Db::$db->insert(
-				'replace',
+				InsertType::Replace,
 				'{db_prefix}permissions',
 				['id_group' => 'int', 'permission' => 'string', 'add_deny' => 'int'],
 				$inserts,
@@ -1554,7 +1555,7 @@ class Group implements \ArrayAccess
 
 		if (!empty($inserts)) {
 			Db::$db->insert(
-				'replace',
+				InsertType::Replace,
 				'{db_prefix}board_permissions',
 				['id_group' => 'int', 'id_profile' => 'int', 'permission' => 'string', 'add_deny' => 'int'],
 				$inserts,

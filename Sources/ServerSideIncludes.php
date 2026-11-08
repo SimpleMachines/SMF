@@ -18,6 +18,7 @@ namespace SMF;
 use SMF\Cache\CacheApi;
 use SMF\Calendar\Event;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Debug\DebugUtils;
 
 /**
@@ -2099,7 +2100,7 @@ class ServerSideIncludes
 
 		// Add their vote in to the tally.
 		Db::$db->insert(
-			'insert',
+			InsertType::Insert,
 			Db::$db->prefix . 'log_polls',
 			['id_poll' => 'int', 'id_member' => 'int', 'id_choice' => 'int'],
 			$inserts,

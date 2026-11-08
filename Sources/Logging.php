@@ -17,6 +17,7 @@ namespace SMF;
 
 use SMF\Actions\Moderation\ReportedContent;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 
 /**
  * This class concerns itself with logging and tracking statistics.
@@ -176,7 +177,7 @@ class Logging
 		}
 
 		$id_action = Db::$db->insert(
-			'',
+			InsertType::Insert,
 			'{db_prefix}log_actions',
 			[
 				'log_time' => 'int', 'id_log' => 'int', 'id_member' => 'int', 'ip' => 'inet', 'action' => 'string',
@@ -211,7 +212,7 @@ class Logging
 		}
 
 		Db::$db->insert(
-			'',
+			InsertType::Insert,
 			'{db_prefix}log_banned',
 			[
 				'id_member' => 'int',
@@ -379,7 +380,7 @@ class Logging
 
 					if (!empty($inserts)) {
 						Db::$db->insert(
-							'ignore',
+							InsertType::Ignore,
 							'{db_prefix}log_search_subjects',
 							['word' => 'string', 'id_topic' => 'int'],
 							$inserts,
@@ -492,7 +493,7 @@ class Logging
 
 		if (Db::$db->affected_rows() == 0) {
 			Db::$db->insert(
-				'ignore',
+				InsertType::Ignore,
 				'{db_prefix}log_activity',
 				array_merge($insert_keys, ['date' => 'date']),
 				[array_merge($cache_stats, [$date])],
@@ -540,7 +541,7 @@ class Logging
 			// The log_activity hasn't got an entry for today?
 			if (Db::$db->num_rows($request) === 0) {
 				Db::$db->insert(
-					'ignore',
+					InsertType::Ignore,
 					'{db_prefix}log_activity',
 					[
 						'date' => 'date',

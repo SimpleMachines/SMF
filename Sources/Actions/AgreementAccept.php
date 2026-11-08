@@ -17,6 +17,7 @@ namespace SMF\Actions;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Logging;
 use SMF\User;
 use SMF\Utils;
@@ -47,7 +48,7 @@ class AgreementAccept extends Agreement
 
 			if ($can_accept_agreement) {
 				Db::$db->insert(
-					'replace',
+					InsertType::Replace,
 					'{db_prefix}themes',
 					[
 						'id_member' => 'int',
@@ -71,7 +72,7 @@ class AgreementAccept extends Agreement
 
 			if ($can_accept_privacy_policy) {
 				Db::$db->insert(
-					'replace',
+					InsertType::Replace,
 					'{db_prefix}themes',
 					[
 						'id_member' => 'int',

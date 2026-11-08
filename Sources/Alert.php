@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 
 /**
  * Represents an alert and provides methods for working with alerts.
@@ -493,7 +494,7 @@ class Alert implements \ArrayAccess
 		// Saving a new alert.
 		if ($this->id <= 0) {
 			$this->id = Db::$db->insert(
-				'',
+				InsertType::Insert,
 				'{db_prefix}user_alerts',
 				[
 					'alert_time' => 'int',
@@ -688,7 +689,7 @@ class Alert implements \ArrayAccess
 
 		// Insert the data into the database.
 		$ids = Db::$db->insert(
-			'',
+			InsertType::Insert,
 			'{db_prefix}user_alerts',
 			[
 				'alert_time' => 'int',

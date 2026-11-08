@@ -20,6 +20,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use SMF\Actions\Notify;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 
 /**
  * The unsubscribe link at the bottom of a reply notification email.
@@ -219,7 +220,7 @@ class UnsubscribeLinkTest extends HttpTestCase
 		$name = 'unsub_' . bin2hex(random_bytes(4));
 
 		$this->member_id = (int) Db::$db->insert(
-			'insert',
+			InsertType::Insert,
 			'{db_prefix}members',
 			[
 				'member_name' => 'string',

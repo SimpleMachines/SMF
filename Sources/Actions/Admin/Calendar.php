@@ -24,6 +24,7 @@ use SMF\Calendar\Event;
 use SMF\Calendar\Holiday;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
@@ -372,7 +373,7 @@ class Calendar implements ActionInterface
 
 					if (!$exists) {
 						$id_task = Db::$db->insert(
-							'',
+							InsertType::Insert,
 							'{db_prefix}scheduled_tasks',
 							[
 								'next_time' => 'int',

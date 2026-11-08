@@ -18,6 +18,7 @@ namespace SMF\Permissions;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Group;
 
 /**
@@ -176,7 +177,7 @@ class GroupPermissionSet
 
 			// Now grant this group and its children whichever permissions they can have.
 			Db::$db->insert(
-				'replace',
+				InsertType::Replace,
 				'{db_prefix}permissions',
 				[
 					'id_group' => 'int',
@@ -231,7 +232,7 @@ class GroupPermissionSet
 
 		// Grant them whichever permissions they are now allowed to have.
 		Db::$db->insert(
-			'replace',
+			InsertType::Replace,
 			'{db_prefix}board_permissions',
 			[
 				'id_group' => 'int',

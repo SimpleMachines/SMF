@@ -25,6 +25,7 @@ use SMF\Cache\CacheApi;
 use SMF\Calendar\Event;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Editor;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
@@ -658,7 +659,7 @@ class Display implements ActionInterface, Routable
 			// Mark board as seen if we came using last post link from BoardIndex. (or other places...)
 			if (isset($_REQUEST['boardseen'])) {
 				Db::$db->insert(
-					'replace',
+					InsertType::Replace,
 					'{db_prefix}log_boards',
 					[
 						'id_msg' => 'int',

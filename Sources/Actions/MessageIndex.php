@@ -22,6 +22,7 @@ use SMF\Avatar;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -750,7 +751,7 @@ class MessageIndex implements ActionInterface, Routable
 	{
 		if (!User::$me->is_guest) {
 			Db::$db->insert(
-				'replace',
+				InsertType::Replace,
 				'{db_prefix}log_boards',
 				[
 					'id_msg' => 'int',
