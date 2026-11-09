@@ -19,6 +19,7 @@ use SMF\ActionInterface;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\IntegrationHook;
 use SMF\ItemList;
 use SMF\Lang;
@@ -513,7 +514,7 @@ class Warnings implements ActionInterface
 					}
 				} else {
 					Db::$db->insert(
-						'',
+						InsertType::Insert,
 						'{db_prefix}log_comments',
 						[
 							'id_member' => 'int',

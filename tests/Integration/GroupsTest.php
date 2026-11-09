@@ -18,6 +18,7 @@ namespace SMF\Tests\Integration;
 use PHPUnit\Framework\Attributes\CoversMethod;
 use SMF\Actions\Groups;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 
 /**
  * Covers the list of a membergroup's members that the admin centre shows for
@@ -101,7 +102,7 @@ class GroupsTest extends IntegrationTestCase
 		$name = 'groups_test_' . bin2hex(random_bytes(4));
 
 		return (int) Db::$db->insert(
-			'insert',
+			InsertType::Insert,
 			'{db_prefix}members',
 			[
 				'member_name' => 'string',

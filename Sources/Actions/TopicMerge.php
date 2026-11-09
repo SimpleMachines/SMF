@@ -23,6 +23,7 @@ use SMF\Board;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -735,7 +736,7 @@ class TopicMerge implements ActionInterface, Routable
 			}
 
 			Db::$db->insert(
-				'replace',
+				InsertType::Replace,
 				'{db_prefix}log_topics',
 				['id_member' => 'int', 'id_topic' => 'int', 'id_msg' => 'int', 'unwatched' => 'int'],
 				$replaceEntries,
@@ -777,7 +778,7 @@ class TopicMerge implements ActionInterface, Routable
 				}
 
 				Db::$db->insert(
-					'replace',
+					InsertType::Replace,
 					'{db_prefix}log_notify',
 					['id_member' => 'int', 'id_topic' => 'int', 'id_board' => 'int', 'sent' => 'int'],
 					$replaceEntries,

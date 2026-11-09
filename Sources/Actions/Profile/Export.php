@@ -19,6 +19,7 @@ use SMF\ActionInterface;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Security;
@@ -309,7 +310,7 @@ class Export implements ActionInterface
 			]);
 
 			Db::$db->insert(
-				'insert',
+				InsertType::Insert,
 				'{db_prefix}background_tasks',
 				[
 					'task_class' => 'string-255',

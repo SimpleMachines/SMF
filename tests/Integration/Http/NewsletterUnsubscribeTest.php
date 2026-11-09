@@ -18,6 +18,7 @@ namespace SMF\Tests\Integration\Http;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use SMF\Actions\Notify;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Tests\Support\HttpClient;
 
 /**
@@ -138,7 +139,7 @@ class NewsletterUnsubscribeTest extends HttpTestCase
 		$this->email = $name . '@example.com';
 
 		$this->member_id = (int) Db::$db->insert(
-			'insert',
+			InsertType::Insert,
 			'{db_prefix}members',
 			[
 				'member_name' => 'string',

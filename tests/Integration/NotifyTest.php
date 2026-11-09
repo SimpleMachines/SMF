@@ -19,6 +19,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use SMF\Actions\Notify;
 use SMF\Actions\NotifyTopic;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 
 /**
  * Turning on notifications for a member other than the one making the request.
@@ -106,7 +107,7 @@ class NotifyTest extends IntegrationTestCase
 		$name = 'notify_' . bin2hex(random_bytes(4));
 
 		return (int) Db::$db->insert(
-			'insert',
+			InsertType::Insert,
 			'{db_prefix}members',
 			[
 				'member_name' => 'string',

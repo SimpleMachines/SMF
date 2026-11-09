@@ -17,6 +17,7 @@ namespace SMF;
 
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 
 /**
  *  Implementation of PHP's session API.
@@ -106,10 +107,14 @@ class Session extends \SessionHandler implements \SessionHandlerInterface, \Sess
 					'session_id' => $id,
 				],
 			);
-			list($sess_data) = Db::$db->fetch_row($result);
-			Db::$db->free_result($result);
 
-			$this->data = $sess_data;
+			// Make sure we actually have something first...
+			if (Db::$db->num_rows($result) != 0) {
+				list($sess_data) = Db::$db->fetch_row($result);
+				Db::$db->free_result($result);
+
+				$this->data = $sess_data;
+			}
 		}
 
 		return $this->data != null ? $this->data : '';
@@ -146,7 +151,7 @@ class Session extends \SessionHandler implements \SessionHandlerInterface, \Sess
 
 		// If an insert fails due to a duplicate, replace the existing session...
 		Db::$db->insert(
-			'replace',
+			InsertType::Replace,
 			'{db_prefix}sessions',
 			[
 				'session_id' => 'string',

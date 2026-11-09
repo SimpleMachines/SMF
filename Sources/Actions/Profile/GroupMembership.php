@@ -19,6 +19,7 @@ use SMF\ActionInterface;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\ErrorHandler;
 use SMF\Group;
 use SMF\Lang;
@@ -375,7 +376,7 @@ class GroupMembership implements ActionInterface
 
 		// Log the request.
 		Db::$db->insert(
-			'',
+			InsertType::Insert,
 			'{db_prefix}log_group_requests',
 			[
 				'id_member' => 'int',
@@ -416,7 +417,7 @@ class GroupMembership implements ActionInterface
 
 		// Add a background task to handle notifying people of this request
 		Db::$db->insert(
-			'insert',
+			InsertType::Insert,
 			'{db_prefix}background_tasks',
 			[
 				'task_class' => 'string-255',

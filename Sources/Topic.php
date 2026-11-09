@@ -20,6 +20,7 @@ use SMF\Actions\Notify;
 use SMF\Cache\CacheApi;
 use SMF\Calendar\Event;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Search\SearchApi;
 
 /**
@@ -494,7 +495,7 @@ class Topic implements \ArrayAccess, Routable
 			IntegrationHook::call('integrate_before_create_topic', [&$this->internal_data['msgOptions'], &$this->internal_data['topicOptions'], &$this->internal_data['posterOptions'], &$columns, &$params]);
 
 			$this->id = (int) Db::$db->insert(
-				'',
+				InsertType::Insert,
 				'{db_prefix}topics',
 				$columns,
 				[$params],
@@ -781,7 +782,7 @@ class Topic implements \ArrayAccess, Routable
 		// If there was no existing record, insert one.
 		if (Db::$db->affected_rows() == 0) {
 			Db::$db->insert(
-				'ignore',
+				InsertType::Ignore,
 				'{db_prefix}log_topics',
 				[
 					'id_topic' => 'int',
@@ -1227,7 +1228,7 @@ class Topic implements \ArrayAccess, Routable
 			// Prevent queries from getting too big. Taking some steam off.
 			if (\count($log_topics) > 500) {
 				Db::$db->insert(
-					'replace',
+					InsertType::Replace,
 					'{db_prefix}log_topics',
 					['id_topic' => 'int', 'id_member' => 'int', 'id_msg' => 'int', 'unwatched' => 'int'],
 					$log_topics,
@@ -1243,7 +1244,7 @@ class Topic implements \ArrayAccess, Routable
 		if (!empty($log_topics)) {
 			// Insert that information into the database!
 			Db::$db->insert(
-				'replace',
+				InsertType::Replace,
 				'{db_prefix}log_topics',
 				['id_topic' => 'int', 'id_member' => 'int', 'id_msg' => 'int', 'unwatched' => 'int'],
 				$log_topics,
@@ -1438,7 +1439,7 @@ class Topic implements \ArrayAccess, Routable
 
 		if (!empty($isSeen) && !User::$me->is_guest) {
 			Db::$db->insert(
-				'replace',
+				InsertType::Replace,
 				'{db_prefix}log_boards',
 				[
 					'id_board' => 'int',

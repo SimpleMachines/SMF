@@ -19,6 +19,7 @@ use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Tests\Support\HttpResponse;
 
 /**
@@ -196,7 +197,7 @@ class ThemeCopyTest extends HttpTestCase
 		}
 
 		Db::$db->insert(
-			'insert',
+			InsertType::Insert,
 			'{db_prefix}themes',
 			['id_theme' => 'int', 'id_member' => 'int', 'variable' => 'string', 'value' => 'string'],
 			$rows,

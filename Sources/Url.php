@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Tasks\UpdateTldRegex;
 use SMF\WebFetch\WebFetchApi;
 
@@ -864,7 +865,7 @@ class Url implements \Stringable
 			// and/or we are having connectivity issues.
 			if (empty($postapocalypticNightmare)) {
 				Db::$db->insert(
-					'insert',
+					InsertType::Insert,
 					'{db_prefix}background_tasks',
 					[
 						'task_class' => 'string-255',

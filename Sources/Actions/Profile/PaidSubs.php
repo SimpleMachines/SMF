@@ -20,6 +20,7 @@ use SMF\Actions\Admin\Subscriptions;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\Profile;
@@ -283,7 +284,7 @@ class PaidSubs implements ActionInterface
 			// Never had this before, lovely.
 			else {
 				Db::$db->insert(
-					'',
+					InsertType::Insert,
 					'{db_prefix}log_subscribed',
 					[
 						'id_subscribe' => 'int',

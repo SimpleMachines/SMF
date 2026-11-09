@@ -19,6 +19,7 @@ use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\Attributes\DataProvider;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 
 /**
  * The two links in every activation email: one carrying the code, and one
@@ -159,7 +160,7 @@ class ActivationTest extends HttpTestCase
 		$name = 'activate_' . bin2hex(random_bytes(4));
 
 		return $this->member_id = (int) Db::$db->insert(
-			'insert',
+			InsertType::Insert,
 			'{db_prefix}members',
 			[
 				'member_name' => 'string',

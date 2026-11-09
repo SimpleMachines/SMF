@@ -23,6 +23,7 @@ use SMF\ActionTrait;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -1700,7 +1701,7 @@ class ACP implements ActionInterface, Routable
 
 		// Update the themes table.
 		Db::$db->insert(
-			'replace',
+			InsertType::Replace,
 			'{db_prefix}themes',
 			[
 				'id_member' => 'int',

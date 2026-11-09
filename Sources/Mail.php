@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\MailAgent\MailAgent;
 
 /**
@@ -263,7 +264,7 @@ class Mail
 
 			// Dump the data...
 			Db::$db->insert(
-				'',
+				InsertType::Insert,
 				'{db_prefix}mail_queue',
 				[
 					'time_sent' => 'int', 'recipient' => 'string-255', 'body' => 'string', 'subject' => 'string-255',
@@ -308,7 +309,7 @@ class Mail
 			if ($this_insert_len + $cur_insert_len > 1000000) {
 				// Flush out what we have so far.
 				Db::$db->insert(
-					'',
+					InsertType::Insert,
 					'{db_prefix}mail_queue',
 					[
 						'time_sent' => 'int', 'recipient' => 'string-255', 'body' => 'string', 'subject' => 'string-255',
@@ -526,7 +527,7 @@ class Mail
 		if (!empty($failed_emails)) {
 			// Update the failed attempts check.
 			Db::$db->insert(
-				'replace',
+				InsertType::Replace,
 				'{db_prefix}settings',
 				[
 					'variable' => 'string',
@@ -557,7 +558,7 @@ class Mail
 
 			// Add our email back to the queue, manually.
 			Db::$db->insert(
-				'insert',
+				InsertType::Insert,
 				'{db_prefix}mail_queue',
 				[
 					'recipient' => 'string',
@@ -740,7 +741,7 @@ class Mail
 
 		if (!empty($task_rows)) {
 			Db::$db->insert(
-				'',
+				InsertType::Insert,
 				'{db_prefix}background_tasks',
 				[
 					'task_class' => 'string',
@@ -784,7 +785,7 @@ class Mail
 
 		// This is really just a wrapper for making a new background task to deal with all the fun.
 		Db::$db->insert(
-			'insert',
+			InsertType::Insert,
 			'{db_prefix}background_tasks',
 			[
 				'task_class' => 'string',

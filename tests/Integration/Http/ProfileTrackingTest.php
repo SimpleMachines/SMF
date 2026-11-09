@@ -17,6 +17,7 @@ namespace SMF\Tests\Integration\Http;
 
 use PHPUnit\Framework\Attributes\CoversNothing;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 
 /**
  * The tracking section of a member's profile, as a moderator sees it.
@@ -109,7 +110,7 @@ class ProfileTrackingTest extends HttpTestCase
 		$name = 'tracked_' . bin2hex(random_bytes(4));
 
 		return (int) Db::$db->insert(
-			'insert',
+			InsertType::Insert,
 			'{db_prefix}members',
 			[
 				'member_name' => 'string',

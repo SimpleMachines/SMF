@@ -22,6 +22,7 @@ use SMF\Alert;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Debug\DebugUtils;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -504,7 +505,7 @@ class React implements ActionInterface, Routable
 
 		// Insert the like.
 		Db::$db->insert(
-			'insert',
+			InsertType::Insert,
 			'{db_prefix}user_reacts',
 			[
 				'content_id' => 'int',
@@ -534,7 +535,7 @@ class React implements ActionInterface, Routable
 		// both are immediately called after this.
 		if ($this->type == 'msg') {
 			Db::$db->insert(
-				'insert',
+				InsertType::Insert,
 				'{db_prefix}background_tasks',
 				[
 					'task_class' => 'string',

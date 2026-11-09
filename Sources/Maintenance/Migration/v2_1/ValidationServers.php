@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF\Maintenance\Migration\v2_1;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Db\Schema;
 use SMF\Maintenance\Migration\MigrationBase;
 
@@ -78,7 +79,7 @@ class ValidationServers extends MigrationBase
 
 		if (empty($downloads_server)) {
 			Db::$db->insert(
-				'',
+				InsertType::Insert,
 				'{db_prefix}' . $table->name,
 				[
 					'name' => 'string',

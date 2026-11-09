@@ -17,6 +17,7 @@ namespace SMF;
 
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Graphics\Image;
 use SMF\Permissions\Permission;
 
@@ -1548,7 +1549,7 @@ class Profile extends User implements \ArrayAccess
 		// Make any updates to custom fields and theme options.
 		if (!empty($this->new_cf_data['updates']) || !empty($this->new_options['updates'])) {
 			Db::$db->insert(
-				'replace',
+				InsertType::Replace,
 				'{db_prefix}themes',
 				[
 					'id_theme' => 'int',
@@ -2837,7 +2838,7 @@ class Profile extends User implements \ArrayAccess
 		$this->new_data['avatar'] = '';
 
 		$this->data['id_attach'] = Db::$db->insert(
-			'',
+			InsertType::Insert,
 			'{db_prefix}attachments',
 			[
 				'id_member' => 'int',

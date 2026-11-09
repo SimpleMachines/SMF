@@ -18,6 +18,7 @@ namespace SMF\Db\APIs;
 use SMF\Config;
 use SMF\Db\DatabaseApi;
 use SMF\Db\DatabaseApiInterface;
+use SMF\Db\InsertType;
 use SMF\Debug\DebugUtils;
 use SMF\ErrorHandler;
 use SMF\IP;
@@ -376,7 +377,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 *
 	 */
-	public function insert(string $method, string $table, array $columns, array $data, array $keys, int $returnmode = DatabaseApi::INSERT_RETURN_MODE_OFF, ?object $connection = null): int|array|null
+	public function insert(string|InsertType $method, string $table, array $columns, array $data, array $keys, int $returnmode = DatabaseApi::INSERT_RETURN_MODE_OFF, ?object $connection = null): int|array|null
 	{
 		$connection = $connection ?? $this->connection;
 
@@ -387,8 +388,11 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			return null;
 		}
 
-		// Force method to lower case
-		$method = strtolower($method);
+		// Convert to the InsertType.
+		if (\is_string($method)) {
+			// Force method to lower case
+			$method = InsertType::tryFrom(strtolower($method)) ?? InsertType::Insert;
+		}
 
 		// Replace the prefix holder with the actual prefix.
 		$table = str_replace('{db_prefix}', $this->prefix, $table);
@@ -457,7 +461,7 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 		// Determine the method of insertion.
 		switch ($method) {
-			case 'replace':
+			case InsertType::Replace:
 				$queryTitle = 'REPLACE';
 
 				// Sanity check for replace is key part of the columns array
@@ -483,10 +487,11 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 
 				break;
 
-			case 'ignore':
+			case InsertType::Ignore:
 				$queryTitle = 'INSERT IGNORE';
 				break;
 
+			//case InsertType::Insert:
 			default:
 				$queryTitle = 'INSERT';
 				break;

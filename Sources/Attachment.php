@@ -17,6 +17,7 @@ namespace SMF;
 
 use SMF\Actions\Admin\ACP;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Graphics\Image;
 
 /**
@@ -1405,7 +1406,7 @@ class Attachment implements \ArrayAccess
 
 		// Create the attachment in the database.
 		$attachmentOptions['id'] = Db::$db->insert(
-			'',
+			InsertType::Insert,
 			'{db_prefix}attachments',
 			$attachmentColumns,
 			[$attachmentValues],
@@ -1427,7 +1428,7 @@ class Attachment implements \ArrayAccess
 		// If it's not approved then add to the approval queue.
 		if (!$attachmentOptions['approved']) {
 			Db::$db->insert(
-				'',
+				InsertType::Insert,
 				'{db_prefix}approval_queue',
 				[
 					'id_attach' => 'int',
@@ -1444,7 +1445,7 @@ class Attachment implements \ArrayAccess
 
 			// Queue background notification task.
 			Db::$db->insert(
-				'insert',
+				InsertType::Insert,
 				'{db_prefix}background_tasks',
 				[
 					'task_class' => 'string',
@@ -1505,7 +1506,7 @@ class Attachment implements \ArrayAccess
 
 				// To the database we go!
 				$attachmentOptions['thumb'] = Db::$db->insert(
-					'',
+					InsertType::Insert,
 					'{db_prefix}attachments',
 					[
 						'id_folder' => 'int',
@@ -2102,7 +2103,7 @@ class Attachment implements \ArrayAccess
 
 							// Add this beauty to the database.
 							$attachment['id_thumb'] = Db::$db->insert(
-								'',
+								InsertType::Insert,
 								'{db_prefix}attachments',
 								[
 									'id_folder' => 'int',

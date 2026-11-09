@@ -21,6 +21,7 @@ use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\IntegrationHook;
 use SMF\Logging;
 use SMF\Mail;
@@ -512,7 +513,7 @@ class QuickModeration implements ActionInterface, Routable
 		}
 
 		Db::$db->insert(
-			'replace',
+			InsertType::Replace,
 			'{db_prefix}log_topics',
 			['id_msg' => 'int', 'id_member' => 'int', 'id_topic' => 'int', 'unwatched' => 'int'],
 			$markreadArray,

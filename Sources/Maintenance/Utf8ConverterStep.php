@@ -17,6 +17,7 @@ namespace SMF\Maintenance;
 
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Db\Schema\Table;
 use SMF\Lang;
 use SMF\Sapi;
@@ -889,7 +890,7 @@ class Utf8ConverterStep extends Step
 
 		// Create a background task to convert entities to characters.
 		Db::$db->insert(
-			'insert',
+			InsertType::Insert,
 			'{db_prefix}background_tasks',
 			[
 				'task_class' => 'string-255',

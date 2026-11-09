@@ -24,6 +24,7 @@ use SMF\Autolinker;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -753,7 +754,7 @@ class TopicSplit implements ActionInterface, Routable
 
 		// We're off to insert the new topic!  Use 0 for now to avoid UNIQUE errors.
 		$split2_ID_TOPIC = Db::$db->insert(
-			'',
+			InsertType::Insert,
 			'{db_prefix}topics',
 			[
 				'id_board' => 'int',
@@ -909,7 +910,7 @@ class TopicSplit implements ActionInterface, Routable
 			}
 
 			Db::$db->insert(
-				'ignore',
+				InsertType::Ignore,
 				'{db_prefix}log_topics',
 				['id_member' => 'int', 'id_topic' => 'int', 'id_msg' => 'int', 'unwatched' => 'int'],
 				$replaceEntries,

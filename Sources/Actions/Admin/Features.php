@@ -20,6 +20,7 @@ use SMF\Actions\Profile\Notification;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\ErrorHandler;
 use SMF\Graphics\Image;
 use SMF\IntegrationHook;
@@ -1310,7 +1311,7 @@ class Features implements ActionInterface
 				$new_order = $order_count > 1 ? ($order_count + 1) : 1;
 
 				Db::$db->insert(
-					'',
+					InsertType::Insert,
 					'{db_prefix}custom_fields',
 					[
 						'col_name' => 'string',

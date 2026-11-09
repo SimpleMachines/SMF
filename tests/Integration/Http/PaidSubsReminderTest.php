@@ -19,6 +19,7 @@ use PHPUnit\Framework\Attributes\CoversNothing;
 use SMF\Actions\Notify;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\Tests\Support\HttpResponse;
 
 /**
@@ -81,7 +82,7 @@ class PaidSubsReminderTest extends HttpTestCase
 
 		// A subscription with a week's reminder, running out in three days.
 		$this->subscription = (int) Db::$db->insert(
-			'insert',
+			InsertType::Insert,
 			'{db_prefix}subscriptions',
 			[
 				'name' => 'string', 'description' => 'string', 'cost' => 'string', 'length' => 'string', 'id_group' => 'int',
@@ -94,7 +95,7 @@ class PaidSubsReminderTest extends HttpTestCase
 		);
 
 		Db::$db->insert(
-			'insert',
+			InsertType::Insert,
 			'{db_prefix}log_subscribed',
 			[
 				'id_subscribe' => 'int', 'id_member' => 'int', 'old_id_group' => 'int', 'start_time' => 'int', 'end_time' => 'int',
@@ -168,7 +169,7 @@ class PaidSubsReminderTest extends HttpTestCase
 		$name = 'paidsub_' . bin2hex(random_bytes(4));
 
 		return (int) Db::$db->insert(
-			'insert',
+			InsertType::Insert,
 			'{db_prefix}members',
 			[
 				'member_name' => 'string',

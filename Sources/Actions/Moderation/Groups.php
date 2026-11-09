@@ -18,6 +18,7 @@ use SMF\Actions\Groups as ViewGroups;
 use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\ErrorHandler;
 use SMF\Group;
 use SMF\IntegrationHook;
@@ -328,7 +329,7 @@ class Groups extends ViewGroups
 					]);
 
 					Db::$db->insert(
-						'insert',
+						InsertType::Insert,
 						'{db_prefix}background_tasks',
 						[
 							'task_class' => 'string-255',

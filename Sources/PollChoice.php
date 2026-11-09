@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 
 /**
  * Represents one of the choices a user can vote for in a poll.
@@ -125,7 +126,7 @@ class PollChoice implements \ArrayAccess
 	public function add(): void
 	{
 		Db::$db->insert(
-			'',
+			InsertType::Insert,
 			'{db_prefix}poll_choices',
 			[
 				'id_poll' => 'int',

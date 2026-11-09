@@ -18,6 +18,7 @@ namespace SMF\Tasks;
 use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\IntegrationHook;
 use SMF\Theme;
 
@@ -227,7 +228,7 @@ class WeeklyMaintenance extends ScheduledTask
 
 		// Update the regex of top level domains with the IANA's latest official list.
 		Db::$db->insert(
-			'insert',
+			InsertType::Insert,
 			'{db_prefix}background_tasks',
 			[
 				'task_class' => 'string-255',
@@ -246,7 +247,7 @@ class WeeklyMaintenance extends ScheduledTask
 
 		// Ensure Unicode data files are up to date
 		Db::$db->insert(
-			'insert',
+			InsertType::Insert,
 			'{db_prefix}background_tasks',
 			[
 				'task_class' => 'string-255',

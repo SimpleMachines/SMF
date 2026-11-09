@@ -21,6 +21,7 @@ use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Cookie;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\IP;
@@ -575,7 +576,7 @@ class Login2 implements ActionInterface, Routable
 		// Log this entry, only if we have it enabled.
 		if (!empty(Config::$modSettings['loginHistoryDays'])) {
 			Db::$db->insert(
-				'insert',
+				InsertType::Insert,
 				'{db_prefix}member_logins',
 				[
 					'id_member' => 'int',

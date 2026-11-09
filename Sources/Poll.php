@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 
 /**
  * Represents a poll.
@@ -561,7 +562,7 @@ class Poll implements \ArrayAccess
 			}
 
 			$this->id = Db::$db->insert(
-				'',
+				InsertType::Insert,
 				'{db_prefix}polls',
 				[
 					'question' => 'string-255',

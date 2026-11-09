@@ -19,6 +19,7 @@ use PHPUnit\Framework\Attributes\CoversNothing;
 use SMF\Actions\Notify;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 
 /**
  * The email a member watching a topic gets when someone replies, sent by the
@@ -155,10 +156,10 @@ class ReplyNotificationTest extends HttpTestCase
 			'msg_notify_type' => 1,
 		]);
 
-		Db::$db->insert('insert', '{db_prefix}log_notify', ['id_member' => 'int', 'id_topic' => 'int', 'id_board' => 'int', 'sent' => 'int'], [[$this->member, $this->topic, 0, 0]], []);
+		Db::$db->insert(InsertType::Insert, '{db_prefix}log_notify', ['id_member' => 'int', 'id_topic' => 'int', 'id_board' => 'int', 'sent' => 'int'], [[$this->member, $this->topic, 0, 0]], []);
 
 		Db::$db->insert(
-			'insert',
+			InsertType::Insert,
 			'{db_prefix}background_tasks',
 			['task_class' => 'string-255', 'task_data' => 'string', 'claimed_time' => 'int'],
 			[[
@@ -212,7 +213,7 @@ class ReplyNotificationTest extends HttpTestCase
 		$name = 'watcher_' . bin2hex(random_bytes(4));
 
 		return (int) Db::$db->insert(
-			'insert',
+			InsertType::Insert,
 			'{db_prefix}members',
 			[
 				'member_name' => 'string',

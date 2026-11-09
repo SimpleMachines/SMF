@@ -21,6 +21,7 @@ use SMF\ActionTrait;
 use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 use SMF\ErrorHandler;
 use SMF\Lang;
 use SMF\OutputTypeInterface;
@@ -259,7 +260,7 @@ abstract class Notify implements ActionInterface
 		}
 
 		Db::$db->insert(
-			'replace',
+			InsertType::Replace,
 			'{db_prefix}user_alerts_prefs',
 			['id_member' => 'int', 'alert_pref' => 'string', 'alert_value' => 'int'],
 			$update_rows,
@@ -540,7 +541,7 @@ abstract class Notify implements ActionInterface
 
 			// Turn notification on.  (note this just blows smoke if it's already on.)
 			Db::$db->insert(
-				'ignore',
+				InsertType::Ignore,
 				'{db_prefix}log_notify',
 				[
 					'id_member' => 'int',

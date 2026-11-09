@@ -19,6 +19,7 @@ namespace SMF;
 
 use SMF\BBCode\BBCode;
 use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
 
 /**
  * This really is a pseudo class, I couldn't justify having instance of it
@@ -108,7 +109,7 @@ class Mentions
 
 		foreach ($members as $member) {
 			Db::$db->insert(
-				'ignore',
+				InsertType::Ignore,
 				'{db_prefix}mentions',
 				[
 					'content_id' => 'int',
