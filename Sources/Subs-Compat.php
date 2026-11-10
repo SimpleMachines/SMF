@@ -35,9 +35,9 @@ function sha1_smf($str)
 	$blks = array_pad(array(), $nblk * 16, 0);
 
 	for ($i = 0; $i < strlen($str); $i++)
-		$blks[$i >> 2] |= ord($str[$i]) << (24 - ($i % 4) * 8);
+		$blks[$i >> 2] |= ord($str[$i]) << (24 - ($i % 4) * 8) & 0xFFFFFFFF;
 
-	$blks[$i >> 2] |= 0x80 << (24 - ($i % 4) * 8);
+	$blks[$i >> 2] |= 0x80 << (24 - ($i % 4) * 8) & 0xFFFFFFFF;
 
 	return sha1_core($blks, strlen($str) * 8);
 }
@@ -51,7 +51,7 @@ function sha1_smf($str)
  */
 function sha1_core($x, $len)
 {
-	@$x[$len >> 5] |= 0x80 << (24 - $len % 32);
+	@$x[$len >> 5] |= 0x80 << (24 - $len % 32) & 0xFFFFFFFF;
 	$x[(($len + 64 >> 9) << 4) + 15] = $len;
 
 	$w = array();
@@ -72,16 +72,17 @@ function sha1_core($x, $len)
 		for ($j = 0; $j < 80; $j++)
 		{
 			if ($j < 16)
-				$w[$j] = isset($x[$i + $j]) ? $x[$i + $j] : 0;
+				$w[$j] = (isset($x[$i + $j]) ? $x[$i + $j] : 0) & 0xFFFFFFFF;
 			else
-				$w[$j] = sha1_rol($w[$j - 3] ^ $w[$j - 8] ^ $w[$j - 14] ^ $w[$j - 16], 1);
+				$w[$j] = sha1_rol($w[$j - 3] ^ $w[$j - 8] ^ $w[$j - 14] ^ $w[$j - 16], 1) & 0xFFFFFFFF;
 
-			$t = sha1_rol($a, 5) + sha1_ft($j, $b, $c, $d) + $e + $w[$j] + sha1_kt($j);
-			$e = $d;
-			$d = $c;
-			$c = sha1_rol($b, 30);
-			$b = $a;
-			$a = $t;
+			$t = (sha1_rol($a, 5) + sha1_ft($j, $b, $c, $d) + $e + $w[$j] + sha1_kt($j)) & 0xFFFFFFFF;
+			$e = $d & 0xFFFFFFFF;
+			$d = $c & 0xFFFFFFFF;
+			$c = sha1_rol($b, 30) & 0xFFFFFFFF;
+			$b = $a & 0xFFFFFFFF;
+			$a = $t & 0xFFFFFFFF;
+
 		}
 
 		$a += $olda;
@@ -91,7 +92,7 @@ function sha1_core($x, $len)
 		$e += $olde;
 	}
 
-	return sprintf('%08x%08x%08x%08x%08x', $a, $b, $c, $d, $e);
+	return sprintf('%08x%08x%08x%08x%08x', $a & 0xFFFFFFFF, $b & 0xFFFFFFFF, $c & 0xFFFFFFFF, $d & 0xFFFFFFFF, $e & 0xFFFFFFFF);
 }
 
 /**
@@ -106,13 +107,13 @@ function sha1_core($x, $len)
 function sha1_ft($t, $b, $c, $d)
 {
 	if ($t < 20)
-		return ($b & $c) | ((~$b) & $d);
+		return (($b & $c) | ((~$b) & $d)) & 0xFFFFFFFF;
 	if ($t < 40)
-		return $b ^ $c ^ $d;
+		return ($b ^ $c ^ $d) & 0xFFFFFFFF;
 	if ($t < 60)
-		return ($b & $c) | ($b & $d) | ($c & $d);
+		return (($b & $c) | ($b & $d) | ($c & $d)) & 0xFFFFFFFF;
 
-	return $b ^ $c ^ $d;
+	return ($b ^ $c ^ $d) & 0xFFFFFFFF;
 }
 
 /**
@@ -123,7 +124,7 @@ function sha1_ft($t, $b, $c, $d)
  */
 function sha1_kt($t)
 {
-	return $t < 20 ? 1518500249 : ($t < 40 ? 1859775393 : ($t < 60 ? -1894007588 : -899497514));
+	return ($t < 20 ? 1518500249 : ($t < 40 ? 1859775393 : ($t < 60 ? -1894007588 : -899497514))) & 0xFFFFFFFF;
 }
 
 /**
@@ -141,7 +142,7 @@ function sha1_rol($num, $cnt)
 	else
 		$a = $num >> (32 - $cnt);
 
-	return ($num << $cnt) | $a;
+	return (($num << $cnt) | $a) & 0xFFFFFFFF;
 }
 
 /**
