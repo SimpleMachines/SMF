@@ -6229,16 +6229,31 @@ function fetch_web_data($url, $post_data = '', $keep_alive = false, $redirection
 			$fp = $keep_alive_fp;
 		if (empty($fp))
 		{
+			$ips = get_ips_for_url($url);
+			$port = empty($match[5]) ? ($match[2] ? 443 : 80) : $match[5];
+			$protocol = $match[2] ? 'ssl://' : 'tcp://';
+			$ip = strpos($ips[0], ':') !== false ? '[' . $ips[0] . ']' : $ips[0];
+
 			// Open the socket on the port we want...
-			$fp = @fsockopen(($match[2] ? 'ssl://' : '') . $match[3], empty($match[5]) ? ($match[2] ? 443 : 80) : $match[5], $err, $err, 5);
+			$stream_context = stream_context_create(array('ssl' => array('peer_name' => $match[3])));
+			$fp = @stream_socket_client($protocol . $ip . ':' . $port, $err, $err, 5, STREAM_CLIENT_CONNECT, $stream_context);
+
+			if (!$fp)
+				$fp = @fsockopen(($match[2] ? 'ssl://' : '') . $match[3], empty($match[5]) ? ($match[2] ? 443 : 80) : $match[5], $err, $err, 5);
 		}
 		if (!empty($fp))
 		{
 			// Double check that we connected to the expected IP and port.
 			// If the connection was successful, name will be "<IP address>:<port>"
 			$socket_name = @stream_socket_get_name($fp, true);
+			$socket_port = substr($socket_name, ($match[2] ? -4 : -3));
+			$socket_ip = substr($socket_name, 0, ($match[2] ? -4 : -3));
 
-			if (!is_string($socket_name) || substr($socket_name, ($match[2] ? -4 : -3)) !== ($match[2] ? ':443' : ':80') || !url_resolves_to($url, substr($socket_name, 0, ($match[2] ? -4 : -3))))
+			if (
+				!is_string($socket_name)
+				|| $socket_port !== ($match[2] ? ':443' : ':80')
+				|| !url_resolves_to($url, $socket_ip)
+			)
 			{
 				fclose($fp);
 				loadLanguage('Errors');
