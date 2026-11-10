@@ -186,6 +186,30 @@ class IP implements \Stringable
 	}
 
 	/**
+	 * If the IP is a valid IPv6.
+	 *
+	 * Returns true for IPs matching a IPv6 format
+	 *
+	 * @return bool
+	 */
+	public function isV6(): bool
+	{
+		return filter_var($this->ip, FILTER_VALIDATE_IP, ['flags' => FILTER_FLAG_IPV6]) !== false;
+	}
+
+	/**
+	 * If the IP is a valid IPv4.
+	 *
+	 * Returns true for IPs matching a IPv4 format
+	 *
+	 * @return bool
+	 */
+	public function isV4(): bool
+	{
+		return filter_var($this->ip, FILTER_VALIDATE_IP, ['flags' => FILTER_FLAG_IPV4]) !== false;
+	}
+
+	/**
 	 * Check whether this is an IPv6 containing an IPv4.
 	 *
 	 * Returns true for IPs matching one of the following patterns:
