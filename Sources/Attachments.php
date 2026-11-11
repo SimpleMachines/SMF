@@ -127,7 +127,10 @@ class Attachments
 					&& allowedTo('post_unapproved_attachments', $this->_board)
 				)
 			)
-			&& $this->canModifyMsg($this->_msg, $this->_board);
+			&& (
+				empty($this->_msg)
+				|| $this->canModifyMsg($this->_msg, $this->_board)
+			);
 	}
 
 	/**
@@ -513,7 +516,7 @@ class Attachments
 		);
 
 		// Adding needs some VIP treatment.
-		if ($this->_sa == 'add')
+		if ($this->_sa == 'add' && empty($data))
 		{
 			// Is there any generic errors? made some sense out of them!
 			if ($this->_generalErrors)
