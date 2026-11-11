@@ -1765,7 +1765,9 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 					}
 
 					foreach(['alt', 'width', 'height'] as $k) {
-						$params[$k] = $smcFunc['htmlspecialchars']($params[$k], ENT_QUOTES);
+						if (isset($params[$k])) {
+							$params[$k] = $smcFunc['htmlspecialchars']($params[$k], ENT_QUOTES);
+						}
 					}
 
 					// Embedded file.
