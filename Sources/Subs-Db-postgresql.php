@@ -885,7 +885,7 @@ function smf_db_fetch_all($request)
  */
 function smf_db_error_insert($error_array)
 {
-	global $db_prefix, $db_connection, $db_persist, $smcFunc, $inTransaction;
+	global $db_prefix, $db_connection, $db_persist, $db_character_set, $smcFunc, $inTransaction;
 	static $pg_error_data_prep;
 
 	// without database we can't do anything
@@ -895,32 +895,43 @@ function smf_db_error_insert($error_array)
 	if (filter_var($error_array[2], FILTER_VALIDATE_IP) === false)
 		$error_array[2] = null;
 
+	// Cut everything to fit its column. On a UTF-8 forum, cut on a character boundary and
+	// drop invalid bytes, or the database rejects the row and the error is lost.
+	foreach (array(3 => 65534, 4 => 65534, 5 => 128, 6 => 15, 7 => 255, 9 => 65534) as $key => $size)
+	{
+		$error_array[$key] = str_replace("\0", '', (string) $error_array[$key]);
+
+		if (isset($db_character_set) && $db_character_set == 'utf8')
+			$error_array[$key] = mb_strcut(mb_convert_encoding($error_array[$key], 'UTF-8', 'UTF-8'), 0, $size, 'UTF-8');
+		else
+			$error_array[$key] = substr($error_array[$key], 0, $size);
+	}
+
 	// If we are in a transaction, abort.
 	if (!empty($inTransaction))
 		smf_db_transaction('rollback');
 
-	if(empty($db_persist))
-	{ // without pooling
-		if (empty($pg_error_data_prep))
-			$pg_error_data_prep = pg_prepare($db_connection, 'smf_log_errors',
-				'INSERT INTO ' . $db_prefix . 'log_errors
-					(id_member, log_time, ip, url, message, session, error_type, file, line, backtrace)
-				VALUES( $1, $2, $3, $4, $5, $6, $7, $8,	$9, $10)'
-			);
-
-		pg_execute($db_connection, 'smf_log_errors', $error_array);
-	}
-	else
-	{ //with pooling
-		$pg_error_data_prep = pg_prepare($db_connection, '',
+	// A named statement is prepared once. With pooling, only the unnamed one is safe to
+	// use, and any other query may replace it, so it has to be prepared every time.
+	if (empty($pg_error_data_prep) || !empty($db_persist))
+	{
+		$pg_error_data_prep = pg_prepare($db_connection, empty($db_persist) ? 'smf_log_errors' : '',
 			'INSERT INTO ' . $db_prefix . 'log_errors
 				(id_member, log_time, ip, url, message, session, error_type, file, line, backtrace)
 			VALUES( $1, $2, $3, $4, $5, $6, $7, $8,	$9, $10)'
 		);
-
-		pg_execute($db_connection, '', $error_array);
 	}
 
+	// Without a prepared statement, give up rather than go through the regular query path:
+	// whatever caused this error may have broken that too, and its own errors would be
+	// logged by calling this again.
+	if (empty($pg_error_data_prep))
+		return;
+
+	pg_execute($db_connection, empty($db_persist) ? 'smf_log_errors' : '', array(
+		$error_array[0], $error_array[1], $error_array[2], $error_array[3], $error_array[4], $error_array[5], $error_array[6],
+		$error_array[7], $error_array[8], $error_array[9]
+	));
 }
 
 /**
