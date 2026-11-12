@@ -328,15 +328,22 @@ class ErrorHandlerService
 			$error_batch[] = $error_info;
 			$last_error = $error_info;
 
-			// Get an error count, if necessary
+			// Get an error count, if necessary. A failure here must not be
+			// reported, since reporting it would bring us straight back to
+			// this query, so the count is simply left unknown.
 			if (!isset(Utils::$context['num_errors'])) {
 				$query = Db::$db->query(
 					'SELECT COUNT(*)
 					FROM {db_prefix}log_errors',
-					[],
+					[
+						'db_error_skip' => true,
+					],
 				);
-				list(Utils::$context['num_errors']) = Db::$db->fetch_row($query);
-				Db::$db->free_result($query);
+
+				if ($query !== false) {
+					list(Utils::$context['num_errors']) = Db::$db->fetch_row($query);
+					Db::$db->free_result($query);
+				}
 			} else {
 				Utils::$context['num_errors']++;
 			}
