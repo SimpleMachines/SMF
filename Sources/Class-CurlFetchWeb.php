@@ -144,7 +144,10 @@ class curl_fetch_web_data
 	 */
 	public function get_url_data($url, $post_data = array())
 	{
+		global $txt;
+
 		if (!is_fetch_safe($url, ['http', 'https'])) {
+			loadLanguage('Errors');
 			trigger_error($txt['fetch_web_data_bad_url'], E_USER_NOTICE);
 			return $this;
 		}
@@ -173,6 +176,8 @@ class curl_fetch_web_data
 	 */
 	private function curl_request($url, $redirect = false)
 	{
+		global $txt;
+
 		// we do have a url I hope
 		if ($url == '')
 			return false;
@@ -221,6 +226,7 @@ class curl_fetch_web_data
 		// Double check that we connected to the expected IP.
 		if ($curl_info['primary_ip'] !== '' && !url_resolves_to($url, trim($curl_info['primary_ip'], '[]')))
 		{
+			loadLanguage('Errors');
 			$this->response[$this->current_redirect]['success'] = false;
 			trigger_error($txt['fetch_web_data_bad_url'], E_USER_NOTICE);
 			return;
@@ -286,7 +292,7 @@ class curl_fetch_web_data
 	 *  - called as ->result('body') to just return the page source of the result
 	 *
 	 * @param string $area Used to return an area such as body, header, error
-	 * @return string The response
+	 * @return ?string The response
 	 */
 	public function result($area = '')
 	{
@@ -294,9 +300,9 @@ class curl_fetch_web_data
 
 		// just return a specifed area or the entire result?
 		if ($area == '')
-			return $this->response[$max_result];
+			return isset($this->response[$max_result]) ? $this->response[$max_result] : null;
 		else
-			return isset($this->response[$max_result][$area]) ? $this->response[$max_result][$area] : $this->response[$max_result];
+			return isset($this->response[$max_result][$area]) ? $this->response[$max_result][$area] : (isset($this->response[$max_result]) ? $this->response[$max_result] : null);
 	}
 
 	/**
