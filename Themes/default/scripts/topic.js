@@ -1093,7 +1093,7 @@ $(function() {
 		ajax_indicator(true);
 		$.get($obj.attr('href') + ';xml', function () {
 			ajax_indicator(false);
-			$('.button_strip_notify').text($obj.find('strong').text());
+			$('.button_strip_notify').text($obj.find('strong').text()).next('.dropmenu').hide();
 		});
 
 		return false;
