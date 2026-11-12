@@ -102,7 +102,9 @@ class Attach extends BBCode
 		}
 
 		foreach (['alt', 'width', 'height'] as $k) {
-			$params[$k] = Utils::htmlspecialchars($params[$k], ENT_QUOTES);
+			if (isset($params[$k])) {
+				$params[$k] = Utils::htmlspecialchars($params[$k], ENT_QUOTES);
+			}
 		}
 
 		// Embedded file.
