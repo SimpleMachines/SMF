@@ -72,6 +72,7 @@ class ErrorInsertTest extends IntegrationTestCase
 	 *           the error was lost without a trace.
 	 *
 	 * @link https://github.com/SimpleMachines/SMF/commit/fed29b87bd Introduced by "Use perpared query for error db logging"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9882
 	 */
 	#[DataProvider('awkwardMessages')]
 	public function testAnAwkwardMessageIsStillLogged(string $message, string $expected_start): void

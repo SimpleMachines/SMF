@@ -60,6 +60,7 @@ class DatabaseApiTest extends TestCase
 	 *           rejects just the same.
 	 *
 	 * @link https://github.com/SimpleMachines/SMF/commit/fed29b87bd Introduced by "Use perpared query for error db logging"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9882
 	 */
 	#[DataProvider('overlongStrings')]
 	public function testAnOverlongStringIsCutOnACharacterBoundary(string $key, string $value, int $limit): void
@@ -79,6 +80,7 @@ class DatabaseApiTest extends TestCase
 	 *           silently cut the string at a NUL byte.
 	 *
 	 * @link https://github.com/SimpleMachines/SMF/commit/fed29b87bd Introduced by "Use perpared query for error db logging"
+	 * @link https://github.com/SimpleMachines/SMF/pull/9882
 	 */
 	#[DataProvider('unsafeMessages')]
 	public function testUnsafeBytesAreRemoved(string $message, string $expected_start): void
