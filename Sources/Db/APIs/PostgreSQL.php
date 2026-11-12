@@ -847,32 +847,29 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			$this->transaction('rollback');
 		}
 
-		// Without pooling.
-		if (empty($this->persist)) {
-			if (empty($this->error_data_prep)) {
-				$this->error_data_prep = pg_prepare(
-					$this->connection,
-					'smf_log_errors',
-					'INSERT INTO ' . $this->prefix . 'log_errors
-						(id_member, log_time, ip, url, message, session, error_type, file, line, backtrace)
-					VALUES( $1, $2, $3, $4, $5, $6, $7, $8,	$9, $10)',
-				);
-			}
+		$error_array = $this->sanitizeErrorRow($error_array);
 
-			pg_execute($this->connection, 'smf_log_errors', $error_array);
-		}
-		// With pooling.
-		else {
+		// A named statement is prepared once. With pooling, only the unnamed
+		// one is safe to use, and any other query may replace it, so it has
+		// to be prepared again every time.
+		if (empty($this->error_data_prep) || !empty($this->persist)) {
 			$this->error_data_prep = pg_prepare(
 				$this->connection,
-				'',
+				empty($this->persist) ? 'smf_log_errors' : '',
 				'INSERT INTO ' . $this->prefix . 'log_errors
 					(id_member, log_time, ip, url, message, session, error_type, file, line, backtrace)
-				VALUES( $1, $2, $3, $4, $5, $6, $7, $8,	$9, $10)',
+				VALUES( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
 			);
-
-			pg_execute($this->connection, '', $error_array);
 		}
+
+		// Without a prepared statement, give up rather than go through the
+		// regular query path: whatever caused this error may have broken that
+		// too, and its own errors would be logged by calling this again.
+		if (empty($this->error_data_prep)) {
+			return;
+		}
+
+		pg_execute($this->connection, empty($this->persist) ? 'smf_log_errors' : '', array_values($error_array));
 	}
 
 	/**

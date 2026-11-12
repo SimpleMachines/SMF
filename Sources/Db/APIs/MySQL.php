@@ -815,6 +815,15 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			$error_array['ip'] = null;
 		}
 
+		// Without a prepared statement, give up rather than go through the
+		// regular query path: whatever caused this error may have broken that
+		// too, and its own errors would be logged by calling this again.
+		if (empty($this->error_data_prep)) {
+			return;
+		}
+
+		$error_array = $this->sanitizeErrorRow($error_array);
+
 		mysqli_stmt_bind_param(
 			$this->error_data_prep,
 			'iissssssis',

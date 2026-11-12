@@ -608,6 +608,41 @@ abstract class DatabaseApi
 	}
 
 	/**
+	 * Makes a row for the log_errors table safe to store, whatever the error was.
+	 *
+	 * Error messages can hold anything: invalid UTF-8, NUL bytes, or far more
+	 * than the columns can take. Strings are cut to the column size on a
+	 * character boundary, because cutting through a multibyte character leaves
+	 * invalid UTF-8 that the database rejects, and the error would be lost.
+	 *
+	 * @param array $error_array A row with string keys, as error_insert() builds it.
+	 * @return array The same row, with its strings made safe to store.
+	 */
+	protected function sanitizeErrorRow(array $error_array): array
+	{
+		$limits = [
+			'url' => 65534,
+			'message' => 65534,
+			'session' => 128,
+			'error_type' => 15,
+			'file' => 255,
+			'backtrace' => 65534,
+		];
+
+		foreach ($limits as $key => $limit) {
+			if (!isset($error_array[$key])) {
+				continue;
+			}
+
+			$value = mb_scrub(str_replace("\0", '', (string) $error_array[$key]), 'UTF-8');
+
+			$error_array[$key] = mb_strcut($value, 0, $limit, 'UTF-8');
+		}
+
+		return $error_array;
+	}
+
+	/**
 	 * For backward compatibility, make various public methods available as
 	 * Utils::$smcFunc functions.
 	 */
