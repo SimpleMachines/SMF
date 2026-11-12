@@ -3170,6 +3170,7 @@ function ConvertUtf8()
 			'thai' => 'tis-620',
 			'turkish' => 'ISO-8859-9',
 			'turkmen' => 'ISO-8859-9',
+			'ukranian' => 'windows-1251',
 			'ukrainian' => 'windows-1251',
 			'urdu' => 'UTF-8',
 			'uzbek_cyrillic' => 'ISO-8859-5',
