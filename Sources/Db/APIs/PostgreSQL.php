@@ -828,8 +828,10 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public function error_insert(array $error_array): void
 	{
+		static $loop;
+
 		// Without a database we can't do anything.
-		if (empty($this->connection)) {
+		if (empty($this->connection) || $loop++ > 1) {
 			return;
 		}
 
@@ -847,31 +849,43 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			$this->transaction('rollback');
 		}
 
-		// Without pooling.
-		if (empty($this->persist)) {
-			if (empty($this->error_data_prep)) {
-				$this->error_data_prep = pg_prepare(
-					$this->connection,
-					'smf_log_errors',
-					'INSERT INTO ' . $this->prefix . 'log_errors
-						(id_member, log_time, ip, url, message, session, error_type, file, line, backtrace)
-					VALUES( $1, $2, $3, $4, $5, $6, $7, $8,	$9, $10)',
-				);
-			}
-
-			pg_execute($this->connection, 'smf_log_errors', $error_array);
-		}
-		// With pooling.
-		else {
+		if (empty($this->error_data_prep)) {
 			$this->error_data_prep = pg_prepare(
 				$this->connection,
-				'',
+				empty($this->persist) ? 'smf_log_errors' : '',
 				'INSERT INTO ' . $this->prefix . 'log_errors
 					(id_member, log_time, ip, url, message, session, error_type, file, line, backtrace)
-				VALUES( $1, $2, $3, $4, $5, $6, $7, $8,	$9, $10)',
+				VALUES( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
 			);
+		}
 
-			pg_execute($this->connection, '', $error_array);
+		// We still don't have a prepared statement, make one more try to log this.
+		if (empty($this->error_data_prep)) {
+			$this->insert(
+				InsertType::Insert,
+				'{db_prefix}log_errors',
+				[
+					'id_member' => 'int',
+					'log_time' => 'int',
+					'ip' => 'inet',
+					'url' => 'string-65534',
+					'message' => 'string-65534',
+					'session' => 'string',
+					'error_type' => 'string',
+					'file' => 'string-255',
+					'line' => 'int',
+					'backtrace' => 'string-65534',
+				],
+				$error_array,
+				['id_error'],
+			);
+		} else {
+			$error_array['url'] = Utils::entitySubstr($error_array['url'], 0, 65534);
+			$error_array['message'] = Utils::entitySubstr($error_array['message'], 0, 65534);
+			$error_array['file'] = Utils::entitySubstr($error_array['file'], 0, 255);
+			$error_array['backtrace'] = Utils::entitySubstr($error_array['backtrace'], 0, 65534);
+
+			pg_execute($this->connection, empty($this->persist) ? 'smf_log_errors' : '', $error_array);
 		}
 	}
 
