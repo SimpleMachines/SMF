@@ -132,7 +132,7 @@ class Birthday_Notify_Background extends SMF_BackgroundTask
 					array()
 				);
 
-				updateMemberData(array_keys($members), array('alerts' => '+'));
+				updateMemberData(array_column($alert_rows, 'id_member'), array('alerts' => '+'));
 			}
 		}
 
