@@ -64,8 +64,7 @@ function Login()
 			&& !empty($_SERVER['HTTP_X_SMF_AJAX'])
 			&& isset($_REQUEST['ajax'])
 		)
-	)
-	{
+	) {
 		$context['from_ajax'] = true;
 		$context['template_layers'] = array();
 	}
@@ -142,8 +141,7 @@ function Login2()
 			&& !empty($_SERVER['HTTP_X_SMF_AJAX'])
 			&& isset($_REQUEST['ajax'])
 		)
-	)
-	{
+	) {
 		$context['from_ajax'] = true;
 		$context['template_layers'] = array();
 	}
@@ -537,8 +535,7 @@ function LoginTFA()
 			&& !empty($_SERVER['HTTP_X_SMF_AJAX'])
 			&& isset($_REQUEST['ajax'])
 		)
-	)
-	{
+	) {
 		$context['from_ajax'] = true;
 		$context['template_layers'] = array();
 	}

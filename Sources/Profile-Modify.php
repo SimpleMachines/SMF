@@ -507,7 +507,7 @@ function loadProfileFields($force_reload = false)
 						log_error(sprintf($txt['smiley_set_dir_not_found'], $set_names[array_search($set, $context['smiley_sets'])]));
 
 						$context['smiley_sets'] = array_filter($context['smiley_sets'], function($v) use ($set)
-							{
+						{
 								return $v != $set;
 							});
 					}
@@ -1276,7 +1276,8 @@ function makeCustomFieldChanges($memID, $area, $sanitize = true, $returnErrors =
 			if ($row['field_type'] == 'text' && !empty($row['mask']) && $row['mask'] != 'none')
 			{
 				// Decode all entities, including double-encoded ones.
-				while ($value !== html_entity_decode($value)) {
+				while ($value !== html_entity_decode($value))
+				{
 					$value = html_entity_decode($value);
 				}
 

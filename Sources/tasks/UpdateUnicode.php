@@ -416,7 +416,8 @@ class Update_Unicode extends SMF_BackgroundTask
 		if (!@touch($this->temp_dir . DIRECTORY_SEPARATOR . 'lock'))
 			return true;
 
-		register_shutdown_function(function () {
+		register_shutdown_function(function ()
+		{
 			if (file_exists($this->temp_dir . DIRECTORY_SEPARATOR . 'lock'))
 				unlink($this->temp_dir . DIRECTORY_SEPARATOR . 'lock');
 		});

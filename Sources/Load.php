@@ -108,7 +108,7 @@ function reloadSettings()
 	// Set a list of common functions.
 	$ent_list = '&(?:#' . (empty($modSettings['disableEntityCheck']) ? '\d{1,7}' : '021') . '|quot|amp|lt|gt|nbsp);';
 	$ent_check = empty($modSettings['disableEntityCheck']) ? function($string)
-		{
+	{
 			$string = preg_replace_callback('~(&#(\d{1,7}|x[0-9a-fA-F]{1,6});)~', 'entity_fix__callback', (string) $string);
 			return $string;
 		} : function($string)
@@ -3022,7 +3022,8 @@ function addJavaScriptVar($key, $value, $escape = false)
 	// Take care of escaping the value for JavaScript?
 	if (!empty($escape))
 	{
-		switch (gettype($value)) {
+		switch (gettype($value))
+		{
 			// Illegal.
 			case 'resource':
 				break;

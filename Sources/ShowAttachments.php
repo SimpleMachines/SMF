@@ -208,8 +208,7 @@ function showAttachment()
 		)
 		// We are not previewing an attachment.
 		&& !isset($_SESSION['attachments_can_preview'][$attachId])
-	)
-	{
+	) {
 		send_http_status(404, 'File Not Found');
 		die('404 File Not Found');
 	}

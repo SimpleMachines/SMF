@@ -323,7 +323,8 @@ function smf_exception_handler_cron(\Throwable $e)
 
 	$message = $txt[$e->getMessage()] ?? $e->getMessage();
 
-	if (!empty($modSettings['enableErrorLogging'])) {
+	if (!empty($modSettings['enableErrorLogging']))
+	{
 		log_error($message, 'cron', $e->getFile(), $e->getLine());
 	}
 }

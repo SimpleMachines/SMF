@@ -2541,12 +2541,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			'tag' => 'cowsay',
 			'parameters' => array(
 				'e' => array('optional' => true, 'quoted' => true, 'match' => '(.*?)', 'default' => 'oo', 'validate' => function ($eyes) use ($smcFunc)
-					{
+				{
 						return $smcFunc['substr']($eyes . 'oo', 0, 2);
 					},
 				),
 				't' => array('optional' => true, 'quoted' => true, 'match' => '(.*?)', 'default' => '  ', 'validate' => function ($tongue) use ($smcFunc)
-					{
+				{
 						return $smcFunc['substr']($tongue . '  ', 0, 2);
 					},
 				),
@@ -2911,7 +2911,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 							foreach (array('path', 'query', 'fragment') as $part)
 							{
-								switch ($part) {
+								switch ($part)
+								{
 									case 'path':
 										$part_disallowed_chars = '\h\v<>' . $bracket_quote_chars . $excluded_trailing_chars . '/#&';
 										$part_excluded_trailing_chars = str_replace('?', '', $excluded_trailing_chars);
@@ -6923,7 +6924,8 @@ function smf_list_timezones($when = 'now')
 			$zones[$tzkey]['tzid'] = $tzid;
 			$zones[$tzkey]['dst_type'] = count($tzinfo) > 1 ? 1 : ($tzinfo[0]['isdst'] ? 2 : 0);
 
-			foreach ($tzinfo as $transition) {
+			foreach ($tzinfo as $transition)
+			{
 				$zones[$tzkey]['abbrs'][] = $transition['abbr'];
 			}
 
@@ -8644,7 +8646,8 @@ function tokenTxtReplace($stringSubject = '')
 	$replaceWith = array();
 
 	if (!empty($matches[1]))
-		foreach ($matches[1] as $token) {
+		foreach ($matches[1] as $token)
+		{
 			$toFind[] = '{' . $token . '}';
 			$replaceWith[] = isset($txt[$token]) ? $txt[$token] : $token;
 		}

@@ -793,7 +793,8 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 	$smcFunc['db_free_result']($request);
 
 	// Random emails from the queue..
-	if (!empty($ids)) {
+	if (!empty($ids))
+	{
 		$request = $smcFunc['db_query']('random_mail', '
 			SELECT id_mail, recipient, body, subject, headers, send_html, time_sent, private, priority
 			FROM {db_prefix}mail_queue
@@ -864,22 +865,27 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 	{
 		// First, figure out when the next send attempt should happen based on the current priority.
 		$next_send_time = $email['time_sent'];
-		if ($email['priority'] >= $priority_offset) {
-			for ($i = 0; $i < $email['priority']; $i++) {
+		if ($email['priority'] >= $priority_offset)
+		{
+			for ($i = 0; $i < $email['priority']; $i++)
+			{
 				$next_send_time += 20 * max(0, $email['priority'] - $priority_offset);
 			}
 		}
 
 		// If the email is too old, discard it.
-		if ($next_send_time > $email['time_sent'] + $smtp_expire) {
+		if ($next_send_time > $email['time_sent'] + $smtp_expire)
+		{
 			continue;
 		}
 
 		++$email['priority'];
 
 		// Don't send if it's too soon.
-		if (time() < $next_send_time) {
-			if ($email['priority'] < $max_priority) {
+		if (time() < $next_send_time)
+		{
+			if ($email['priority'] < $max_priority)
+			{
 				$failed_emails[] = array($email['to'], $email['body'], $email['subject'], $email['headers'], $email['send_html'], $email['time_sent'], $email['private'], $email['priority']);
 			}
 
@@ -908,7 +914,8 @@ function ReduceMailQueue($number = false, $override_limit = false, $force_send =
 			$result = smtp_mail(array($email['to']), $email['subject'], $email['body'], $email['headers']);
 
 		// If we failed, and we haven't already hit the limit, schedule this for another attempt.
-		if (empty($result) && $email['priority'] < $max_priority) {
+		if (empty($result) && $email['priority'] < $max_priority)
+		{
 			$failed_emails[] = array($email['to'], $email['body'], $email['subject'], $email['headers'], $email['send_html'], $email['time_sent'], $email['private'], $email['priority']);
 		}
 	}
