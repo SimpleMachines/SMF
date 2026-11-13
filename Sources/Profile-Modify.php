@@ -4252,7 +4252,8 @@ function groupMembership2($profile_vars, $post_errors, $memID)
 				fatal_lang_error('no_access', false);
 			elseif ($changeType == 'free' && $row['group_type'] != 3 && $row['group_type'] != 2)
 				fatal_lang_error('no_access', false);
-			elseif ($changeType == 'primary' && !isset($addGroups[$row['id_group']])) {
+			elseif ($changeType == 'primary' && !isset($addGroups[$row['id_group']]))
+			{
 				fatal_lang_error('no_access', false);			
 			}
 

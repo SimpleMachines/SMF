@@ -1764,8 +1764,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 							$params['{display}'] = 'link';
 					}
 
-					foreach(['alt', 'width', 'height'] as $k) {
-						if (isset($params[$k])) {
+					foreach(['alt', 'width', 'height'] as $k)
+					{
+						if (isset($params[$k]))
+						{
 							$params[$k] = $smcFunc['htmlspecialchars']($params[$k], ENT_QUOTES);
 						}
 					}
@@ -7254,14 +7256,18 @@ function _safe_unserialize($str)
 
 	// The substrings 'O' and 'C' are used to serialize objects.
 	// If they are not present, then there are none in the serialized data.
-	if (strpos($str, 'O:') === false && strpos($str, 'C:') === false) {
+	if (strpos($str, 'O:') === false && strpos($str, 'C:') === false)
+	{
 		// PHP changed how we supress warnings, but unserialize does not handle throwables.
-		try {
+		try
+		{
 			$old_error_reporting = error_reporting(0);
 			return @unserialize($str, ['allowed_classes' => false]);
-		} catch (\Throwable $e) {
+		} catch (\Throwable $e)
+		{
 			return false;
-		} finally {
+		} finally
+		{
 			error_reporting($old_error_reporting);
 		}
 	}

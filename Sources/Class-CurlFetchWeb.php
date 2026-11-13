@@ -235,7 +235,8 @@ class curl_fetch_web_data
 		$error = (curl_error($cr)) ? curl_error($cr) : false;
 
 		// close this request
-		if (version_compare(PHP_VERSION, '8.0.0', '<')) {
+		if (version_compare(PHP_VERSION, '8.0.0', '<'))
+		{
 			curl_close($cr);
 		}
 

@@ -1276,7 +1276,8 @@ function showCodeImage($code)
 	}
 
 	// Bail out.
-	if (version_compare(PHP_VERSION, '8.0.0', '<')) {
+	if (version_compare(PHP_VERSION, '8.0.0', '<'))
+	{
 		imagedestroy($code_image);
 	}
 	die();

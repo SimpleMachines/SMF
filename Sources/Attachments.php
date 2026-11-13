@@ -571,7 +571,8 @@ class Attachments
 		global $smcFunc, $user_info;
 
 		// No message or a guest, you can't modify a message
-		if ($this->_msg === 0 || empty($user_info['id'])) {
+		if ($this->_msg === 0 || empty($user_info['id']))
+		{
 			return false;
 		}
 
@@ -588,7 +589,8 @@ class Attachments
 		);
 
 		// Can't find the message, can't edit it.
-		if ($smcFunc['db_num_rows']($request) == 0) {
+		if ($smcFunc['db_num_rows']($request) == 0)
+		{
 			return false;
 		}
 		$row = $smcFunc['db_fetch_assoc']($request);
