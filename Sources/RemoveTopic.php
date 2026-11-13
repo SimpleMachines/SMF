@@ -569,9 +569,11 @@ function removeTopics($topics, $decreasePostCount = true, $ignoreRecycling = fal
 	updateSettings(array(
 		'calendar_updated' => time(),
 	));
-	if (!empty($cache_enable) && $cache_enable >= 3) {
+	if (!empty($cache_enable) && $cache_enable >= 3)
+	{
 		cache_put_data('board-' . $recycle_board, null);
-		foreach ($adjustBoards as $stats) {
+		foreach ($adjustBoards as $stats)
+		{
 			cache_put_data('board-' . $stats['id_board'], null);
 		}
 	}

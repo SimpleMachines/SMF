@@ -1278,7 +1278,8 @@ function updateSettingsFile($config_vars, $keep_quotes = null, $rebuild = false)
 	// It's important to do the numbered ones before the named ones, or messes happen.
 	uksort(
 		$substitutions,
-		function($a, $b) {
+		function($a, $b)
+		{
 			if (is_int($a) && is_int($b))
 				return $a > $b ? 1 : ($a < $b ? -1 : 0);
 			elseif (is_int($a))
@@ -1818,8 +1819,12 @@ function get_current_settings($mtime = null, $settingsFile = null)
 		unset($mtime, $settingsFile, $settingsText);
 		$defined_vars = get_defined_vars();
 	}
-	catch (Throwable $e) {}
-	catch (ErrorException $e) {}
+	catch (Throwable $e)
+	{
+	}
+	catch (ErrorException $e)
+	{
+	}
 	if (isset($e))
 		return false;
 
@@ -2022,7 +2027,8 @@ function strip_php_comments($code_str)
 			{
 				list($id, $text) = $token;
 
-				switch ($id) {
+				switch ($id)
+				{
 					case T_COMMENT:
 					case T_DOC_COMMENT:
 						end($parts);
@@ -2359,7 +2365,8 @@ function sm_temp_dir()
 	// Search for a working temp directory.
 	foreach ($temp_dir_options as $id_temp => $temp_option)
 	{
-		switch ($temp_option) {
+		switch ($temp_option)
+		{
 			case 'cachedir':
 				$possible_temp = rtrim($cachedir, '/');
 				break;

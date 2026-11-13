@@ -158,7 +158,8 @@ class SmfSessionHandler extends SessionHandler implements SessionHandlerInterfac
 		if (!$this->isValidSessionID($id))
 			return '';
 
-		if ($this->data === null) {
+		if ($this->data === null)
+		{
 			// Look for it in the database.
 			$result = $smcFunc['db_query']('', '
 				SELECT data
@@ -297,7 +298,8 @@ class SmfSessionHandler extends SessionHandler implements SessionHandlerInterfac
 		if (!$this->isValidSessionID($id))
 			return false;
 
-		if ($this->data === null) {
+		if ($this->data === null)
+		{
 			$this->read($id);
 		}
 
@@ -319,7 +321,8 @@ class SmfSessionHandler extends SessionHandler implements SessionHandlerInterfac
 			return false;
 
 		// Unless data has changed, lets not force this.
-		if (strcmp($this->data, $data) === 0) {
+		if (strcmp($this->data, $data) === 0)
+		{
 			return true;
 		}
 

@@ -97,7 +97,8 @@ class ExportProfileData_Background extends SMF_BackgroundTask
 		$member_info = $this->getMinUserInfo(array($this->_details['uid']));
 
 		// If the specified member does not exist, abort the export.
-		if (!isset($member_info[$this->_details['uid']])) {
+		if (!isset($member_info[$this->_details['uid']]))
+		{
 			// Delete any existing export files.
 			$idhash_ext = hash_hmac('sha1', $this->_details['uid'], get_auth_secret()) . '.' . $this->_details['format_settings']['extension'];
 

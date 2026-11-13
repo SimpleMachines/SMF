@@ -173,11 +173,14 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 
 			// If this user subscribes both to the topic and the board there will be two records returned.
 			// Copy board/topic data to the new record or it will be lost.
-			if (!empty($this->members['watching'][$row['id_member']])) {
-				if ($this->members['watching'][$row['id_member']]['id_board'] > 0) {
+			if (!empty($this->members['watching'][$row['id_member']]))
+			{
+				if ($this->members['watching'][$row['id_member']]['id_board'] > 0)
+				{
 					$row['id_board'] = $this->members['watching'][$row['id_member']]['id_board'];
 				}
-				if ($this->members['watching'][$row['id_member']]['id_topic'] > 0) {
+				if ($this->members['watching'][$row['id_member']]['id_topic'] > 0)
+				{
 					$row['id_topic'] = $this->members['watching'][$row['id_member']]['id_topic'];
 				}
 			}
@@ -194,7 +197,8 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 				foreach ($this->members[$member_type] as $member_id => $member_data)
 				{
 					// The member receiving the alert has ignored the member mentioning them.
-					if (!empty($member_data['mentioned_by']['ignored'])) {
+					if (!empty($member_data['mentioned_by']['ignored']))
+					{
 						unset($this->members[$member_type][$member_id], $msgOptions[$member_type . '_members'][$member_id]);
 					}
 
@@ -205,7 +209,8 @@ class CreatePost_Notify_Background extends SMF_BackgroundTask
 			}
 		}
 
-		$unnotified = array_filter($this->members['watching'], function ($member) {
+		$unnotified = array_filter($this->members['watching'], function ($member)
+		{
 			return empty($member['sent']);
 		});
 

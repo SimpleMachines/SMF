@@ -450,8 +450,7 @@ foreach (
 		'INTL_IDNA_VARIANT_UTS46' => 1,
 	)
 	as $name => $value
-)
-{
+) {
 	if (!defined($name))
 		define($name, $value);
 };

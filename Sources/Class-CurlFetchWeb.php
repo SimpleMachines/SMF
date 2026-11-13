@@ -144,7 +144,8 @@ class curl_fetch_web_data
 	 */
 	public function get_url_data($url, $post_data = array())
 	{
-		if (!is_fetch_safe($url, ['http', 'https'])) {
+		if (!is_fetch_safe($url, ['http', 'https']))
+		{
 			trigger_error($txt['fetch_web_data_bad_url'], E_USER_NOTICE);
 			return $this;
 		}
@@ -234,7 +235,8 @@ class curl_fetch_web_data
 		$error = (curl_error($cr)) ? curl_error($cr) : false;
 
 		// close this request
-		if (version_compare(PHP_VERSION, '8.0.0', '<')) {
+		if (version_compare(PHP_VERSION, '8.0.0', '<'))
+		{
 			curl_close($cr);
 		}
 

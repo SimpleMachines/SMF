@@ -1764,8 +1764,10 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 							$params['{display}'] = 'link';
 					}
 
-					foreach(['alt', 'width', 'height'] as $k) {
-						if (isset($params[$k])) {
+					foreach(['alt', 'width', 'height'] as $k)
+					{
+						if (isset($params[$k]))
+						{
 							$params[$k] = $smcFunc['htmlspecialchars']($params[$k], ENT_QUOTES);
 						}
 					}
@@ -2541,12 +2543,12 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 			'tag' => 'cowsay',
 			'parameters' => array(
 				'e' => array('optional' => true, 'quoted' => true, 'match' => '(.*?)', 'default' => 'oo', 'validate' => function ($eyes) use ($smcFunc)
-					{
+				{
 						return $smcFunc['substr']($eyes . 'oo', 0, 2);
 					},
 				),
 				't' => array('optional' => true, 'quoted' => true, 'match' => '(.*?)', 'default' => '  ', 'validate' => function ($tongue) use ($smcFunc)
-					{
+				{
 						return $smcFunc['substr']($tongue . '  ', 0, 2);
 					},
 				),
@@ -2911,7 +2913,8 @@ function parse_bbc($message, $smileys = true, $cache_id = '', $parse_tags = arra
 
 							foreach (array('path', 'query', 'fragment') as $part)
 							{
-								switch ($part) {
+								switch ($part)
+								{
 									case 'path':
 										$part_disallowed_chars = '\h\v<>' . $bracket_quote_chars . $excluded_trailing_chars . '/#&';
 										$part_excluded_trailing_chars = str_replace('?', '', $excluded_trailing_chars);
@@ -4251,7 +4254,8 @@ function url_image_size($url)
 	// Make sure it is a proper URL.
 	$url = str_replace(' ', '%20', $url);
 
-	if (!is_fetch_safe($url)) {
+	if (!is_fetch_safe($url))
+	{
 		return false;
 	}
 
@@ -6420,7 +6424,8 @@ function get_ips_for_url($url)
 
 	$host = parse_url(iri_to_url($url), PHP_URL_HOST);
 
-	if (isset($ips[$host])) {
+	if (isset($ips[$host]))
+	{
 		return $ips[$host];
 	}
 
@@ -6923,7 +6928,8 @@ function smf_list_timezones($when = 'now')
 			$zones[$tzkey]['tzid'] = $tzid;
 			$zones[$tzkey]['dst_type'] = count($tzinfo) > 1 ? 1 : ($tzinfo[0]['isdst'] ? 2 : 0);
 
-			foreach ($tzinfo as $transition) {
+			foreach ($tzinfo as $transition)
+			{
 				$zones[$tzkey]['abbrs'][] = $transition['abbr'];
 			}
 
@@ -7250,14 +7256,18 @@ function _safe_unserialize($str)
 
 	// The substrings 'O' and 'C' are used to serialize objects.
 	// If they are not present, then there are none in the serialized data.
-	if (strpos($str, 'O:') === false && strpos($str, 'C:') === false) {
+	if (strpos($str, 'O:') === false && strpos($str, 'C:') === false)
+	{
 		// PHP changed how we supress warnings, but unserialize does not handle throwables.
-		try {
+		try
+		{
 			$old_error_reporting = error_reporting(0);
 			return @unserialize($str, ['allowed_classes' => false]);
-		} catch (\Throwable $e) {
+		} catch (\Throwable $e)
+		{
 			return false;
-		} finally {
+		} finally
+		{
 			error_reporting($old_error_reporting);
 		}
 	}
@@ -8644,7 +8654,8 @@ function tokenTxtReplace($stringSubject = '')
 	$replaceWith = array();
 
 	if (!empty($matches[1]))
-		foreach ($matches[1] as $token) {
+		foreach ($matches[1] as $token)
+		{
 			$toFind[] = '{' . $token . '}';
 			$replaceWith[] = isset($txt[$token]) ? $txt[$token] : $token;
 		}

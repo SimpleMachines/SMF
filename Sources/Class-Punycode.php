@@ -157,12 +157,14 @@ class Punycode
 		}
 
 		$parts = explode('.', $preprocessed);
-		foreach ($parts as $p => &$part) {
+		foreach ($parts as $p => &$part)
+		{
 			$part = $this->encodePart($part);
 
 			$validation_status = $this->validateLabel($part, true);
 
-			switch ($validation_status) {
+			switch ($validation_status)
+			{
 				case self::IDNA_ERROR_LABEL_TOO_LONG:
 				case self::IDNA_ERROR_LEADING_HYPHEN:
 				case self::IDNA_ERROR_TRAILING_HYPHEN:
@@ -215,13 +217,16 @@ class Punycode
 		$h = $b = count($codePoints['basic']);
 
 		$output = '';
-		foreach ($codePoints['basic'] as $code) {
+		foreach ($codePoints['basic'] as $code)
+		{
 			$output .= $this->codePointToChar($code);
 		}
-		if ($input === $output) {
+		if ($input === $output)
+		{
 			return $output;
 		}
-		if ($b > 0) {
+		if ($b > 0)
+		{
 			$output .= static::DELIMITER;
 		}
 
@@ -230,20 +235,26 @@ class Punycode
 
 		$i = 0;
 		$length = mb_strlen($input, $this->encoding);
-		while ($h < $length) {
+		while ($h < $length)
+		{
 			$m = $codePoints['nonBasic'][$i++];
 			$delta = $delta + ($m - $n) * ($h + 1);
 			$n = $m;
 
-			foreach ($codePoints['all'] as $c) {
-				if ($c < $n || $c < static::INITIAL_N) {
+			foreach ($codePoints['all'] as $c)
+			{
+				if ($c < $n || $c < static::INITIAL_N)
+				{
 					$delta++;
 				}
-				if ($c === $n) {
+				if ($c === $n)
+				{
 					$q = $delta;
-					for ($k = static::BASE;; $k += static::BASE) {
+					for ($k = static::BASE;; $k += static::BASE)
+					{
 						$t = $this->calculateThreshold($k, $bias);
-						if ($q < $t) {
+						if ($q < $t)
+						{
 							break;
 						}
 
@@ -530,7 +541,8 @@ class Punycode
 
 		$labels = explode('.', $domain);
 
-		foreach ($labels as $l => $label) {
+		foreach ($labels as $l => $label)
+		{
 			$label = preg_replace('/[' . $regexes['ignored'] . ']/u', '', $label);
 
 			$label = utf8_normalize_c(strtr($label, $maps));

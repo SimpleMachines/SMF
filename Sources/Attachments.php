@@ -182,10 +182,12 @@ class Attachments
 
 		$can_modify = false;
 
-		if ($msgInfo !== [] && $msgInfo['msg'] > 0) {
+		if ($msgInfo !== [] && $msgInfo['msg'] > 0)
+		{
 			$can_modify = $msgInfo !== [] && !$user_info['is_guest'] && (!$msgInfo['is_locked'] || allowedTo('moderate_board') ) && (allowedTo('modify_any') || (allowedTo('modify_replies') && $msgInfo['id_member_started'] == $user_info['id']) || (allowedTo('modify_own') && $msgInfo['id_member'] == $user_info['id'] && (empty($modSettings['edit_disable_time']) || !$msgInfo['approved'] || $msgInfo['poster_time'] + $modSettings['edit_disable_time'] * 60 > time())));
 		}
-		else if ($msgInfo !== [] && $msgInfo['msg'] == 0) {
+		else if ($msgInfo !== [] && $msgInfo['msg'] == 0)
+		{
 			$can_modify = !empty($_SESSION['already_attached']) && isset($_SESSION['already_attached'][$attachID]);
 		}
 
@@ -569,7 +571,8 @@ class Attachments
 		global $smcFunc, $user_info;
 
 		// No message or a guest, you can't modify a message
-		if ($this->_msg === 0 || empty($user_info['id'])) {
+		if ($this->_msg === 0 || empty($user_info['id']))
+		{
 			return false;
 		}
 
@@ -586,7 +589,8 @@ class Attachments
 		);
 
 		// Can't find the message, can't edit it.
-		if ($smcFunc['db_num_rows']($request) == 0) {
+		if ($smcFunc['db_num_rows']($request) == 0)
+		{
 			return false;
 		}
 		$row = $smcFunc['db_fetch_assoc']($request);

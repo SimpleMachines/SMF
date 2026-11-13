@@ -117,7 +117,8 @@ function ShowAdminHelp()
 	else
 		fatal_lang_error('not_found', false, array(), 404);
 
-	switch ($_GET['help']) {
+	switch ($_GET['help'])
+	{
 		case 'cal_short_months':
 			$context['help_text'] = sprintf($context['help_text'], $txt['months_short'][1], $txt['months_titles'][1]);
 			break;
