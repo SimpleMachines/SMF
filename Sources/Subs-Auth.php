@@ -214,7 +214,8 @@ function KickGuest()
 	loadTheme();
 	loadLanguage('Login');
 	loadTemplate('Login');
-	if (empty($_COOKIE)) {
+	if (empty($_COOKIE))
+	{
 		setLoginCookie(60 * $modSettings['cookieTime'], 0, '');
 	}
 	createToken('login');
@@ -238,7 +239,8 @@ function InMaintenance()
 
 	loadLanguage('Login');
 	loadTemplate('Login');
-	if (empty($_COOKIE)) {
+	if (empty($_COOKIE))
+	{
 		setLoginCookie(60 * $modSettings['cookieTime'], 0, '');
 	}
 	createToken('login');

@@ -1839,7 +1839,8 @@ function registerSMStats()
 	$data = fetch_web_data('https://www.simplemachines.org/smf/stats/register_stats.php?site=' . base64_encode($boardurl));
 
 	// Try one more time, this time without https.
-	if (empty($data)) {
+	if (empty($data))
+	{
 		$data = fetch_web_data('http://www.simplemachines.org/smf/stats/collect_stats.php?site=' . base64_encode($boardurl));
 	}
 

@@ -4252,7 +4252,8 @@ function url_image_size($url)
 	// Make sure it is a proper URL.
 	$url = str_replace(' ', '%20', $url);
 
-	if (!is_fetch_safe($url)) {
+	if (!is_fetch_safe($url))
+	{
 		return false;
 	}
 
@@ -6421,7 +6422,8 @@ function get_ips_for_url($url)
 
 	$host = parse_url(iri_to_url($url), PHP_URL_HOST);
 
-	if (isset($ips[$host])) {
+	if (isset($ips[$host]))
+	{
 		return $ips[$host];
 	}
 

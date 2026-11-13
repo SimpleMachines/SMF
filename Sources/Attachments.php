@@ -182,10 +182,12 @@ class Attachments
 
 		$can_modify = false;
 
-		if ($msgInfo !== [] && $msgInfo['msg'] > 0) {
+		if ($msgInfo !== [] && $msgInfo['msg'] > 0)
+		{
 			$can_modify = $msgInfo !== [] && !$user_info['is_guest'] && (!$msgInfo['is_locked'] || allowedTo('moderate_board') ) && (allowedTo('modify_any') || (allowedTo('modify_replies') && $msgInfo['id_member_started'] == $user_info['id']) || (allowedTo('modify_own') && $msgInfo['id_member'] == $user_info['id'] && (empty($modSettings['edit_disable_time']) || !$msgInfo['approved'] || $msgInfo['poster_time'] + $modSettings['edit_disable_time'] * 60 > time())));
 		}
-		else if ($msgInfo !== [] && $msgInfo['msg'] == 0) {
+		else if ($msgInfo !== [] && $msgInfo['msg'] == 0)
+		{
 			$can_modify = !empty($_SESSION['already_attached']) && isset($_SESSION['already_attached'][$attachID]);
 		}
 

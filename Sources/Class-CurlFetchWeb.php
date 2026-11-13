@@ -144,7 +144,8 @@ class curl_fetch_web_data
 	 */
 	public function get_url_data($url, $post_data = array())
 	{
-		if (!is_fetch_safe($url, ['http', 'https'])) {
+		if (!is_fetch_safe($url, ['http', 'https']))
+		{
 			trigger_error($txt['fetch_web_data_bad_url'], E_USER_NOTICE);
 			return $this;
 		}

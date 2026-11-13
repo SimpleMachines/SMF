@@ -98,7 +98,8 @@ loadDatabase();
  *
  * @param string $class The fully-qualified class name.
  */
-spl_autoload_register(function($class) use ($sourcedir) {
+spl_autoload_register(function($class) use ($sourcedir)
+{
 	global $modSettings;
 
 	static $hook_value = '';

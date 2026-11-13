@@ -480,7 +480,8 @@ function fixTag(&$message, $myTag, $protocols, $embeddedUrl = false, $hasEqualSi
 	{
 		preg_match_all('~\[(' . $myTag . ')=(&quot;(?:[^&]|&(?!quot;))*?&quot;|[^\]]*?)\](?:(.+?)\[/(' . $myTag . ')\])?~is', $message, $matches);
 
-		foreach ($matches[2] as $key => $match) {
+		foreach ($matches[2] as $key => $match)
+		{
 			$matches[2][$key] = preg_replace('/^&quot;|&quot;$/', '', $match);
 		}
 	}

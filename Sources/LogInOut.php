@@ -82,7 +82,8 @@ function Login()
 	);
 
 	// Ensure the session data persists.
-	if (empty($_COOKIE)) {
+	if (empty($_COOKIE))
+	{
 		setLoginCookie(60 * $modSettings['cookieTime'], 0, '');
 	}
 

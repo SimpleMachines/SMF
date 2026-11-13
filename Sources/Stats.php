@@ -836,7 +836,8 @@ function SMStats()
 		$res = fetch_web_data('https://www.simplemachines.org/smf/stats/collect_stats.php', $stats_to_send);
 
 		// Try one more time, this time without https.
-		if ($res !== '1') {
+		if ($res !== '1')
+		{
 			fetch_web_data('http://www.simplemachines.org/smf/stats/collect_stats.php', $stats_to_send);
 		}
 	}
