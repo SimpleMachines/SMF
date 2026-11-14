@@ -1,0 +1,96 @@
+status 200
+@ title
+title
+  "Themes and Layout settings"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=theme;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Themes and Layout"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=theme;sa=edit;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Modify Themes"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      "Themes and Layout settings"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "Modify the stylesheet and source code of your installed themes. Please consult the documentation for more information."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Themes and Layout settings Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Themes and Layout settings Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a [href="{boardurl}/index.php?action=admin;area=theme;sa=admin;{session_var}={session_id}"]
+                "Manage and Install"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=theme;sa=list;{session_var}={session_id}"]
+                "Theme Settings"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=theme;sa=reset;{session_var}={session_id}"]
+                "Member Options"
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=theme;sa=edit;{session_var}={session_id}"]
+                "Modify Themes"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  div#admin_form_wrapper
+    div.cat_bar
+      h3.catbg
+        "Modify Themes"
+    div.windowbg
+      fieldset
+        legend
+          a [href="{boardurl}/index.php?action=admin;area=theme;th=#;{session_var}={session_id};sa=edit"]
+            "SMF Default Theme - Curve#"
+        ul
+          li
+            a [href="{boardurl}/index.php?action=admin;area=theme;th=#;{session_var}={session_id};sa=edit"]
+              "Browse the templates and files in this theme."
+          li
+            a [href="{boardurl}/index.php?action=admin;area=theme;th=#;{session_var}={session_id};sa=edit;directory=css"]
+              "Edit this theme’s stylesheets."
+          li
+            a [href="{boardurl}/index.php?action=admin;area=theme;th=#;{session_var}={session_id};sa=copy"]
+              "Copy a template from the theme this is based on."

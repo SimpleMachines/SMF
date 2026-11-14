@@ -1,0 +1,225 @@
+status 200
+@ title
+title
+  "Attachments and Avatars"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=manageattachments;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Attachments and Avatars"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=maintenance;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "File Maintenance"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      a.help [href="{boardurl}/index.php?action=helpadmin;help=manage_files" onclick="return reqOverlayDiv(this.href);"]
+        span.help.main_icons [title="Help"]
+      "Attachments and Avatars"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "From here you can administer the attached files on your system. You can delete attachments by size and by date from your system. Statistics on attachments are also displayed below."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Attachments and Avatars Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Attachments and Avatars Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=browse;{session_var}={session_id}"]
+                "Browse Files"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=attachments;{session_var}={session_id}"]
+                "Attachment Settings"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=avatars;{session_var}={session_id}"]
+                "Avatar Settings"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=attachpaths;{session_var}={session_id}"]
+                "Attachment Directories"
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=maintenance;{session_var}={session_id}"]
+                "File Maintenance"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  div#manage_attachments
+    div.cat_bar
+      h3.catbg
+        "File attachment statistics"
+    div.windowbg
+      dl.settings
+        dt
+          strong
+            "Total attachments"
+        dd
+          "#"
+        dt
+          strong
+            "Total avatars"
+        dd
+          "#"
+        dt
+          strong
+            "Total size of all attachment directories"
+        dd
+          "# KB(s)"
+        dt
+          strong
+            "Current attachment directory"
+        dd.word_break
+          "{boarddir}/attachments"
+        dt
+          strong
+            "Total size of current attachment directory"
+        dd
+          "# KB(s)"
+        dt
+          strong
+            "Total space available"
+        dd
+          "# KB(s)"
+        dt
+          strong
+            "Total files in current attachment directory"
+        dd
+          "#"
+        dt
+          strong
+            "Total files remaining"
+        dd
+          "#"
+    div.cat_bar
+      h3.catbg
+        "Attachment integrity check"
+    div.windowbg
+      form [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=manageattachments;sa=repair;{session_var}={session_id}" method="post"]
+        p
+          "This function will check the integrity and sizes of attachments and filenames listed in the database and, if necessary, fix errors it encounters."
+        input.button [name="repair" type="submit" value="Run check now"]
+    div.cat_bar
+      h3.catbg
+        "Attachment Pruning"
+    div.windowbg
+      form [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=manageattachments" method="post" onsubmit="return confirm('Are you sure you want to delete these attachments?\\nThis cannot be undone!');"]
+        dl.settings
+          dt
+            "Remove attachments older than"
+          dd
+            input [name="age" size="#" type="number" value="#"]
+            "days"
+          dt
+            "Message to add to post"
+          dd
+            input [name="notice" size="#" type="text" value="[attachment deleted by admin]"]
+          input.button [name="remove" type="submit" value="Remove"]
+          input [name="type" type="hidden" value="attachments"]
+          input [name="{session_var}" type="hidden" value="{session_id}"]
+          input [name="sa" type="hidden" value="byage"]
+      form [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=manageattachments" method="post" onsubmit="return confirm('Are you sure you want to delete these attachments?\\nThis cannot be undone!');"]
+        dl.settings
+          dt
+            "Remove attachments larger than"
+          dd
+            input#size [name="size" size="#" type="number" value="#"]
+            "KB"
+          dt
+            "Message to add to post"
+          dd
+            input [name="notice" size="#" type="text" value="[attachment deleted by admin]"]
+          input.button [name="remove" type="submit" value="Remove"]
+          input [name="type" type="hidden" value="attachments"]
+          input [name="{session_var}" type="hidden" value="{session_id}"]
+          input [name="sa" type="hidden" value="bysize"]
+      form [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=manageattachments" method="post" onsubmit="return confirm('Are you sure you want to delete these attachments?\\nThis cannot be undone!');"]
+        dl.settings
+          dt
+            "Remove avatars from members not active for more than"
+          dd
+            input [name="age" size="#" type="number" value="#"]
+            "days"
+          input.button [name="remove" type="submit" value="Remove"]
+          input [name="type" type="hidden" value="avatars"]
+          input [name="{session_var}" type="hidden" value="{session_id}"]
+          input [name="sa" type="hidden" value="byage"]
+  div#transfer.cat_bar
+    h3.catbg
+      "Transfer Attachments"
+  div.windowbg
+    form [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=manageattachments;sa=transfer" method="post"]
+      p
+        "Transfer files between directories."
+      dl.settings
+        dt
+          "Transfer files from"
+        dd
+          select [name="from"]
+            option [value="#"]
+              "Select directory"
+            option [value="#"]
+              "{boarddir}/attachments"
+        dt
+          "Automatically by space or file count"
+        dd
+          select [name="auto"]
+            option [value="#"]
+              "Select base directory"
+            option [value="-#"]
+              "Forum root directory."
+            option [disabled value="#"]
+              "No base directories available."
+        dt
+          "Or to a specific directory."
+        dd
+          select [name="to"]
+            option [value="#"]
+              "Select directory"
+            option [value="#"]
+              "{boarddir}/attachments"
+        dt
+          "Empty the source directory"
+        dd
+          input [checked name="empty_it" type="checkbox"]
+      input [name="{session_var}" type="hidden" value="{session_id}"]
+      input.button [name="transfer" onclick="start_progress()" type="submit" value="Transfer"]
+      div#progress_msg
+      div#show_progress.padding
+    script
+      | function start_progress() { setTimeout(show_msg, #); } function show_msg() { $('#progress_msg').html('<div><img src="{boardurl}/Themes/default/images/loading_sm.gif" alt="Loading..." width="#" height="#"> Please wait. Transfer in progress.<\/div>'); show_progress(); } function show_progress() { $('#show_progress').on("load", "progress.php"); setTimeout(show_progress, #); }

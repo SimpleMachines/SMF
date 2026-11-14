@@ -26,6 +26,16 @@
 
 		<testsuite name="http">
 			<directory>tests/Integration/Http</directory>
+			<exclude>tests/Integration/Http/Snapshot</exclude>
+		</testsuite>
+
+		<!--
+			What every page renders today, for checking a template conversion
+			against. Several hundred requests, so it has a suite of its own. See
+			tests/Integration/Http/Snapshot/SnapshotTestCase.php.
+		-->
+		<testsuite name="snapshot">
+			<directory>tests/Integration/Http/Snapshot</directory>
 		</testsuite>
 	</testsuites>
 	<source>
