@@ -271,7 +271,10 @@ class AttachmentUpload implements ActionInterface, Routable
 					&& User::$me->allowedTo('post_unapproved_attachments', $this->board)
 				)
 			)
-			&& $this->canModifyMsg($this->msg, $this->board);
+			&& (
+				empty($this->msg)
+				|| $this->canModifyMsg($this->msg, $this->board)
+			);
 	}
 
 	/**
@@ -558,7 +561,7 @@ class AttachmentUpload implements ActionInterface, Routable
 		];
 
 		// Adding needs some VIP treatment.
-		if ($this->sa == 'add') {
+		if ($this->sa == 'add' && empty($data)) {
 			// Is there any generic errors? made some sense out of them!
 			if ($this->generalErrors) {
 				foreach ($this->generalErrors as $k => $v) {
@@ -630,10 +633,10 @@ class AttachmentUpload implements ActionInterface, Routable
 
 		// Either you can modify anything, or this is your own message.
 		return (bool) (
-			allowedTo('modify_any', $id_board)
+			User::$me->allowedTo('modify_any', $id_board)
 			|| (
 				$msg->id_member == User::$me->id
-				&& allowedTo('modify_own', $id_board)
+				&& User::$me->allowedTo('modify_own', $id_board)
 			)
 		);
 	}

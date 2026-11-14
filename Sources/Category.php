@@ -18,6 +18,7 @@ namespace SMF;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\InsertType;
+use SMF\Db\ReturnMode;
 
 /**
  * This class loads information about categories. It also handles low-level
@@ -530,7 +531,7 @@ class Category implements \ArrayAccess
 			$cat_columns,
 			[$cat_parameters],
 			['id_cat'],
-			Db::INSERT_RETURN_MODE_SINGLE,
+			ReturnMode::SingleRow,
 		);
 
 		// Set the given properties to the newly created category.

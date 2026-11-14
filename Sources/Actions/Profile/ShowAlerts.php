@@ -55,13 +55,13 @@ class ShowAlerts implements ActionInterface
 			 * the value for $alert['target_href'].
 			 */
 
+			// Mark the alert as read while we're at it.
+			Alert::mark(User::$me->id, $alert_id, true);
+
 			// In case it failed to determine this alert's link
 			if (empty($alert->target_href)) {
 				Utils::redirectexit('action=profile;area=showalerts');
 			}
-
-			// Mark the alert as read while we're at it.
-			Alert::mark(User::$me->id, $alert_id, true);
 
 			// Take the user to the content
 			Utils::redirectexit($alert->target_href);

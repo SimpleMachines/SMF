@@ -19,6 +19,7 @@ use SMF\Autolinker;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\InsertType;
+use SMF\Db\ReturnMode;
 use SMF\IntegrationHook;
 use SMF\Lang;
 use SMF\Msg;
@@ -944,7 +945,7 @@ class Parsed extends SearchApi implements SearchApiInterface
 				[
 					'id_word',
 				],
-				Db::INSERT_RETURN_MODE_SINGLE,
+				ReturnMode::SingleRow,
 			);
 
 			foreach ($msg_data as $msg => $wordnums) {

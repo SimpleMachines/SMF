@@ -18,6 +18,7 @@ namespace SMF;
 use SMF\Actions\Admin\ACP;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\InsertType;
+use SMF\Db\ReturnMode;
 use SMF\Graphics\Image;
 
 /**
@@ -1411,7 +1412,7 @@ class Attachment implements \ArrayAccess
 			$attachmentColumns,
 			[$attachmentValues],
 			['id_attach'],
-			Db::INSERT_RETURN_MODE_SINGLE,
+			ReturnMode::SingleRow,
 		);
 
 		// Attachment couldn't be created.
@@ -1537,7 +1538,7 @@ class Attachment implements \ArrayAccess
 						],
 					],
 					['id_attach'],
-					Db::INSERT_RETURN_MODE_SINGLE,
+					ReturnMode::SingleRow,
 				);
 
 				if (!empty($attachmentOptions['thumb'])) {
@@ -2132,7 +2133,7 @@ class Attachment implements \ArrayAccess
 									],
 								],
 								['id_attach'],
-								Db::INSERT_RETURN_MODE_SINGLE,
+								ReturnMode::SingleRow,
 							);
 
 							if (!empty($attachment['id_thumb'])) {

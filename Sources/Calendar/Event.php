@@ -20,6 +20,7 @@ use SMF\ArrayAccessHelper;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\InsertType;
+use SMF\Db\ReturnMode;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -729,7 +730,7 @@ class Event implements \ArrayAccess
 				$columns,
 				[$params],
 				['id_event'],
-				Db::INSERT_RETURN_MODE_SINGLE,
+				ReturnMode::SingleRow,
 			);
 
 			self::$loaded[$this->id] = $this;

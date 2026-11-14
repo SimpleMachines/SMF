@@ -21,6 +21,7 @@ use SMF\Alert;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\InsertType;
+use SMF\Db\ReturnMode;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\IP;
@@ -1215,7 +1216,7 @@ class ReportedContent implements ActionInterface
 			],
 			[$data],
 			['id_comment'],
-			Db::INSERT_RETURN_MODE_SINGLE,
+			ReturnMode::SingleRow,
 		);
 
 		if ($this->type == 'members') {

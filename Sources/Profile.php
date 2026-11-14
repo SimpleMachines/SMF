@@ -18,6 +18,7 @@ namespace SMF;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\InsertType;
+use SMF\Db\ReturnMode;
 use SMF\Graphics\Image;
 use SMF\Permissions\Permission;
 
@@ -2867,7 +2868,7 @@ class Profile extends User implements \ArrayAccess
 				],
 			],
 			['id_attach'],
-			Db::INSERT_RETURN_MODE_SINGLE,
+			ReturnMode::SingleRow,
 		);
 
 		$this->data['filename'] = $image->pathinfo['basename'];

@@ -20,6 +20,7 @@ use SMF\ActionTrait;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\InsertType;
+use SMF\Db\ReturnMode;
 use SMF\ErrorHandler;
 use SMF\ItemList;
 use SMF\Lang;
@@ -469,7 +470,7 @@ class IssueWarning implements ActionInterface
 						],
 					],
 					['id_notice'],
-					Db::INSERT_RETURN_MODE_SINGLE,
+					ReturnMode::SingleRow,
 				);
 			}
 		}

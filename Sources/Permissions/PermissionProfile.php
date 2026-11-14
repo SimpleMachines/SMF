@@ -17,6 +17,7 @@ namespace SMF\Permissions;
 
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\InsertType;
+use SMF\Db\ReturnMode;
 use SMF\Group;
 use SMF\Lang;
 use SMF\Utils;
@@ -109,7 +110,7 @@ class PermissionProfile
 				['profile_name' => 'string'],
 				[[$this->name]],
 				['id_profile'],
-				Db::INSERT_RETURN_MODE_SINGLE,
+				ReturnMode::SingleRow,
 			);
 
 			if (!empty($this->copied_from)) {

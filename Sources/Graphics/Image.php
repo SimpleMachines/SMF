@@ -340,6 +340,11 @@ class Image
 		// Do the actual resize.
 		$success = $this->resize($dst_name, $max_width, $max_height, $preferred_type);
 
+		// Well this failed.
+		if (!file_exists($dst_name)) {
+			return false;
+		}
+
 		// Okay, we're done with the temporary stuff.
 		$dst_name = substr($dst_name, 0, -4);
 

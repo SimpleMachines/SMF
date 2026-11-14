@@ -19,6 +19,7 @@ use SMF\Actions\Admin\Permissions;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\InsertType;
+use SMF\Db\ReturnMode;
 use SMF\Permissions\GroupPermissionSet;
 use SMF\Permissions\Permission;
 use SMF\Permissions\PermissionProfile;
@@ -459,7 +460,7 @@ class Group implements \ArrayAccess
 				$columns,
 				[$params],
 				['id_group'],
-				Db::INSERT_RETURN_MODE_SINGLE,
+				ReturnMode::SingleRow,
 			);
 
 			self::$loaded[$this->id] = $this;

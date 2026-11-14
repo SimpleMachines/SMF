@@ -19,6 +19,7 @@ use SMF\Actions\Moderation\ReportedContent;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\InsertType;
+use SMF\Db\ReturnMode;
 use SMF\Diff\EditDiff;
 use SMF\Search\SearchApi;
 
@@ -357,7 +358,7 @@ class Msg implements \ArrayAccess, Routable
 				$columns,
 				[$params],
 				['id_msg'],
-				Db::INSERT_RETURN_MODE_SINGLE,
+				ReturnMode::SingleRow,
 			);
 
 			// Can't set id_msg_modified until we know id_msg.
@@ -2126,7 +2127,7 @@ class Msg implements \ArrayAccess, Routable
 						],
 					],
 					['id_topic'],
-					Db::INSERT_RETURN_MODE_SINGLE,
+					ReturnMode::SingleRow,
 				);
 			}
 

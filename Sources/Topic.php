@@ -21,6 +21,7 @@ use SMF\Cache\CacheApi;
 use SMF\Calendar\Event;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\InsertType;
+use SMF\Db\ReturnMode;
 use SMF\Search\SearchApi;
 
 /**
@@ -500,7 +501,7 @@ class Topic implements \ArrayAccess, Routable
 				$columns,
 				[$params],
 				['id_topic'],
-				Db::INSERT_RETURN_MODE_SINGLE,
+				ReturnMode::SingleRow,
 			);
 
 			self::$loaded[$this->id] = $this;

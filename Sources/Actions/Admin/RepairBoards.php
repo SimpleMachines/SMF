@@ -21,6 +21,7 @@ use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\InsertType;
+use SMF\Db\ReturnMode;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -1229,7 +1230,7 @@ class RepairBoards implements ActionInterface
 					],
 				],
 				['id_cat'],
-				Db::INSERT_RETURN_MODE_SINGLE,
+				ReturnMode::SingleRow,
 			);
 
 			if (Db::$db->affected_rows() <= 0) {
@@ -1278,7 +1279,7 @@ class RepairBoards implements ActionInterface
 					],
 				],
 				['id_board'],
-				Db::INSERT_RETURN_MODE_SINGLE,
+				ReturnMode::SingleRow,
 			);
 
 			if (Db::$db->affected_rows() <= 0) {
@@ -1343,7 +1344,7 @@ class RepairBoards implements ActionInterface
 				],
 			],
 			['id_topic'],
-			Db::INSERT_RETURN_MODE_SINGLE,
+			ReturnMode::SingleRow,
 		);
 
 		Db::$db->query(
@@ -1433,7 +1434,7 @@ class RepairBoards implements ActionInterface
 					],
 				],
 				['id_msg'],
-				Db::INSERT_RETURN_MODE_SINGLE,
+				ReturnMode::SingleRow,
 			);
 
 			$row['id_topic'] = Db::$db->insert(
@@ -1460,7 +1461,7 @@ class RepairBoards implements ActionInterface
 					],
 				],
 				['id_topic'],
-				Db::INSERT_RETURN_MODE_SINGLE,
+				ReturnMode::SingleRow,
 			);
 
 			Db::$db->query(
@@ -1563,7 +1564,7 @@ class RepairBoards implements ActionInterface
 				],
 			],
 			['id_msg'],
-			Db::INSERT_RETURN_MODE_SINGLE,
+			ReturnMode::SingleRow,
 		);
 
 		$newTopicID = Db::$db->insert(
@@ -1590,7 +1591,7 @@ class RepairBoards implements ActionInterface
 				],
 			],
 			['id_topic'],
-			Db::INSERT_RETURN_MODE_SINGLE,
+			ReturnMode::SingleRow,
 		);
 
 		Db::$db->query(
@@ -1774,7 +1775,7 @@ class RepairBoards implements ActionInterface
 				],
 			],
 			['id_board'],
-			Db::INSERT_RETURN_MODE_SINGLE,
+			ReturnMode::SingleRow,
 		);
 
 		Db::$db->query(
