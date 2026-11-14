@@ -682,12 +682,12 @@ function showAlerts($memID)
 		 * the value for $alert['target_href'].
 		 */
 
+		// Mark the alert as read while we're at it.
+		alert_mark($memID, $alert_id, 1);
+
 		// In case it failed to determine this alert's link
 		if (empty($alert['target_href']))
 			redirectexit('action=profile;area=showalerts');
-
-		// Mark the alert as read while we're at it.
-		alert_mark($memID, $alert_id, 1);
 
 		// Take the user to the content
 		redirectexit($alert['target_href']);
