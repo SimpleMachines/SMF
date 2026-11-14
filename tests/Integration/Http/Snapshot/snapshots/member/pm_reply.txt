@@ -1,0 +1,197 @@
+status 200
+@ title
+title
+  "Send message"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=pm" itemprop="item"]
+        span [itemprop="name"]
+          "Personal Messages"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=pm;sa=send" itemprop="item"]
+        span [itemprop="name"]
+          "New Message"
+      meta [content="#" itemprop="position"]
+@ #content_section
+div#content_section
+  main#main_content_section
+    nav#genericmenu [aria-label=" Menu"]
+      a.mobile_generic_menu_1
+        span.menu_icon
+        span.text_menu
+          "Menu"
+      div#mobile_generic_menu_#.popup_container
+        div.description.popup_window
+          div.popup_heading
+            "Menu"
+            a.hide_popup.main_icons [href="javascript:void(#);"]
+          div.generic_menu
+            ul.dropdown_menu_1.dropmenu
+              li.subsections
+                a.active [href="{boardurl}/index.php?action=pm;f=inbox"]
+                  "Messages"
+                ul
+                  li
+                    a.inbox.pm_menu_icon [href="{boardurl}/index.php?action=pm;f=inbox"]
+                      span.inbox.main_icons
+                      "Inbox"
+                  li
+                    a.chosen.pm_menu_icon.send [href="{boardurl}/index.php?action=pm;sa=send"]
+                      span.main_icons.send
+                      "send"
+                  li
+                    a.pm_menu_icon.sent [href="{boardurl}/index.php?action=pm;f=sent"]
+                      span.main_icons.sent
+                      "sent"
+                  li
+                    a.drafts.pm_menu_icon [href="{boardurl}/index.php?action=pm;f=drafts"]
+                      span.drafts.main_icons
+                      "Drafts"
+              li.subsections
+                a [href="{boardurl}/index.php?action=pm;sa=search"]
+                  "Actions"
+                ul
+                  li
+                    a.pm_menu_icon.search [href="{boardurl}/index.php?action=pm;sa=search"]
+                      span.main_icons.search
+                      "Search"
+                  li
+                    a.pm_menu_icon.prune [href="{boardurl}/index.php?action=pm;sa=prune"]
+                      span.main_icons.prune
+                      "prune"
+              li.subsections
+                a [href="{boardurl}/index.php?action=pm;sa=manlabels"]
+                  "Preferences"
+                ul
+                  li
+                    a.manlabels.pm_menu_icon [href="{boardurl}/index.php?action=pm;sa=manlabels"]
+                      span.main_icons.manlabels
+                      "manlabels"
+                  li
+                    a.manrules.pm_menu_icon [href="{boardurl}/index.php?action=pm;sa=manrules"]
+                      span.main_icons.manrules
+                      "manrules"
+                  li
+                    a.pm_menu_icon.settings [href="{boardurl}/index.php?action=pm;sa=settings"]
+                      span.main_icons.settings
+                      "Settings"
+    script
+      | $( ".mobile_generic_menu_#" ).click(function() { $( "#mobile_generic_menu_#" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#" ).hide(); });
+    div#admin_content
+      div#personal_messages
+        div#preview_section.hidden
+          div.cat_bar
+            h3.catbg
+              span#preview_subject
+          div.noup.windowbg
+            div#preview_body.post
+              br
+          br.clear
+        form#postmodify.flow_hidden [accept-charset="UTF-#" action="{boardurl}/index.php?action=pm;sa=send#" method="post" name="postmodify" onsubmit="submitonce(this);"]
+          div.cat_bar
+            h3.catbg
+              span.icon.inbox.main_icons [title="New Message"]
+              "New Message"
+          div.noup.roundframe
+            div#errors.hidden.noticebox
+              dl
+                dt
+                  strong#error_serious
+                    "The message has the following error or errors that must be corrected before continuing:"
+                dd#error_list.error
+            div#draft_section.infobox [style="display: none;"]
+              "The contents have been saved as a draft, and will be accessible from the"
+              a [href="{boardurl}/index.php?action=pm;sa=showpmdrafts"]
+                "Show Drafts area"
+              "of your message center."
+              strong
+                "Please note that all drafts will be automatically deleted after {duration}."
+            dl#post_header
+              dt
+                label#caption_to [for="to_control"]
+                  "To:"
+              dd#pm_to.clear_right
+                input#to_control [name="to" size="#" type="text" value="\"snapshot_other\", \"Snapshot Admin\""]
+                span#bcc_link_container.smalltext [style="display: none;"]
+                div#to_item_list_container
+              dt#bcc_div.clear_left
+                label#caption_bbc [for="bcc_control"]
+                  "Bcc:"
+              dd#bcc_div#
+                input#bcc_control [name="bcc" size="#" type="text" value]
+                div#bcc_item_list_container
+              dt.clear_left
+                label#caption_subject [for="subject"]
+                  "Subject"
+              dd#pm_subject
+                input#subject [maxlength="#" name="subject" size="#" type="text" value="Re: Snapshot message"]
+            textarea#message.editor [cols="#" name="message" style="width: #%; height: #px;"]
+              "[quote author={member} link=action=profile;u=# date(s)=#] A personal message to two people. [/quote]"
+            input#message_mode [name="message_mode" type="hidden" value="#"]
+            script
+              | document.addEventListener("DOMContentLoaded", function () { var textarea = document.getElementById("message"), options = { "width": "#%", "height": "#px", "style": "{boardurl}/Themes/default/css/jquery.sceditor.default.css?smf#alpha#dev_#", "emoticonsCompat": true, "emoticons": { "dropdown": { ":)": { "newRow": false, "url": "smiley.png", "tooltip": "Smiley" }, ";)": { "newRow": false, "url": "wink.png", "tooltip": "Wink" }, ":D": { "newRow": false, "url": "cheesy.png", "tooltip": "Cheesy" }, ";D": { "newRow": false, "url": "grin.png", "tooltip": "Grin" }, ">:(": { "newRow": false, "url": "angry.png", "tooltip": "Angry" }, ":(": { "newRow": false, "url": "sad.png", "tooltip": "Sad" }, ":o": { "newRow": false, "url": "shocked.png", "tooltip": "Shocked" }, "#)": { "newRow": false, "url": "cool.png", "tooltip": "Cool" }, "???": { "newRow": false, "url": "huh.png", "tooltip": "Huh?" }, "::)": { "newRow": false, "url": "rolleyes.png", "tooltip": "Roll Eyes" }, ":P": { "newRow": false, "url": "tongue.png", "tooltip": "Tongue" }, ":-[": { "newRow": false, "url": "embarrassed.png", "tooltip": "Embarrassed" }, ":-X": { "newRow": false, "url": "lipsrsealed.png", "tooltip": "Lips Sealed" }, ":-\\": { "newRow": false, "url": "undecided.png", "tooltip": "Undecided" }, ":-*": { "newRow": false, "url": "kiss.png", "tooltip": "Kiss" }, ":'(": { "newRow": false, "url": "cry.png", "tooltip": "Cry" } } }, "emoticonsEnabled": true, "emoticonsRoot": "{boardurl}/Smileys/fugue/", "colors": [ [ "black", "Black" ], [ "red", "Red" ], [ "yellow", "Yellow" ], [ "pink", "Pink" ], [ "green", "Green" ], [ "orange", "Orange" ], [ "purple", "Purple" ], [ "blue", "Blue" ], [ "beige", "Beige" ], [ "brown", "Brown" ], [ "teal", "Teal" ], [ "navy", "Navy" ], [ "maroon", "Maroon" ], [ "limegreen", "Lime Green" ], [ "white", "White" ] ], "fonts": "Arial,Arial Black,Comic Sans MS,Courier New,Georgia,Impact,Sans-serif,Serif,Times New Roman,Trebuchet MS,Verdana", "icons": "monocons", "format": "bbcode", "plugins": "smf,autolinker", "toolbar": "bold,italic,underline,strike,superscript,subscript,tt,spoiler|pre,left,center,right,justify|font,size,color|removeformat||floatleft,floatright|youtube,image,email,link,unlink|table,code,quote,details|heading,bulletlist,orderedlist,horizontalrule|maximize,source", "customTextualCommands": { "tt": { "image": "tt", "code": "tt", "description": "Inline code" }, "spoiler": { "image": "hidden", "code": "spoiler", "description": "Spoiler" }, "details": { "image": "details", "code": "details", "description": "Details" }, "heading": { "image": "heading", "code": "heading", "description": "Heading" } }, "startInSourceMode": true, "bbcodeTrim": false, "resizeWidth": false, "resizeMaxHeight": -#, "locale": "en", "rtl": false, "commandsWithDropdown": { "color": true, "heading": true, "font": true, "size": true }, "textOnlyCommands": [], "commandsWithText": [], "parserOptions": { "txtVars": { "code": "Code" } } }; sceditor.create(textarea, options, '#', '#'); });
+            div.post_verification
+              strong
+                "Verification"
+              div#verification_control_#.verification_control
+                div.smalltext.vv_special
+                  "Please leave this box empty"
+                  snapshot-ignored [selector=".vv_special input"]
+                img#verification_image_pm [alt="Type the letters shown in the picture" src="{boardurl}/index.php?action=verificationcode;vid=pm;rand={hash}"]
+                div.smalltext [style="margin: #px # #px #;"]
+                  a#visual_verification_pm_sound [href="{boardurl}/index.php?action=verificationcode;vid=pm;rand={hash};sound" rel="nofollow"]
+                    "Listen to the letters"
+                  "/"
+                  a#visual_verification_pm_refresh [href="#visual_verification_pm_refresh"]
+                    "Request another image"
+                  br
+                  "Type the letters shown in the picture"
+                  br
+                  input [autocomplete="off" name="pm_vv[code]" required size="#" type="text" value]
+            span#post_confirm_buttons
+              span.smalltext
+                "Shortcuts: ALT+S post, ALT+P preview, ALT+D save draft"
+              span.post_button_container
+                input.button [accesskey="d" name="save_draft" onclick="return confirm('This will save the text of your post, but it will not save attachments, poll or event information.');" type="submit" value="Save draft"]
+                input#id_draft [name="id_draft" type="hidden" value="#"]
+                input.button [accesskey="p" name="preview" type="submit" value="Preview"]
+                input.button [accesskey="s" name="post" onclick="return submitThisOnce(this);" type="submit" value="Send message"]
+            input [name="{session_var}" type="hidden" value="{session_id}"]
+            input [name="seqnum" type="hidden" value="#"]
+            input [name="replied_to" type="hidden" value="#"]
+            input [name="pm_head" type="hidden" value="#"]
+            input [name="f" type="hidden" value="inbox"]
+            input [name="l" type="hidden" value="-#"]
+            br.clear_right
+        script
+          | var txt_preview_title = "Preview post"; var txt_preview_fetch = "Fetching preview..."; function previewPost() { if (window.XMLHttpRequest) { // Opera didn't support setRequestHeader() before #. // @todo Remove support for old browsers if ('opera' in window) { var test = new XMLHttpRequest(); if (!('setRequestHeader' in test)) return submitThisOnce(document.forms.postmodify); } // @todo Currently not sending poll options and option checkboxes. var x = new Array(); var textFields = ['subject', 'message', 'to', 'bcc']; var numericFields = ['recipient_to[]', 'recipient_bcc[]']; var checkboxFields = []; for (var i = #, n = textFields.length; i < n; i++) if (textFields[i] in document.forms.postmodify) { // Handle the WYSIWYG editor. if (textFields[i] == 'message' && 'oEditorHandle_message' in window && oEditorHandle_message.bRichTextEnabled) x[x.length] = 'message_mode=#&' + textFields[i] + '=' + oEditorHandle_message.getText(false).php_to#bit().php_urlencode(); else x[x.length] = textFields[i] + '=' + document.forms.postmodify[textFields[i]].value.php_to#bit().php_urlencode(); } for (var i = #, n = numericFields.length; i < n; i++) if (numericFields[i] in document.forms.postmodify && 'value' in document.forms.postmodify[numericFields[i]]) x[x.length] = numericFields[i] + '=' + parseInt(document.forms.postmodify.elements[numericFields[i]].value); for (var i = #, n = checkboxFields.length; i < n; i++) if (checkboxFields[i] in document.forms.postmodify && document.forms.postmodify.elements[checkboxFields[i]].checked) x[x.length] = checkboxFields[i] + '=' + document.forms.postmodify.elements[checkboxFields[i]].value; sendXMLDocument(smf_prepareScriptUrl(smf_scripturl) + 'action=pm;sa=send#;preview;xml', x.join('&'), onDocSent); document.getElementById('preview_section').style.display = ''; setInnerHTML(document.getElementById('preview_subject'), txt_preview_title); setInnerHTML(document.getElementById('preview_body'), txt_preview_fetch); return false; } else return submitThisOnce(document.forms.postmodify); } function onDocSent(XMLDoc) { if (!XMLDoc) { document.forms.postmodify.preview.onclick = new function () { return true; } document.forms.postmodify.preview.click(); } // Show the preview section. var preview = XMLDoc.getElementsByTagName('smf')[#].getElementsByTagName('preview')[#]; setInnerHTML(document.getElementById('preview_subject'), preview.getElementsByTagName('subject')[#].firstChild.nodeValue); var bodyText = ''; for (var i = #, n = preview.getElementsByTagName('body')[#].childNodes.length; i < n; i++) bodyText += preview.getElementsByTagName('body')[#].childNodes[i].nodeValue; setInnerHTML(document.getElementById('preview_body'), bodyText); document.getElementById('preview_body').className = 'post'; // Show a list of errors (if any). var errors = XMLDoc.getElementsByTagName('smf')[#].getElementsByTagName('errors')[#]; var errorList = new Array(); for (var i = #, numErrors = errors.getElementsByTagName('error').length; i < numErrors; i++) errorList[errorList.length] = errors.getElementsByTagName('error')[i].firstChild.nodeValue; document.getElementById('errors').style.display = numErrors == # ? 'none' : ''; setInnerHTML(document.getElementById('error_list'), numErrors == # ? '' : errorList.join('<br>')); // Adjust the color of captions if the given data is erroneous. var captions = errors.getElementsByTagName('caption'); for (var i = #, numCaptions = errors.getElementsByTagName('caption').length; i < numCaptions; i++) if (document.getElementById('caption_' + captions[i].getAttribute('name'))) document.getElementById('caption_' + captions[i].getAttribute('name')).className = captions[i].getAttribute('class'); if (errors.getElementsByTagName('post_error').length == #) document.forms.postmodify.message.style.border = '#px solid red'; else if (document.forms.postmodify.message.style.borderColor == 'red' || document.forms.postmodify.message.style.borderColor == 'red red red red') { if ('runtimeStyle' in document.forms.postmodify.message) document.forms.postmodify.message.style.borderColor = ''; else document.forms.postmodify.message.style.border = null; } location.hash = '#' + 'preview_section'; }
+        br
+        div.cat_bar
+          h3.catbg
+            "Subject: Snapshot message"
+        div.windowbg
+          div.clear
+            span.floatright.smalltext
+              "{date}"
+            "From:"
+            a [href="{boardurl}/index.php?action=profile;u=#" title="View the profile of {member}"]
+              "{member}"
+          hr
+          "A personal message to two people."
+        br.clear
+        script
+          | var oPersonalMessageSend = new smf_PersonalMessageSend({ sSessionId: smf_session_id, sSessionVar: smf_session_var, sTextDeleteItem: 'Delete Item', sToControlId: 'to_control', aToRecipients: [ { sItemId: '#', sItemName: 'snapshot_other' }, { sItemId: '#', sItemName: 'Snapshot Admin' }, ], aBccRecipients: [ ], sBccControlId: 'bcc_control', sBccDivId: 'bcc_div', sBccDivId#: 'bcc_div#', sBccLinkId: 'bcc_link', sBccLinkContainerId: 'bcc_link_container', bBccShowByDefault: false, sShowBccLinkTemplate: '\n\t\t\t\t\t<a hr'+'ef="#" id="bcc_link">Add BCC<' + '/a> <a hr'+'ef="' + smf_scripturl + '?action=helpadmin;help=pm_bcc" onclick="return reqOverlayDiv(this.href);">(?)<' + '/a>' });
+        script
+          | var verificationpmHandle = new smfCaptcha("{boardurl}/index.php?action=verificationcode;vid=pm;rand={hash}", "pm", #);

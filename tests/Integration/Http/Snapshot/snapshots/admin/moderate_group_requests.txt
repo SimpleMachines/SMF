@@ -1,0 +1,69 @@
+status 200
+@ title
+title
+  "Membergroup Requests"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=moderate" itemprop="item"]
+        span [itemprop="name"]
+          "Moderation Center"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=moderate;area=groups" itemprop="item"]
+        span [itemprop="name"]
+          "Membergroup Requests"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      "Membergroup Requests"
+  form [accept-charset="UTF-#" action="{boardurl}/index.php?action=moderate;area=groups;sa=requests" method="post"]
+    table#group_request_list.table_grid [style="width:#%"]
+      thead
+        tr.title_bar
+          th#header_group_request_list_member.member [scope="col"]
+            a [href="{boardurl}/index.php?action=moderate;area=groups;sa=requests;sort=member;desc" rel="nofollow"]
+              "Member"
+              span.main_icons.sort_up
+          th#header_group_request_list_group.group [scope="col"]
+            a [href="{boardurl}/index.php?action=moderate;area=groups;sa=requests;sort=group" rel="nofollow"]
+              "Membergroups"
+          th#header_group_request_list_reason.reason [scope="col"]
+            "Reason"
+          th#header_group_request_list_date.date [scope="col" style="width: #%; white-space:nowrap;"]
+            "Date"
+          th#header_group_request_list_action.action.centercol [scope="col" style="width: #%;"]
+            input [onclick="invertAll(this, this.form);" type="checkbox"]
+      tbody
+        tr.windowbg
+          td.centertext [colspan="#"]
+            "There are currently no outstanding membergroup requests."
+    div.additional_row.floatright
+      select#req_action [name="req_action" onchange="if (this.value != # && (this.value == 'reason' || confirm('Are you sure you wish to do this?'))) this.form.submit();"]
+        option [value="#"]
+          "With selected:"
+        option [disabled value="#"]
+          "---------------------"
+        option [value="approve"]
+          "Approve request"
+        option [value="reject"]
+          "Reject request (No Reason)"
+        option [value="reason"]
+          "Reject request with reason"
+      input.button [name="go" onclick="var sel = document.getElementById('req_action'); if (sel.value != # && sel.value != 'reason' && !confirm('Are you sure you wish to do this?')) return false;" type="submit" value="Go"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]
+    input [name="{token_var}" type="hidden" value="{hash}"]
+    input [name="sort" type="hidden" value="member"]
+    input [name="{token_var}" type="hidden" value="{hash}"]

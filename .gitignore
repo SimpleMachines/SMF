@@ -84,6 +84,7 @@ Thumbs.db
 # Schema readings and reports from compare-upgrade.sh. They describe one
 # machine's databases at one moment, and are rewritten on every run.
 /.dev/compare/
+/.dev/plates/signatures/
 
 # Test / Private files #
 ########################

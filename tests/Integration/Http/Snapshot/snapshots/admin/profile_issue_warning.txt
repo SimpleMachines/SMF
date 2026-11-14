@@ -1,0 +1,251 @@
+status 200
+@ title
+title
+  "Issue a Warning"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=profile;u=#" itemprop="item"]
+        span [itemprop="name"]
+          "{member}"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=profile;u=#;area=issuewarning" itemprop="item"]
+        span [itemprop="name"]
+          "Issue a Warning"
+      meta [content="#" itemprop="position"]
+@ #content_section
+div#content_section
+  main#main_content_section
+    nav#genericmenu [aria-label=" Menu"]
+      a.mobile_generic_menu_1
+        span.menu_icon
+        span.text_menu
+          "Menu"
+      div#mobile_generic_menu_#.popup_container
+        div.description.popup_window
+          div.popup_heading
+            "Menu"
+            a.hide_popup.main_icons [href="javascript:void(#);"]
+          div.generic_menu
+            ul.dropdown_menu_1.dropmenu
+              li.subsections
+                a [href="{boardurl}/index.php?action=profile;area=summary;u=#"]
+                  "{member}"
+                ul
+                  li
+                    a.administration.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=summary;u=#"]
+                      span.administration.main_icons
+                      "{member}"
+                  li
+                    a.profile_menu_icon.stats [href="{boardurl}/index.php?action=profile;area=statistics;u=#"]
+                      span.main_icons.stats
+                      "Show Stats"
+                  li.subsections
+                    a.posts.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=showposts;u=#"]
+                      span.main_icons.posts
+                      "Show Posts"
+                    ul
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=showposts;sa=messages;u=#"]
+                          "Messages"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=showposts;sa=topics;u=#"]
+                          "Topics"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=showposts;sa=attach;u=#"]
+                          "Attachments"
+                  li
+                    a.permissions.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=permissions;u=#"]
+                      span.main_icons.permissions
+                      "Show Permissions"
+                  li.subsections
+                    a.logs.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=tracking;u=#"]
+                      span.logs.main_icons
+                      "Track User"
+                    ul
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=tracking;sa=activity;u=#"]
+                          "Activity"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=tracking;sa=ip;u=#"]
+                          "IP Address"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=tracking;sa=logins;u=#"]
+                          "Logins"
+              li.subsections
+                a [href="{boardurl}/index.php?action=profile;area=account;u=#"]
+                  "Forum Profile"
+                ul
+                  li
+                    a.maintain.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=account;u=#"]
+                      span.main_icons.maintain
+                      "Account Settings"
+                  li
+                    a.members.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=forumprofile;u=#"]
+                      span.main_icons.members
+                      "Forum Profile"
+                  li
+                    a.features.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=theme;u=#"]
+                      span.features.main_icons
+                      "Look and Layout"
+                  li.subsections
+                    a.alerts.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=notification;u=#"]
+                      span.alerts.main_icons
+                      "Notifications"
+                    ul
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=notification;sa=alerts;u=#"]
+                          "Notification Preferences"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=notification;sa=topics;u=#"]
+                          "Watched Topics"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=notification;sa=boards;u=#"]
+                          "Watched Boards"
+              li.subsections
+                a.active [href="{boardurl}/index.php?action=pm;sa=send;u=#"]
+                  "Actions"
+                ul
+                  li
+                    a.personal_message.profile_menu_icon [href="{boardurl}/index.php?action=pm;sa=send;u=#"]
+                      span.main_icons.personal_message
+                      "Send personal message"
+                  li
+                    a.profile_menu_icon.warning [href="{boardurl}/index.php?action=reporttm;{session_var}={session_id};u=#"]
+                      span.main_icons.warning
+                      "Report this member"
+                  li
+                    a.chosen.profile_menu_icon.warning [href="{boardurl}/index.php?action=profile;area=issuewarning;u=#"]
+                      span.main_icons.warning
+                      "Issue a Warning"
+                  li
+                    a.ban.profile_menu_icon [href="{boardurl}/index.php?action=admin;area=ban;sa=add;u=#"]
+                      span.ban.main_icons
+                      "Ban this user"
+                  li
+                    a.packages.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=getprofiledata;u=#"]
+                      span.main_icons.packages
+                      "Download profile data"
+                  li
+                    a.members_delete.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=deleteaccount;u=#"]
+                      span.main_icons.members_delete
+                      "Delete this account"
+    script
+      | $( ".mobile_generic_menu_#" ).click(function() { $( "#mobile_generic_menu_#" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#" ).hide(); });
+    div#admin_content
+      div#profile_error.errorbox [style="display:none"]
+      script
+        | var notification_templates = ["Snapshot Member,\n\nYou have received a warning for spamming. Please cease these activities and abide by the forum rules otherwise we will take further action.\n\nIf you wish to discuss this, please get in touch with an administrator.\n\nRegards,\nThe {forum_name} Team.","Snapshot Member,\n\nYou have received a warning for posting offensive material. Please cease these activities and abide by the forum rules otherwise we will take further action.\n\nIf you wish to discuss this, please get in touch with an administrator.\n\nRegards,\nThe {forum_name} Team.","Snapshot Member,\n\nYou have received a warning for insulting other users and/or staff members. Please cease these activities and abide by the forum rules otherwise we will take further action.\n\nIf you wish to discuss this, please get in touch with an administrator.\n\nRegards,\nThe {forum_name} Team."]; var level_effects = {"#":"None.","#":"User will be added to moderator watch list.","#":"All users posts will be moderated.","#":"User will not be able to post."};
+      form.flow_hidden [accept-charset="UTF-#" action="{boardurl}/index.php?action=profile;u=#;area=issuewarning" method="post"]
+        div.cat_bar
+          h3.catbg.profile_hd
+            "Issue a Warning"
+        p.information
+          "From this section you can adjust the user’s warning level and issue them with a written warning if necessary. You can also track their warning history and view the effects of their current warning level as determined by the administrator."
+        div.windowbg
+          dl.settings
+            dt
+              strong
+                "Member Name"
+            dd
+              strong
+                "Snapshot Member"
+            dt
+              strong
+                "Warning Level"
+            dd
+              "#%"
+              input#warning_level [max="#" min="#" name="warning_level" step="#" type="range" value="#"]
+              "#%"
+              div.clear_left
+                "Result:"
+                output [data-format="{#}%" for="warning_level" name="cur_level"]
+                  "#% (None.)"
+            dt
+              strong
+                "Reason for Warning"
+              br
+              span.smalltext
+                "This is required and will be logged."
+            dd
+              input#warn_reason [name="warn_reason" size="#" type="text" value]
+          hr
+          div#box_preview [style="display:none"]
+            dl.settings
+              dt
+                strong
+                  "Preview"
+              dd#body_preview
+            hr
+          dl.settings
+            dt
+              strong
+                label [for="warn_notify"]
+                  "Send a Notification"
+            dd
+              input#warn_notify [name="warn_notify" type="checkbox"]
+            dt
+              strong
+                label [for="warn_sub"]
+                  "Notification Subject"
+            dd
+              input#warn_sub [name="warn_sub" size="#" type="text" value="You have received a warning"]
+            dt
+              strong
+                label [for="warn_temp"]
+                  "Notification Message"
+            dd
+              select#warn_temp [disabled name="warn_temp"]
+                option [value="-#"]
+                  "Select template:"
+                option [disabled value="-#"]
+                  "------------------------------"
+                option [value="#"]
+                  "Spamming"
+                option [value="#"]
+                  "Posting Offensive Material"
+                option [value="#"]
+                  "Insulting Users/Staff"
+              span#new_template_link [hidden]
+                a.button.floatnone [href="{boardurl}/index.php?action=moderate;area=warnings;sa=templateedit;tid=#" rel="noopener" target="_blank"]
+                  "New Template"
+              br
+              textarea#warn_body [cols="#" name="warn_body" rows="#"]
+          div.righttext
+            input [name="{token_var}" type="hidden" value="{hash}"]
+            input [name="{session_var}" type="hidden" value="{session_id}"]
+            input#preview_button.button [name="preview" type="button" value="Preview"]
+            input.button [name="save" type="submit" value="Issue Warning"]
+      div.cat_bar
+        h3.catbg
+          "Previous Warnings"
+      table#view_warnings.table_grid
+        thead
+          tr.title_bar
+            th#header_view_warnings_issued_by.issued_by [scope="col" style="width: #%;"]
+              a [href="{boardurl}/index.php?action=profile;area=issuewarning;sa=user;u=#;sort=issued_by" rel="nofollow"]
+                "Issued By"
+            th#header_view_warnings_log_time.log_time [scope="col" style="width: #%;"]
+              a [href="{boardurl}/index.php?action=profile;area=issuewarning;sa=user;u=#;sort=log_time;desc" rel="nofollow"]
+                "Time"
+                span.main_icons.sort_up
+            th#header_view_warnings_reason.reason [scope="col"]
+              "Reason"
+            th#header_view_warnings_level.level [scope="col" style="width: #%;"]
+              a [href="{boardurl}/index.php?action=profile;area=issuewarning;sa=user;u=#;sort=level" rel="nofollow"]
+                "Points"
+        tbody
+          tr.windowbg
+            td.centertext [colspan="#"]
+              "No warnings have been issued."
