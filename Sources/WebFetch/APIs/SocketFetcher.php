@@ -32,6 +32,13 @@ class SocketFetcher extends WebFetchApi
 	/**
 	 * @var string
 	 *
+	 * The protocol we are connecting with.
+	 */
+	public string $protocol;
+
+	/**
+	 * @var string
+	 *
 	 * The host we are connecting to.
 	 */
 	public string $host;
@@ -180,7 +187,8 @@ class SocketFetcher extends WebFetchApi
 			return $this;
 		}
 
-		$host = ($url->scheme === 'https' ? 'ssl://' : '') . $url->host;
+		$protocol = $url->scheme === 'https' ? 'ssl://' : 'tcp://';
+		$host = $url->host;
 		$port = !empty($url->port) ? $url->port : ($url->scheme === 'https' ? 443 : 80);
 
 		$path_and_query = $url->path . (isset($url->query) && $url->query !== '' ? '?' . $url->query : '');
@@ -200,11 +208,21 @@ class SocketFetcher extends WebFetchApi
 		];
 
 		// Do we already have an open connection to the socket? If not, open one.
-		if (!\is_resource($this->fp ?? null) || !$this->keep_alive || $this->host != $host || $this->port != $port) {
+		if (!\is_resource($this->fp ?? null) || !$this->keep_alive || $this->protocol != $protocol || $this->host != $host || $this->port != $port) {
+			$this->protocol = $protocol;
 			$this->host = $host;
 			$this->port = $port;
 
-			$this->fp = @fsockopen($this->host, $this->port, $this->error_code, $this->error_message, $this->timeout);
+			$ips = $url->getIPs();
+			$ip = $ips[0]->isV6() ? '[' . $ips[0] . ']' : $ips[0];
+
+			// Try streaming so we can bind to the IP we found.
+			$stream_context = stream_context_create(['ssl' => ['peer_name' => $this->host]]);
+			$this->fp = @stream_socket_client($this->protocol . $ip . ':' . $this->port, $this->error_code, $this->error_message, $this->timeout, STREAM_CLIENT_CONNECT, $stream_context);
+
+			if (!$this->fp) {
+				$this->fp = @fsockopen($this->protocol . $this->host, $this->port, $this->error_code, $this->error_message, $this->timeout);
+			}
 		}
 
 		// Uh-oh...

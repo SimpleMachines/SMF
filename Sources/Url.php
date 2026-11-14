@@ -534,7 +534,7 @@ class Url implements \Stringable
 	 * Gets instances of SMF\IP for the IP address(es) that this URL's host
 	 * resolves to.
 	 *
-	 * @return array Zero or more instances of SMF\IP.
+	 * @return IP[] Zero or more instances of SMF\IP.
 	 */
 	public function getIPs(): array
 	{
