@@ -846,7 +846,7 @@ function loadUserSettings()
 		$user_info = array('groups' => array(-1));
 		$user_settings = array();
 
-		if (isset($_COOKIE[$cookiename]) && empty($context['tfa_member']))
+		if (isset($_COOKIE[$cookiename]) && empty($context['tfa_member']) && !in_array($_REQUEST['action'], array('signup', 'signup2', 'login', 'login2')))
 			$_COOKIE[$cookiename] = '';
 
 		// Expire the 2FA cookie
