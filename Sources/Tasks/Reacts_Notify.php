@@ -24,7 +24,7 @@ use SMF\User;
 /**
  * This class contains code used to notify members when something is liked.
  */
-class Likes_Notify extends BackgroundTask
+class Reacts_Notify extends BackgroundTask
 {
 	/****************
 	 * Public methods
@@ -71,7 +71,7 @@ class Likes_Notify extends BackgroundTask
 			Db::$db->free_result($request);
 		} else {
 			// This isn't something we know natively how to support. Call the hooks, if they're dealing with it, return false, otherwise return the user id.
-			$hook_results = IntegrationHook::call('integrate_find_like_author', [$this->_details['content_type'], $this->_details['content_id']]);
+			$hook_results = IntegrationHook::call('integrate_find_react_author', [$this->_details['content_type'], $this->_details['content_id']]);
 
 			foreach ($hook_results as $result) {
 				if (!empty($result)) {
@@ -96,13 +96,13 @@ class Likes_Notify extends BackgroundTask
 			return true;
 		}
 
-		$prefs = Notify::getNotifyPrefs($author, $this->_details['content_type'] . '_like', true);
+		$prefs = Notify::getNotifyPrefs($author, $this->_details['content_type'] . '_react', true);
 
 		// The likes setup doesn't support email notifications because that would be too many emails.
 		// As a result, the value should really just be non empty.
 
 		// Check the value. If no value or it's empty, they didn't want alerts, oh well.
-		if (empty($prefs[$author][$this->_details['content_type'] . '_like'])) {
+		if (empty($prefs[$author][$this->_details['content_type'] . '_react'])) {
 			return true;
 		}
 

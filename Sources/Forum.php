@@ -148,9 +148,6 @@ class Forum
 		'jsoption' => [
 			'', Actions\ThemeSetOption::class,
 		],
-		'likes' => [
-			'', Actions\Like::class,
-		],
 		'lock' => [
 			'', Actions\TopicLock::class,
 		],
@@ -226,6 +223,9 @@ class Forum
 		],
 		'quickmod2' => [
 			'', Actions\QuickModerationInTopic::class,
+		],
+		'reacts' => [
+			'', Actions\React::class,
 		],
 		'recent' => [
 			'', Actions\Recent::class,
