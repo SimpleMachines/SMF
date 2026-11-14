@@ -914,6 +914,7 @@ a[class^="mobile_generic_menu_"] {
 	border-width: var(--mainmenu-border-width);
 	box-shadow: var(--mainmenu-box-shadow);
 	margin: 0 0 4px 0;
+	padding: 0.4em 0;
 }
 
 /* User information. */
