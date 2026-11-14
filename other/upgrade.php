@@ -3131,7 +3131,7 @@ function ConvertUtf8()
 			'cambodian' => 'UTF-8',
 			'chinese_simplified' => 'gbk',
 			'chinese_traditional' => 'big5',
-			'croation' => 'ISO-8859-2',
+			'croatian' => 'ISO-8859-2',
 			'czech' => 'ISO-8859-2',
 			'czech_informal' => 'ISO-8859-2',
 			'english_pirate' => 'UTF-8',
