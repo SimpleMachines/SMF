@@ -792,8 +792,10 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 	 */
 	public function error_insert(array $error_array): void
 	{
+		static $loop;
+
 		// Without a database we can't do anything.
-		if (empty($this->connection)) {
+		if (empty($this->connection) || $loop++ > 1) {
 			return;
 		}
 
@@ -815,22 +817,49 @@ class MySQL extends DatabaseApi implements DatabaseApiInterface
 			$error_array['ip'] = null;
 		}
 
-		mysqli_stmt_bind_param(
-			$this->error_data_prep,
-			'iissssssis',
-			$error_array['id_member'],
-			$error_array['log_time'],
-			$error_array['ip'],
-			$error_array['url'],
-			$error_array['message'],
-			$error_array['session'],
-			$error_array['error_type'],
-			$error_array['file'],
-			$error_array['line'],
-			$error_array['backtrace'],
-		);
+		// We still don't have a prepared statement, make one more try to log this.
+		if (empty($this->error_data_prep)) {
+			$this->insert(
+				InsertType::Insert,
+				'{db_prefix}log_errors',
+				[
+					'id_member' => 'int',
+					'log_time' => 'int',
+					'ip' => 'inet',
+					'url' => 'string-65534',
+					'message' => 'string-65534',
+					'session' => 'string',
+					'error_type' => 'string',
+					'file' => 'string-255',
+					'line' => 'int',
+					'backtrace' => 'string-65534',
+				],
+				$error_array,
+				['id_error'],
+			);
+		} else {
+			$error_array['url'] = Utils::entitySubstr($error_array['url'], 0, 65534);
+			$error_array['message'] = Utils::entitySubstr($error_array['message'], 0, 65534);
+			$error_array['file'] = Utils::entitySubstr($error_array['file'], 0, 255);
+			$error_array['backtrace'] = Utils::entitySubstr($error_array['backtrace'], 0, 65534);
 
-		mysqli_stmt_execute($this->error_data_prep);
+			mysqli_stmt_bind_param(
+				$this->error_data_prep,
+				'iissssssis',
+				$error_array['id_member'],
+				$error_array['log_time'],
+				$error_array['ip'],
+				$error_array['url'],
+				$error_array['message'],
+				$error_array['session'],
+				$error_array['error_type'],
+				$error_array['file'],
+				$error_array['line'],
+				$error_array['backtrace'],
+			);
+
+			mysqli_stmt_execute($this->error_data_prep);
+		}
 	}
 
 	/**
