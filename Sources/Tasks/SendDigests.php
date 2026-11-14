@@ -50,6 +50,7 @@ class SendDigests extends ScheduledTask
 		$members = [];
 		$langs = [];
 		$notify = [];
+		$boards = [];
 
 		$request = Db::$db->query(
 			'SELECT ln.id_topic, COALESCE(t.id_board, ln.id_board) AS id_board, mem.email_address, mem.member_name,
@@ -164,11 +165,11 @@ class SendDigests extends ScheduledTask
 
 			$types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']]['members'] = [];
 
-			if (!empty($notify['topics'][$row['id_topic']])) {
+			if (!empty($notify['topics'][$row['id_topic']]) && ($row['note_type'] == 'reply')) {
 				$types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']]['members'] = array_merge($types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']]['members'], $notify['topics'][$row['id_topic']]);
 			}
 
-			if (!empty($notify['boards'][$row['id_board']])) {
+			if (!empty($notify['boards'][$row['id_board']]) && ($row['note_type'] == 'topic')) {
 				$types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']]['members'] = array_merge($types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']]['members'], $notify['boards'][$row['id_board']]);
 			}
 		}
@@ -216,7 +217,7 @@ class SendDigests extends ScheduledTask
 			$notify_types = !empty($prefs[$mid]['msg_notify_type']) ? $prefs[$mid]['msg_notify_type'] : 1;
 
 			// Did they not elect to choose this?
-			if ($frequency < 3 || $frequency == 4 && !$is_weekly || $frequency == 3 && $is_weekly || $notify_types == 4) {
+			if (($frequency < 3) || (($frequency == 4) && !$is_weekly) || (($frequency == 3) && $is_weekly) || ($notify_types == 4)) {
 				continue;
 			}
 
