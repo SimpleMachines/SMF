@@ -325,6 +325,7 @@ function scheduled_daily_digest()
 	$members = array();
 	$langs = array();
 	$notify = array();
+	$boards = array();
 	while ($row = $smcFunc['db_fetch_assoc']($request))
 	{
 		if (!isset($members[$row['id_member']]))
@@ -458,9 +459,9 @@ function scheduled_daily_digest()
 		}
 
 		$types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']]['members'] = array();
-		if (!empty($notify['topics'][$row['id_topic']]))
+		if (!empty($notify['topics'][$row['id_topic']]) && ($row['note_type'] == 'reply'))
 			$types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']]['members'] = array_merge($types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']]['members'], $notify['topics'][$row['id_topic']]);
-		if (!empty($notify['boards'][$row['id_board']]))
+		if (!empty($notify['boards'][$row['id_board']]) && ($row['note_type'] == 'topic'))
 			$types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']]['members'] = array_merge($types[$row['note_type']][$row['id_board']]['lines'][$row['id_topic']]['members'], $notify['boards'][$row['id_board']]);
 	}
 	$smcFunc['db_free_result']($request);
@@ -506,7 +507,7 @@ function scheduled_daily_digest()
 		$notify_types = !empty($prefs[$mid]['msg_notify_type']) ? $prefs[$mid]['msg_notify_type'] : 1;
 
 		// Did they not elect to choose this?
-		if ($frequency < 3 || $frequency == 4 && !$is_weekly || $frequency == 3 && $is_weekly || $notify_types == 4)
+		if (($frequency < 3) || (($frequency == 4) && !$is_weekly) || (($frequency == 3) && $is_weekly) || ($notify_types == 4))
 			continue;
 
 		// Write to this member in their own language. $langs was collected from
