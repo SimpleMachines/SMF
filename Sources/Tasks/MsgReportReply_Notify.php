@@ -43,6 +43,12 @@ class MsgReportReply_Notify extends BackgroundTask
 	 */
 	public function execute(): bool
 	{
+		// The report hands these over as they came out of the database, which
+		// can mean strings, and some of them go on to typed parameters.
+		foreach (['report_id', 'comment_id', 'msg_id', 'topic_id', 'board_id', 'sender_id'] as $key) {
+			$this->_details[$key] = (int) ($this->_details[$key] ?? 0);
+		}
+
 		// Let's see. Let us, first of all, establish the list of possible people.
 		$possible_members = [];
 		$request = Db::$db->query(
