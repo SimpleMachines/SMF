@@ -59,10 +59,10 @@ define('TIME_START', microtime(true));
 define('SMF_SETTINGS_FILE', TESTS_BOARDDIR . '/Settings.php');
 define('SMF_SETTINGS_BACKUP_FILE', TESTS_BOARDDIR . '/Settings_bak.php');
 
-SMF\Config::$loader = require TESTS_BOARDDIR . '/vendor/autoload.php';
-SMF\Config::$loader->setPsr4('SMF\\', TESTS_BOARDDIR . '/Sources');
-SMF\Config::$loader->setPsr4('SMF\\Themes\\', TESTS_BOARDDIR . '/Themes');
-SMF\Config::$loader->setPsr4('SMF\\Tests\\', TESTS_BOARDDIR . '/tests');
+SMF\IntegrationHook::$loader = require TESTS_BOARDDIR . '/vendor/autoload.php';
+SMF\IntegrationHook::$loader->setPsr4('SMF\\', TESTS_BOARDDIR . '/Sources');
+SMF\IntegrationHook::$loader->setPsr4('SMF\\Themes\\', TESTS_BOARDDIR . '/Themes');
+SMF\IntegrationHook::$loader->setPsr4('SMF\\Tests\\', TESTS_BOARDDIR . '/tests');
 
 /*
  * Paths and the default language, which the Unicode and entity helpers need in

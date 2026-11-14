@@ -190,6 +190,7 @@ class Upgrade extends ToolsBase implements ToolsInterface
 			Migration\v3_0\BoardPostsCount::class,
 			Migration\v3_0\ValidationCodeLength::class,
 			Migration\v3_0\ReportCommentLength::class,
+			Migration\v3_0\CleanHooks::class,
 		],
 	];
 

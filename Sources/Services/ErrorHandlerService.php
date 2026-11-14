@@ -142,7 +142,7 @@ class ErrorHandlerService
 		$message = $this->log($error_level . ': ' . $error_string, $error_type, $file, $line);
 
 		// Let's give integrations a chance to output a bit differently
-		IntegrationHook::call('integrate_output_error', [$message, $error_type, $error_level, $file, $line]);
+		IntegrationHook::call('integrate_output_error', [$message, $error_type, $error_level, $file, $line], true);
 
 		// Dying on these errors only causes MORE problems (blank pages!)
 		if ($file == 'Unknown') {
@@ -284,7 +284,7 @@ class ErrorHandlerService
 			$tried_hook = true;
 
 			// Allow the hook to change the error_type and know about the error.
-			IntegrationHook::call('integrate_error_types', [&$other_error_types, &$error_type, $error_message, $file, $line]);
+			IntegrationHook::call('integrate_error_types', [&$other_error_types, &$error_type, $error_message, $file, $line], true);
 
 			$this->known_error_types = array_merge($this->known_error_types, $other_error_types);
 		}

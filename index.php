@@ -127,10 +127,10 @@ call_user_func(function () {
 	SMF\Config::set(get_defined_vars());
 
 	// Start up the autoloader.
-	SMF\Config::$loader = require SMF\Config::$vendordir . '/autoload.php';
+	SMF\IntegrationHook::$loader = require SMF\Config::$vendordir . '/autoload.php';
 
 	// Ensure the SMF namespace points to $sourcedir.
-	SMF\Config::$loader->setPsr4('SMF\\', $sourcedir);
+	SMF\IntegrationHook::$loader->setPsr4('SMF\\', $sourcedir);
 
 	// Ensure $db_last_error is set, too.
 	SMF\Config::getDbLastError();
