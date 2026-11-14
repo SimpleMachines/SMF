@@ -148,6 +148,11 @@ function createThumbnail($source, $max_width, $max_height)
 	else
 		$success = resizeImageFile($source, $destName, $max_width, $max_height);
 
+	// Well this failed.
+	if (!file_exists($destName)) {
+		return false;
+	}
+
 	// Okay, we're done with the temporary stuff.
 	$destName = substr($destName, 0, -4);
 
@@ -156,7 +161,6 @@ function createThumbnail($source, $max_width, $max_height)
 	else
 	{
 		@unlink($destName . '.tmp');
-		@touch($destName);
 		return false;
 	}
 }
