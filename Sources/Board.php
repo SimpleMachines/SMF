@@ -18,6 +18,7 @@ namespace SMF;
 use SMF\Cache\CacheApi;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\InsertType;
+use SMF\Db\ReturnMode;
 
 /**
  * This class loads information about the current board, as well as other boards
@@ -2567,7 +2568,7 @@ class Board implements \ArrayAccess, Routable
 			$columns,
 			[$params],
 			['id_board'],
-			Db::INSERT_RETURN_MODE_SINGLE,
+			ReturnMode::SingleRow,
 		);
 
 		$this->saveViewPermissions();

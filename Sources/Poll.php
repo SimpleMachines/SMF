@@ -17,6 +17,7 @@ namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\InsertType;
+use SMF\Db\ReturnMode;
 
 /**
  * Represents a poll.
@@ -587,7 +588,7 @@ class Poll implements \ArrayAccess
 					],
 				],
 				['id_poll'],
-				Db::INSERT_RETURN_MODE_SINGLE,
+				ReturnMode::SingleRow,
 			);
 
 			// Create each answer choice.

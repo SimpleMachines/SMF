@@ -24,6 +24,7 @@ use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\InsertType;
+use SMF\Db\ReturnMode;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\ItemList;
@@ -757,7 +758,7 @@ class Smileys implements ActionInterface
 					],
 				],
 				['id_smiley'],
-				Db::INSERT_RETURN_MODE_SINGLE,
+				ReturnMode::SingleRow,
 			);
 
 			// Add the filename info to the smiley_files table
@@ -2535,7 +2536,7 @@ class Smileys implements ActionInterface
 				],
 				[$new_smiley['info']],
 				['id_smiley'],
-				Db::INSERT_RETURN_MODE_SINGLE,
+				ReturnMode::SingleRow,
 			);
 
 			// We'll also need to add filename info to the smiley_files table

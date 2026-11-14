@@ -19,6 +19,7 @@ use SMF\Config;
 use SMF\Db\DatabaseApi;
 use SMF\Db\DatabaseApiInterface;
 use SMF\Db\InsertType;
+use SMF\Db\ReturnMode;
 use SMF\Debug\DebugUtils;
 use SMF\ErrorHandler;
 use SMF\IP;
@@ -407,7 +408,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 	/**
 	 *
 	 */
-	public function insert(string|InsertType $method, string $table, array $columns, array $data, array $keys, int $returnmode = DatabaseApi::INSERT_RETURN_MODE_OFF, ?object $connection = null): int|array|null
+	public function insert(string|InsertType $method, string $table, array $columns, array $data, array $keys, int|ReturnMode $returnmode = ReturnMode::Off, ?object $connection = null): int|array|null
 	{
 		$connection = $connection ?? $this->connection;
 
@@ -422,6 +423,12 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		if (\is_string($method)) {
 			// Force method to lower case
 			$method = InsertType::tryFrom(strtolower($method)) ?? InsertType::Insert;
+		}
+
+		// Convert to the ReturnMode.
+		if (\is_int($returnmode)) {
+			// Force method to lower case
+			$returnmode = ReturnMode::tryFrom($returnmode) ?? ReturnMode::Off;
 		}
 
 		// Ensure that $data is a multidimensional array.
@@ -518,7 +525,7 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 		$with_returning = false;
 
 		// Let's build the returning string. (MySQL allows this only in normal mode)
-		if (!empty($keys) && (\count($keys) > 0) && $returnmode > DatabaseApi::INSERT_RETURN_MODE_OFF) {
+		if (!empty($keys) && (\count($keys) > 0) && $returnmode !== ReturnMode::Off) {
 			// We only take the first key.
 			$returning = ' RETURNING ' . $keys[0];
 			$with_returning = true;
@@ -575,14 +582,14 @@ class PostgreSQL extends DatabaseApi implements DatabaseApiInterface
 			);
 
 			if ($with_returning && $request !== false) {
-				if ($returnmode === DatabaseApi::INSERT_RETURN_MODE_MULTI) {
+				if ($returnmode === ReturnMode::MultiRow) {
 					$return_var = [];
 				}
 
 				while (($row = $this->fetch_row($request)) && $with_returning) {
 					if (is_numeric($row[0])) { // try to emulate mysql limitation
 						switch ($returnmode) {
-							case DatabaseApi::INSERT_RETURN_MODE_MULTI:
+							case ReturnMode::MultiRow:
 								$return_var[] = (int) $row[0];
 								break;
 

@@ -23,6 +23,7 @@ use SMF\Cache\CacheApi;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\InsertType;
+use SMF\Db\ReturnMode;
 use SMF\Editor;
 use SMF\ErrorHandler;
 use SMF\Group;
@@ -1490,7 +1491,7 @@ class PM implements \ArrayAccess
 				],
 			],
 			['id_pm'],
-			Db::INSERT_RETURN_MODE_SINGLE,
+			ReturnMode::SingleRow,
 		);
 
 		// Add the recipients.

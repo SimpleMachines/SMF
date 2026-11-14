@@ -25,6 +25,7 @@ use SMF\Board;
 use SMF\Config;
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\InsertType;
+use SMF\Db\ReturnMode;
 use SMF\ErrorHandler;
 use SMF\IntegrationHook;
 use SMF\Lang;
@@ -781,7 +782,7 @@ class TopicSplit implements ActionInterface, Routable
 				],
 			],
 			['id_topic'],
-			Db::INSERT_RETURN_MODE_SINGLE,
+			ReturnMode::SingleRow,
 		);
 
 		if ($split2_ID_TOPIC <= 0) {

@@ -17,6 +17,7 @@ namespace SMF;
 
 use SMF\Db\DatabaseApi as Db;
 use SMF\Db\InsertType;
+use SMF\Db\ReturnMode;
 
 /**
  * Represents an alert and provides methods for working with alerts.
@@ -521,7 +522,7 @@ class Alert implements \ArrayAccess
 					],
 				],
 				['id_alert'],
-				Db::INSERT_RETURN_MODE_SINGLE,
+				ReturnMode::SingleRow,
 			);
 
 			// Update the keys in self::$loaded.
@@ -704,7 +705,7 @@ class Alert implements \ArrayAccess
 			],
 			$inserts,
 			['id_alert'],
-			Db::INSERT_RETURN_MODE_MULTI,
+			ReturnMode::MultiRow,
 		);
 
 		// Map our temp IDs to the real IDs.
