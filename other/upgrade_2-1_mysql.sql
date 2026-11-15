@@ -3919,5 +3919,5 @@ ALTER TABLE {$db_prefix}log_search_results ADD PRIMARY KEY (id_search, id_topic,
 
 ---# Updating validation_code
 ALTER TABLE {$db_prefix}members
-CHANGE `validation_code` `validation_code` VARCHAR(32)
+CHANGE `validation_code` `validation_code` VARCHAR(32) NOT NULL DEFAULT '';
 ---#
