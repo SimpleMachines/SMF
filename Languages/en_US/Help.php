@@ -220,7 +220,7 @@ $helptxt['manage_files'] = '
 	</ul>';
 
 $helptxt['topicSummaryPosts'] = 'This allows you to set the number of previous posts shown in the topic summary on the reply page.';
-$helptxt['enableAllMessages'] = 'Set this to the <em>maximum</em> number of posts a topic can have to show the <em>all</em> link. Setting this lower than &quot;Maximum messages to display in a topic page&quot; will simply mean it never gets shown, and setting it too high could slow down your forum.';
+$helptxt['enableAllMessages'] = 'Set this to the <em>maximum</em> number of posts a topic can have to show the <em>all</em> link. Setting this lower than &quot;Maximum messages to display in a topic page&quot; will simply mean it never gets shown, and setting it too high could slow down your forum. The print view of a topic shows this many posts at a time as well, and falls back to a limit of its own when the <em>all</em> link is turned off here.';
 $helptxt['allow_guestAccess'] = 'Unchecking this box will stop guests from doing anything but very basic actions on your forum - login, register, password reminder, etc. - on your forum. This is not the same as disallowing guest access to boards.';
 $helptxt['userLanguage'] = 'Turning this setting on will allow users to select which language file they use. It will not affect the
 		default selection.';
