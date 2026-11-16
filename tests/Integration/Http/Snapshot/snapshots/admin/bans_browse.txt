@@ -1,0 +1,75 @@
+status 200
+@ title
+title
+  "Ban list"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=ban;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Ban list"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=ban;sa=browse;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Browse Ban Triggers"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  form [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=ban;sa=browse;entity=ip" method="post"]
+    div.cat_bar
+      h3.catbg
+        "Browse Ban Triggers"
+    div.additional_row
+      a [href="{boardurl}/index.php?action=admin;area=ban;sa=browse;entity=ip"]
+        img [alt=">" src="{boardurl}/Themes/default/images/selected.png"]
+        "IP"
+      "|"
+      a [href="{boardurl}/index.php?action=admin;area=ban;sa=browse;entity=hostname"]
+        "Hostname"
+      "|"
+      a [href="{boardurl}/index.php?action=admin;area=ban;sa=browse;entity=email"]
+        "Email"
+      "|"
+      a [href="{boardurl}/index.php?action=admin;area=ban;sa=browse;entity=member"]
+        "Username"
+    table#ban_trigger_list.table_grid
+      thead
+        tr.title_bar
+          th#header_ban_trigger_list_banned_entity.banned_entity [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=ban;sa=browse;entity=ip;sort=banned_entity;desc" rel="nofollow"]
+              "Banned entity"
+              span.main_icons.sort_up
+          th#header_ban_trigger_list_ban_name.ban_name [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=ban;sa=browse;entity=ip;sort=ban_name" rel="nofollow"]
+              "Ban name"
+          th#header_ban_trigger_list_hits.hits [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=ban;sa=browse;entity=ip;sort=hits" rel="nofollow"]
+              "Hits"
+          th#header_ban_trigger_list_check.centercol.check [scope="col"]
+            input [onclick="invertAll(this, this.form);" type="checkbox"]
+      tbody
+        tr.windowbg
+          td.centertext [colspan="#"]
+            "There are currently no ban triggers."
+    div.additional_row
+      input.button.you_sure [data-confirm="Are you sure you want to remove the selected ban triggers?" name="remove_triggers" type="submit" value="Remove selected ban triggers"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]
+    input [name="sort" type="hidden" value="banned_entity"]

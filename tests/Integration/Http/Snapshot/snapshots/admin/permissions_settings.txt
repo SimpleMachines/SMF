@@ -1,0 +1,138 @@
+status 200
+@ title
+title
+  "Permission Settings"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=permissions;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Permissions"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=permissions;sa=settings;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Settings"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      a.help [href="{boardurl}/index.php?action=helpadmin;help=permissions" onclick="return reqOverlayDiv(this.href);"]
+        span.help.main_icons [title="Help"]
+      "Manage Permissions"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "Here you can set who has permission to change permissions, as well as how sophisticated the permission system should be."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Manage Permissions Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Manage Permissions Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a [href="{boardurl}/index.php?action=admin;area=permissions;sa=index;{session_var}={session_id}"]
+                "General permissions"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=permissions;sa=board;{session_var}={session_id}"]
+                "Board permissions"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=permissions;sa=profiles;{session_var}={session_id}"]
+                "Edit profiles"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=permissions;sa=postmod;{session_var}={session_id}"]
+                "Post moderation"
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=permissions;sa=settings;{session_var}={session_id}"]
+                "Settings"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  form#admin_form_wrapper [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=permissions;save;sa=settings" method="post"]
+    div.cat_bar
+      h3.catbg
+        "Settings"
+    div.noup.windowbg
+      dl.settings
+        dt
+          a#setting_manage_permissions
+          span
+            label
+              "Membergroups allowed to manage permissions"
+        dd
+          fieldset#manage_permissions
+            legend
+              a.toggle_up [href="javascript:void(#);" onclick="document.getElementById('manage_permissions').style.display = 'none';document.getElementById('manage_permissions_groups_link').style.display = 'block'; return false;"]
+                "Select permissions for each group"
+            ul
+              li
+                input [name="manage_permissions[#]" type="checkbox" value="on"]
+                span
+                  "Regular Members"
+              li
+                input [name="manage_permissions[#]" type="checkbox" value="on"]
+                span
+                  "Global Moderator"
+              li
+                input [onclick="invertAll(this, this.form, 'manage_permissions[');" type="checkbox"]
+                span
+                  "Select all"
+          a#manage_permissions_groups_link.toggle_down [href="javascript:void(#);" onclick="document.getElementById('manage_permissions').style.display = 'block'; document.getElementById('manage_permissions_groups_link').style.display = 'none'; return false;" style="display: none;"]
+            "Select permissions for each group"
+          script
+            | document.getElementById("manage_permissions").style.display = "none"; document.getElementById("manage_permissions_groups_link").style.display = "";
+      hr
+      dl.settings
+        dt
+          a#setting_permission_enable_deny_help [href="{boardurl}/index.php?action=helpadmin;help=permissions_deny" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_permission_enable_deny
+          span
+            label [for="permission_enable_deny"]
+              "Enable the option to deny permissions"
+        dd
+          input#permission_enable_deny [name="permission_enable_deny" type="checkbox" value="#"]
+        dt
+          a#setting_permission_enable_postgroups_help [href="{boardurl}/index.php?action=helpadmin;help=permissions_postgroups" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_permission_enable_postgroups
+          span
+            label [for="permission_enable_postgroups"]
+              "Enable permissions for post count based groups"
+        dd
+          input#permission_enable_postgroups [name="permission_enable_postgroups" type="checkbox" value="#"]
+      input.button [type="submit" value="Save"]
+    input [name="{token_var}" type="hidden" value="{hash}"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]

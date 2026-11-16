@@ -1,0 +1,241 @@
+status 200
+@ title
+title
+  "Credits"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+@ #content_section
+div#content_section
+  main#main_content_section
+    div#credits.main_section
+      div.cat_bar
+        h3.catbg
+          "Credits"
+      div.windowbg
+        p
+          "Simple Machines wants to thank everyone who helped make SMF # Alpha(s) #-dev what it is today; shaping and directing our project, all through the thick and the thin. It wouldn’t have been possible without you. This includes our users and especially Charter Members - thanks for installing and using our software as well as providing valuable feedback, bug reports, and opinions."
+      div.cat_bar
+        h3.catbg
+          "The Team"
+      div.windowbg
+        dl
+          dt
+            strong
+              "Project Management"
+          dd
+            "Aleksi \"Lex\" Kilpinen, Michele \"Illori\" Davis, Jessica \"Suki\" González, and Will \"Kindred\" Wagner."
+          dt
+            strong
+              "Developers"
+          dd
+            "Shawn Bulen, John \"live#\" Rayes, Oscar \"Ozp\" Rydhé, Aaron van Geffen, Antechinus, Bjoern \"Bloc\" Kristiansen, Brad \"IchBin™\" Grow, Colin Schoen, emanuele, Hendrik Jan \"Compuart\" Visser, Jessica \"Suki\" González, Jon \"Sesquipedalian\" Stovell, Juan \"JayBachatero\" Hernandez, Karl \"RegularExpression\" Benson, Matthew \"Labradoodle-#\" Kerle, Grudge, Michael \"Oldiesmann\" Eshom, Michael \"Thantos\" Miller, Norv, Peter \"Arantor\" Spicer, Selman \"[SiNaN]\" Eser, Shitiz \"Dragooon\" Garg, Theodore \"Orstio\" Hildebrandt, Thorsten \"TE\" Eurich, and winrules."
+          dt
+            strong
+              "Support Specialists"
+          dd
+            "Will \"Kindred\" Wagner, Doug Heffernan, lurkalot, Steve, Aleksi \"Lex\" Kilpinen, br#, GigaWatt, ziycon, Adam Tallon, Bigguy, Bruno \"margarett\" Alves, CapadY, ChalkCat, Chas Large, Duncan#, gbsothere, JimM, Justyne, Kat, Kevin \"greyknight#\" Hou, Krash, Mashby, Michael Colin Blaber, Old Fossil, S-Ace, shadav, Storman™, Wade \"sησω\" Poulsen, and xenovanis."
+          dt
+            strong
+              "Customizers"
+          dd
+            "Diego Andrés, GL#Wing, Johnnie \"TwitchisMental\" Ballew, Jonathan \"vbgamer#\" Valentin, Sami \"SychO\" Mazouz, Brannon \"B\" Hall, Gary M. Gadsdon, Jack \"akabugeyes\" Thorsen, Jason \"JBlaze\" Clemons, Joey \"Tyrsson\" Smith, Kays, Michael \"Mick.\" Gomez, NanoSector, Ricky., Russell \"NEND\" Najar, and SA™."
+          dt
+            strong
+              "Documentation Writers"
+          dd
+            "Michele \"Illori\" Davis, Irisado, AngelinaBelle, Chainy, Graeme Spence, and Joshua \"groundup\" Dickerson."
+          dt
+            strong
+              "Localizers"
+          dd
+            "Nikola \"Dzonny\" Novaković, m#z, Francisco \"d#vcho\" Domínguez, Robert Monden, and Relyana."
+          dt
+            strong
+              "Marketing"
+          dd
+            "Adish \"(F.L.A.M.E.R)\" Patel, Bryan \"Runic\" Deakin, Marcus \"cσσкιє мσηѕтєя\" Forsberg, and Ralph \"[n#rve]\" Otowo."
+          dt
+            strong
+              "Site Administrators"
+          dd
+            "Jeremy \"SleePy\" Darwood."
+          dt
+            strong
+              "Servers Administrators"
+          dd
+            "Derek Schwab, Michael Johnson, and Liroy van Hoewijk."
+      div.cat_bar
+        h3.catbg
+          "Special Thanks"
+      div.windowbg
+        dl
+          dt
+            strong
+              "Consulting Developers"
+          dd
+            "albertlast, Brett Flannigan, Mark Rose, René-Gilles \"Nao 尚\" Deberdt, tinoest, and everyone who"
+            a [href="https://github.com/SimpleMachines/SMF/graphs/contributors"]
+              "contributed on GitHub"
+            "."
+          dt
+            strong
+              "Beta Testers"
+          dd
+            "The invaluable few who tirelessly find bugs, provide feedback, and drive the developers crazier."
+          dt
+            strong
+              "Language Translators"
+          dd
+            "Thank you for your efforts which make it possible for people all around the world to use SMF."
+          dt
+            strong
+              "Founding Father of SMF"
+          dd
+            "Unknown W. \"[Unknown]\" Brackets."
+          dt
+            strong
+              "Original Project Managers"
+          dd
+            "Jeff Lewis, Joseph Fung, and David Recordon."
+          dt
+            strong
+              "In loving memory of"
+          dd
+            "Crip, K@, metallica#, Paul_Pauline, and Rock Lee."
+        p.posttext
+          "And for anyone we may have missed, thank you!"
+      div.cat_bar
+        h3.catbg
+          "Software/Graphics"
+      div.windowbg
+        dl
+          dt
+            strong
+              "Graphics"
+          dd
+            a [href="https://p.yusukekamiyamane.com/"]
+              "Fugue Icons"
+            "| © # Yusuke(s) Kamiyamane | These icons are licensed under a Creative Commons Attribution # License(s)"
+          dd
+            a [href="https://techbase.kde.org/Projects/Oxygen/Licensing#Use_on_Websites"]
+              "Oxygen Icons"
+            "| These icons are licensed under"
+            a [href="https://www.gnu.org/licenses/lgpl-#.html"]
+              "GNU LGPLv#"
+        dl
+          dt
+            strong
+              "Software"
+          dd
+            a [href="https://jquery.org/"]
+              "JQuery"
+            "| © John Resig | Licensed under"
+            a [href="https://github.com/jquery/jquery/blob/master/LICENSE.txt"]
+              "The MIT License (MIT)"
+          dd
+            a [href="https://briancherne.github.io/jquery-hoverIntent/"]
+              "hoverIntent"
+            "| © Brian Cherne | Licensed under"
+            a [href="https://en.wikipedia.org/wiki/MIT_License"]
+              "The MIT License (MIT)"
+          dd
+            a [href="https://www.sceditor.com/"]
+              "SCEditor"
+            "| © Sam Clarke | Licensed under"
+            a [href="https://en.wikipedia.org/wiki/MIT_License"]
+              "The MIT License (MIT)"
+          dd
+            a [href="https://github.com/code-of-kpp/jquery-animadrag/blob/master/animadrag.js"]
+              "animaDrag"
+            "| © Abel Mohler | Licensed under"
+            a [href="https://en.wikipedia.org/wiki/MIT_License"]
+              "The MIT License (MIT)"
+          dd
+            a [href="https://slippry.com/"]
+              "jQuery Responsive Slider"
+            "| © booncon ROCKETS | Licensed under"
+            a [href="https://en.wikipedia.org/wiki/MIT_License"]
+              "The MIT License (MIT)"
+          dd
+            a [href="https://github.com/ichord/At.js"]
+              "At.js"
+            "| © {email} | Licensed under"
+            a [href="https://github.com/ichord/At.js/blob/master/LICENSE-MIT"]
+              "The MIT License (MIT)"
+          dd
+            a [href="https://github.com/ttsvetko/HTML#-Desktop-Notifications"]
+              "HTML# Desktop(s) Notifications"
+            "| © Tsvetan Tsvetkov | Licensed under"
+            a [href="https://github.com/ttsvetko/HTML#-Desktop-Notifications/blob/master/License.txt"]
+              "The Apache License Version #"
+          dd
+            a [href="https://github.com/enygma/gauth"]
+              "GAuth Code Generator/Validator"
+            "| © Chris Cornutt | Licensed under"
+            a [href="https://github.com/enygma/gauth/blob/master/LICENSE"]
+              "The MIT License (MIT)"
+          dd
+            a [href="https://github.com/enyo/dropzone"]
+              "Dropzone.js"
+            "| © Matias Meno | Licensed under"
+            a [href="https://en.wikipedia.org/wiki/MIT_License"]
+              "The MIT License (MIT)"
+          dd
+            a [href="https://github.com/matthiasmullie/minify"]
+              "Minify"
+            "| © Matthias Mullie | Licensed under"
+            a [href="https://en.wikipedia.org/wiki/MIT_License"]
+              "The MIT License (MIT)"
+          dd
+            a [href="https://github.com/true/php-punycode"]
+              "PHP-Punycode"
+            "| © True B.V. | Licensed under"
+            a [href="https://en.wikipedia.org/wiki/MIT_License"]
+              "The MIT License (MIT)"
+          dd
+            a [href="https://github.com/mdbassit/Coloris"]
+              "Coloris"
+            "| © Mohammed Bassit | Licensed under"
+            a [href="https://github.com/mdbassit/Coloris/blob/main/LICENSE"]
+              "The MIT License (MIT)"
+          dd
+            a [href="https://fontawesome.com/"]
+              "Font Awesome"
+            "| © # | Licensed under"
+            a [href="http://en.wikipedia.org/wiki/MIT_License"]
+              "The MIT License (MIT)"
+        dl
+          dt
+            strong
+              "Fonts"
+          dd
+            a [href="https://fontlibrary.org/en/font/anonymous-pro"]
+              "Anonymous Pro"
+            "| © # | This font is licensed under the SIL Open Font License, Version #"
+          dd
+            a [href="https://fontlibrary.org/en/font/consolamono"]
+              "ConsolaMono"
+            "| © # | This font is licensed under the SIL Open Font License, Version #"
+          dd
+            a [href="https://fontlibrary.org/en/font/phennig"]
+              "Phennig"
+            "| © #-# | This font is licensed under the SIL Open Font License, Version #"
+          dd
+            a [href="https://fontawesome.com/"]
+              "Font Awesome"
+            "| © # | This font is licensed under the SIL Open Font License, Version #"
+      div.cat_bar
+        h3.catbg
+          "Forum Copyright"
+      div.windowbg
+        a [href="{boardurl}/index.php?action=credits" rel="noopener" target="_blank" title="License"]
+          "SMF # Alpha(s) #-dev © #"
+        ","
+        a [href="https://www.simplemachines.org" rel="noopener" target="_blank" title="Simple Machines"]
+          "Simple Machines"

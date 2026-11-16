@@ -1,0 +1,434 @@
+status 200
+@ #genericmenu
+nav#genericmenu [aria-label="Administration Center Menu"]
+  a.mobile_generic_menu_1
+    span.menu_icon
+    span.text_menu
+      "Administration Center Menu"
+  div#mobile_generic_menu_#.popup_container
+    div.description.popup_window
+      div.popup_heading
+        "Administration Center Menu"
+        a.hide_popup.main_icons [href="javascript:void(#);"]
+      div.generic_menu
+        ul.dropdown_menu_1.dropmenu
+          li.subsections
+            a.active [href="{boardurl}/index.php?action=admin;area=index;{session_var}={session_id}"]
+              "Main"
+            ul
+              li
+                a.admin_menu_icon.administration.chosen [href="{boardurl}/index.php?action=admin;area=index;{session_var}={session_id}"]
+                  span.administration.main_icons
+                  "Administration Center"
+              li
+                a.admin_menu_icon.support [href="{boardurl}/index.php?action=admin;area=credits;{session_var}={session_id}"]
+                  span.main_icons.support
+                  "Support and Credits"
+              li.subsections
+                a.admin_menu_icon.news [href="{boardurl}/index.php?action=admin;area=news;{session_var}={session_id}"]
+                  span.main_icons.news
+                  "News and Newsletters"
+                ul
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=news;sa=editnews;{session_var}={session_id}"]
+                      "News"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=news;sa=mailingmembers;{session_var}={session_id}"]
+                      "Newsletters"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=news;sa=settings;{session_var}={session_id}"]
+                      "Settings"
+              li.subsections
+                a.admin_menu_icon.packages [href="{boardurl}/index.php?action=admin;area=packages;{session_var}={session_id}"]
+                  span.main_icons.packages
+                  "Package Manager"
+                ul
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=packages;sa=browse;{session_var}={session_id}"]
+                      "Browse Packages"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=packages;sa=packageget;get;{session_var}={session_id}"]
+                      "Add Packages"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=packages;sa=perms;{session_var}={session_id}"]
+                      "File Permissions"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=packages;sa=options;{session_var}={session_id}"]
+                      "Options"
+              li
+                a.admin_menu_icon.exit [href="{boardurl}/index.php?action=admin;area=adminlogoff;{session_var}={session_id}"]
+                  span.exit.main_icons
+                  "End {member} Session"
+          li.subsections
+            a [href="{boardurl}/index.php?action=admin;area=featuresettings;{session_var}={session_id}"]
+              "Configuration"
+            ul
+              li.subsections
+                a.admin_menu_icon.features [href="{boardurl}/index.php?action=admin;area=featuresettings;{session_var}={session_id}"]
+                  span.features.main_icons
+                  "Features and Options"
+                ul
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=basic;{session_var}={session_id}"]
+                      "General"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=bbc;{session_var}={session_id}"]
+                      "Bulletin Board Code & Markdown"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=layout;{session_var}={session_id}"]
+                      "Layout"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=sig;{session_var}={session_id}"]
+                      "Signatures"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=profile;{session_var}={session_id}"]
+                      "Profile Fields"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=likes;{session_var}={session_id}"]
+                      "Likes"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=mentions;{session_var}={session_id}"]
+                      "Mentions"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=alerts;{session_var}={session_id}"]
+                      "Notifications"
+              li
+                a.admin_menu_icon.security [href="{boardurl}/index.php?action=admin;area=antispam;{session_var}={session_id}"]
+                  span.main_icons.security
+                  "Anti-Spam"
+              li.subsections
+                a.admin_menu_icon.languages [href="{boardurl}/index.php?action=admin;area=languages;{session_var}={session_id}"]
+                  span.languages.main_icons
+                  "Languages"
+                ul
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=languages;sa=edit;{session_var}={session_id}"]
+                      "Edit Languages"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=languages;sa=add;{session_var}={session_id}"]
+                      "Add Language"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=languages;sa=settings;{session_var}={session_id}"]
+                      "Settings"
+              li
+                a.admin_menu_icon.current_theme [href="{boardurl}/index.php?action=admin;area=theme;sa=list;th=#;{session_var}={session_id}"]
+                  span.current_theme.main_icons
+                  "Current Theme"
+              li.subsections
+                a.admin_menu_icon.themes [href="{boardurl}/index.php?action=admin;area=theme;{session_var}={session_id}"]
+                  span.main_icons.themes
+                  "Themes and Layout"
+                ul
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=theme;sa=admin;{session_var}={session_id}"]
+                      "Manage and Install"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=theme;sa=list;{session_var}={session_id}"]
+                      "Theme Settings"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=theme;sa=reset;{session_var}={session_id}"]
+                      "Member Options"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=theme;sa=edit;{session_var}={session_id}"]
+                      "Modify Themes"
+              li.subsections
+                a.admin_menu_icon.modifications [href="{boardurl}/index.php?action=admin;area=modsettings;{session_var}={session_id}"]
+                  span.main_icons.modifications
+                  "Modification Settings"
+                ul
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=modsettings;sa=general;{session_var}={session_id}"]
+                      "Miscellaneous"
+          li.subsections
+            a [href="{boardurl}/index.php?action=admin;area=manageboards;{session_var}={session_id}"]
+              "Forum"
+            ul
+              li.subsections
+                a.admin_menu_icon.boards [href="{boardurl}/index.php?action=admin;area=manageboards;{session_var}={session_id}"]
+                  span.boards.main_icons
+                  "Boards and Categories"
+                ul
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=manageboards;sa=main;{session_var}={session_id}"]
+                      "Modify Boards"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=manageboards;sa=newcat;{session_var}={session_id}"]
+                      "Create new category"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=manageboards;sa=settings;{session_var}={session_id}"]
+                      "Settings"
+              li.subsections
+                a.admin_menu_icon.posts [href="{boardurl}/index.php?action=admin;area=postsettings;{session_var}={session_id}"]
+                  span.main_icons.posts
+                  "Posts and Topics"
+                ul
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=postsettings;sa=posts;{session_var}={session_id}"]
+                      "Post Settings"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=postsettings;sa=censor;{session_var}={session_id}"]
+                      "Censored Words"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=postsettings;sa=topics;{session_var}={session_id}"]
+                      "Topic Settings"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=postsettings;sa=drafts;{session_var}={session_id}"]
+                      "Drafts"
+              li
+                a.admin_menu_icon.calendar [href="{boardurl}/index.php?action=admin;area=managecalendar;{session_var}={session_id}"]
+                  span.calendar.main_icons
+                  "Calendar"
+              li.subsections
+                a.admin_menu_icon.search [href="{boardurl}/index.php?action=admin;area=managesearch;{session_var}={session_id}"]
+                  span.main_icons.search
+                  "Search"
+                ul
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=managesearch;sa=weights;{session_var}={session_id}"]
+                      "Weights"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=managesearch;sa=method;{session_var}={session_id}"]
+                      "Search Method"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=managesearch;sa=settings;{session_var}={session_id}"]
+                      "Settings"
+              li.subsections
+                a.admin_menu_icon.smiley [href="{boardurl}/index.php?action=admin;area=smileys;{session_var}={session_id}"]
+                  span.main_icons.smiley
+                  "Smileys and Message Icons"
+                ul
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=smileys;sa=editsets;{session_var}={session_id}"]
+                      "Smiley Sets"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=smileys;sa=settings;{session_var}={session_id}"]
+                      "Settings"
+              li.subsections
+                a.admin_menu_icon.attachment [href="{boardurl}/index.php?action=admin;area=manageattachments;{session_var}={session_id}"]
+                  span.attachment.main_icons
+                  "Attachments and Avatars"
+                ul
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=browse;{session_var}={session_id}"]
+                      "Browse Files"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=attachments;{session_var}={session_id}"]
+                      "Attachment Settings"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=avatars;{session_var}={session_id}"]
+                      "Avatar Settings"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=attachpaths;{session_var}={session_id}"]
+                      "Attachment Directories"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=maintenance;{session_var}={session_id}"]
+                      "File Maintenance"
+              li
+                a.admin_menu_icon.engines [href="{boardurl}/index.php?action=admin;area=sengines;{session_var}={session_id}"]
+                  span.engines.main_icons
+                  "Search Engines"
+          li.subsections
+            a [href="{boardurl}/index.php?action=admin;area=viewmembers;{session_var}={session_id}"]
+              "Members"
+            ul
+              li.subsections
+                a.admin_menu_icon.members [href="{boardurl}/index.php?action=admin;area=viewmembers;{session_var}={session_id}"]
+                  span.main_icons.members
+                  "Members"
+                ul
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=viewmembers;sa=all;{session_var}={session_id}"]
+                      "View all Members"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=viewmembers;sa=search;{session_var}={session_id}"]
+                      "Search for Members"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=viewmembers;sa=settings;{session_var}={session_id}"]
+                      "Settings"
+              li.subsections
+                a.admin_menu_icon.membergroups [href="{boardurl}/index.php?action=admin;area=membergroups;{session_var}={session_id}"]
+                  span.main_icons.membergroups
+                  "Membergroups"
+                ul
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=membergroups;sa=index;{session_var}={session_id}"]
+                      "Edit membergroups"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=membergroups;sa=add;{session_var}={session_id}"]
+                      "Add membergroup"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=membergroups;sa=settings;{session_var}={session_id}"]
+                      "Settings"
+              li.subsections
+                a.admin_menu_icon.permissions [href="{boardurl}/index.php?action=admin;area=permissions;{session_var}={session_id}"]
+                  span.main_icons.permissions
+                  "Permissions"
+                ul
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=permissions;sa=index;{session_var}={session_id}"]
+                      "General permissions"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=permissions;sa=board;{session_var}={session_id}"]
+                      "Board permissions"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=permissions;sa=profiles;{session_var}={session_id}"]
+                      "Edit profiles"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=permissions;sa=postmod;{session_var}={session_id}"]
+                      "Post moderation"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=permissions;sa=settings;{session_var}={session_id}"]
+                      "Settings"
+              li.subsections
+                a.admin_menu_icon.regcenter [href="{boardurl}/index.php?action=admin;area=regcenter;{session_var}={session_id}"]
+                  span.main_icons.regcenter
+                  "Registration"
+                ul
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=regcenter;sa=register;{session_var}={session_id}"]
+                      "Register new member"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=regcenter;sa=agreement;{session_var}={session_id}"]
+                      "Registration Agreement"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=regcenter;sa=policy;{session_var}={session_id}"]
+                      "Privacy Policy"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=regcenter;sa=reservednames;{session_var}={session_id}"]
+                      "Set reserved names"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=regcenter;sa=settings;{session_var}={session_id}"]
+                      "Settings"
+              li
+                a.admin_menu_icon.warning [href="{boardurl}/index.php?action=admin;area=warnings;{session_var}={session_id}"]
+                  span.main_icons.warning
+                  "Warnings"
+              li.subsections
+                a.admin_menu_icon.ban [href="{boardurl}/index.php?action=admin;area=ban;{session_var}={session_id}"]
+                  span.ban.main_icons
+                  "Ban list"
+                ul
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=ban;sa=list;{session_var}={session_id}"]
+                      "Ban list"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=ban;sa=add;{session_var}={session_id}"]
+                      "Add new ban"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=ban;sa=browse;{session_var}={session_id}"]
+                      "Browse Ban Triggers"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=ban;sa=log;{session_var}={session_id}"]
+                      "Ban Log"
+              li
+                a.admin_menu_icon.paid [href="{boardurl}/index.php?action=admin;area=paidsubscribe;{session_var}={session_id}"]
+                  span.main_icons.paid
+                  "Paid Subscriptions"
+          li.subsections
+            a [href="{boardurl}/index.php?action=admin;area=serversettings;{session_var}={session_id}"]
+              "Maintenance"
+            ul
+              li.subsections
+                a.admin_menu_icon.server [href="{boardurl}/index.php?action=admin;area=serversettings;{session_var}={session_id}"]
+                  span.main_icons.server
+                  "Server Settings"
+                ul
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=serversettings;sa=general;{session_var}={session_id}"]
+                      "General"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=serversettings;sa=database;{session_var}={session_id}"]
+                      "Database"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=serversettings;sa=cookie;{session_var}={session_id}"]
+                      "Cookies and Sessions"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=serversettings;sa=security;{session_var}={session_id}"]
+                      "Security"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=serversettings;sa=cache;{session_var}={session_id}"]
+                      "Caching"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=serversettings;sa=export;{session_var}={session_id}"]
+                      "Data Export"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=serversettings;sa=loads;{session_var}={session_id}"]
+                      "Load Balancing"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=serversettings;sa=phpinfo;{session_var}={session_id}"]
+                      "PHP Info"
+              li.subsections
+                a.admin_menu_icon.maintain [href="{boardurl}/index.php?action=admin;area=maintain;{session_var}={session_id}"]
+                  span.main_icons.maintain
+                  "Forum Maintenance"
+                ul
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=maintain;sa=routine;{session_var}={session_id}"]
+                      "Routine"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=maintain;sa=database;{session_var}={session_id}"]
+                      "Database"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=maintain;sa=members;{session_var}={session_id}"]
+                      "Members"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=maintain;sa=topics;{session_var}={session_id}"]
+                      "Topics"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=maintain;sa=hooks;{session_var}={session_id}"]
+                      "Integration Hooks"
+              li.subsections
+                a.admin_menu_icon.scheduled [href="{boardurl}/index.php?action=admin;area=scheduledtasks;{session_var}={session_id}"]
+                  span.main_icons.scheduled
+                  "Scheduled Tasks"
+                ul
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=scheduledtasks;sa=tasks;{session_var}={session_id}"]
+                      "Scheduled Tasks"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=scheduledtasks;sa=tasklog;{session_var}={session_id}"]
+                      "Task Log"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=scheduledtasks;sa=settings;{session_var}={session_id}"]
+                      "Settings"
+              li.subsections
+                a.admin_menu_icon.mail [href="{boardurl}/index.php?action=admin;area=mailqueue;{session_var}={session_id}"]
+                  span.mail.main_icons
+                  "Mail"
+                ul
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=mailqueue;sa=browse;{session_var}={session_id}"]
+                      "Browse Queue"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=mailqueue;sa=settings;{session_var}={session_id}"]
+                      "Settings"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=mailqueue;sa=test;{session_var}={session_id}"]
+                      "Send Test"
+              li
+                a.admin_menu_icon.reports [href="{boardurl}/index.php?action=admin;area=reports;{session_var}={session_id}"]
+                  span.main_icons.reports
+                  "Reports"
+              li.subsections
+                a.admin_menu_icon.logs [href="{boardurl}/index.php?action=admin;area=logs;{session_var}={session_id}"]
+                  span.logs.main_icons
+                  "Logs"
+                ul
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=logs;sa=errorlog;desc;{session_var}={session_id}"]
+                      "Error Log"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=logs;sa=adminlog;{session_var}={session_id}"]
+                      "Administration Log"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=logs;sa=modlog;{session_var}={session_id}"]
+                      "Moderation Log"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=logs;sa=banlog;{session_var}={session_id}"]
+                      "Ban Log"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=logs;sa=tasklog;{session_var}={session_id}"]
+                      "Task Log"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=logs;sa=settings;{session_var}={session_id}"]
+                      "Log Settings"

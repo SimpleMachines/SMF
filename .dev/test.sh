@@ -98,6 +98,17 @@ for smf_type in $ENGINES; do
 		TEST_ENV+=(SMF_TESTS_BASE_URL="$SMF_BOARDURL")
 	fi
 
+	# Re-records the snapshots rather than comparing against them. See
+	# tests/Integration/Http/Snapshot/SnapshotTestCase.php.
+	if [[ -n "${SMF_UPDATE_SNAPSHOTS:-}" ]]; then
+		TEST_ENV+=(SMF_UPDATE_SNAPSHOTS="$SMF_UPDATE_SNAPSHOTS")
+	fi
+
+	# Also keeps each page's HTML, in a directory per engine.
+	if [[ -n "${SMF_SNAPSHOT_RAW:-}" ]]; then
+		TEST_ENV+=(SMF_SNAPSHOT_RAW="$SMF_SNAPSHOT_RAW/$smf_type")
+	fi
+
 	if run_php_env "${TEST_ENV[@]}" -- vendor/bin/phpunit \
 		--no-coverage --colors=always "${PHPUNIT_ARGS[@]+"${PHPUNIT_ARGS[@]}"}"; then
 		log "${smf_type}: passed"

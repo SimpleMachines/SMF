@@ -1,0 +1,55 @@
+status 200
+@ title
+title
+  "Log in"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+@ #content_section
+div#content_section
+  main#main_content_section
+    form#frmLogin [accept-charset="UTF-#" action="{boardurl}/index.php?action=login#" method="post" name="frmLogin"]
+      div.login
+        div.cat_bar
+          h3.catbg
+            "Warning!"
+        p.centertext.information
+          "You cannot view the memberlist because you do not have permission to do so."
+          br
+          "Please login below or"
+          a [href="{boardurl}/index.php?action=signup"]
+            "sign up for an account"
+          "with {forum_name}"
+        div.cat_bar
+          h3.catbg
+            span.login.main_icons
+            "Log in"
+        div.roundframe
+          dl
+            dt
+              "Username"
+            dd
+              input [name="user" size="#" type="text"]
+            dt
+              "Password"
+            dd
+              input [name="passwrd" size="#" type="password"]
+            dt
+            dd
+              label
+                input [name="cookieneverexp" type="checkbox"]
+                "Remember me"
+          p.centertext
+            input.button [type="submit" value="Log in"]
+          p.centertext.smalltext
+            a [href="{boardurl}/index.php?action=reminder"]
+              "Forgot your password?"
+        input [name="{session_var}" type="hidden" value="{session_id}"]
+        input [name="{token_var}" type="hidden" value="{hash}"]
+    script
+      | document.forms.frmLogin.user.focus();

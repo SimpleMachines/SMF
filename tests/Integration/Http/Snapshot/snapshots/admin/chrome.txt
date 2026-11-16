@@ -1,0 +1,185 @@
+status 200
+@ head
+head
+  meta [charset="UTF-#"]
+  link [href="{boardurl}/Themes/default/css/minified_{hash}.css?smf#alpha#dev_#" rel="stylesheet"]
+  link [href="https://use.fontawesome.com/releases/v#/css/all.css" rel="stylesheet"]
+  style
+    | img.avatar { max-width: #px !important; max-height: #px !important; }
+  noscript
+    link [href="{boardurl}/Themes/default/css/minified_{hash}.css?smf#alpha#dev_#" rel="stylesheet"]
+  script
+    | var smf_theme_url = "{boardurl}/Themes/default"; var smf_default_theme_url = "{boardurl}/Themes/default"; var smf_images_url = "{boardurl}/Themes/default/images"; var smf_smileys_url = "{boardurl}/Smileys"; var smf_smiley_sets = "fugue,alienine"; var smf_smiley_sets_default = "fugue"; var smf_avatars_url = "{boardurl}/avatars"; var smf_scripturl = "{boardurl}/index.php"; var smf_charset = "UTF-#"; var smf_session_id = "{session_id}"; var smf_session_var = "{session_var}"; var smf_member_id = #; var ajax_notification_text = 'Loading...'; var help_popup_heading_text = 'A little lost? Let me explain:'; var banned_text = 'Sorry admin, you are banned from using this forum!'; var smf_txt_expand = 'Expand'; var smf_txt_shrink = 'Shrink'; var smf_collapseAlt = 'Hide Category'; var smf_expandAlt = 'Show Category'; var smf_quote_expand = false; var allow_xhjr_credentials = false;
+  script [src="https://ajax.googleapis.com/ajax/libs/jquery/#/jquery.min.js"]
+  script [src="{boardurl}/Themes/default/scripts/minified_{hash}.js?smf#alpha#dev_#"]
+  script
+    | var new_alert_title = "{forum_name}"; var alert_timeout = #; var smf_you_sure ='Are you sure you want to do this?';
+  title
+    "{forum_name} - Index"
+  meta [content="width=device-width, initial-scale=#" name="viewport"]
+  meta [content="{forum_name}" property="og:site_name"]
+  meta [content="{forum_name} - Index" property="og:title"]
+  meta [content="{boardurl}/index.php" property="og:url"]
+  meta [content="{forum_name} - Index" property="og:description"]
+  meta [content="{forum_name} - Index" name="description"]
+  meta [content="##EA#" name="theme-color"]
+  link [href="{boardurl}/index.php" rel="canonical"]
+  link [href="{boardurl}/index.php?action=help" rel="help"]
+  link [href="{boardurl}/index.php" rel="contents"]
+  link [href="{boardurl}/index.php?action=search" rel="search"]
+  link [href="{boardurl}/index.php?action=feed;type=rss#" rel="alternate" title="{forum_name} - RSS" type="application/rss+xml"]
+  link [href="{boardurl}/index.php?action=feed;type=atom" rel="alternate" title="{forum_name} - Atom" type="application/atom+xml"]
+@ body
+body#smf.action_home
+  div#footerfix
+    div#top_section
+      div.content_wrapper.inner_wrap
+        ul#top_info.floatleft
+          li
+            a#profile_menu_top [href="{boardurl}/index.php?action=profile"]
+              img.avatar [alt src="{boardurl}/avatars/default.png"]
+              span.textmenu
+                "{member}"
+            div#profile_menu.top_menu
+          li
+            a#pm_menu_top [href="{boardurl}/index.php?action=pm"]
+              span.inbox.main_icons
+              span.textmenu
+                "My Messages"
+            div#pm_menu.scrollable.top_menu
+          li
+            a#alerts_menu_top [href="{boardurl}/index.php?action=profile;area=showalerts;u=#"]
+              span.alerts.main_icons
+              span.textmenu
+                "Alerts"
+            div#alerts_menu.scrollable.top_menu
+          li#nojs_logout
+            a [href="{boardurl}/index.php?action=logout;{session_var}={session_id}"]
+              "Log out"
+            script
+              | document.getElementById("nojs_logout").style.display = "none";
+        form#search_form.floatright [accept-charset="UTF-#" action="{boardurl}/index.php?action=search#" method="post"]
+          input [name="search" type="search" value]
+          select [name="search_selection"]
+            option [selected value="all"]
+              "Entire forum"
+            option [value="members"]
+              "Members"
+          input.button [name="search#" type="submit" value="Search"]
+          input [name="advanced" type="hidden" value="#"]
+    header#header.content_wrapper
+      h1.forumtitle
+        a#top [href="{boardurl}/index.php"]
+          "{forum_name}"
+      img#smflogo [alt="Simple Machines Forum" src="{boardurl}/Themes/default/images/smflogo.svg" title="Simple Machines Forum"]
+    nav#main_menu [aria-label="Main Menu"]
+      div.content_wrapper
+        a.mobile_user_menu
+          span.menu_icon
+          span.text_menu
+            "Main Menu"
+        div#mobile_user_menu.popup_container
+          div.description.popup_window
+            div.popup_heading
+              "Main Menu"
+              a.hide_popup.main_icons [href="javascript:void(#);"]
+            ul.dropmenu.menu_nav
+              li.button_home
+                a.active [href="{boardurl}/index.php"]
+                  span.home.main_icons
+                  span.textmenu
+                    "Home"
+              li.button_search
+                a [href="{boardurl}/index.php?action=search"]
+                  span.main_icons.search
+                  span.textmenu
+                    "Search"
+              li.button_admin.subsections
+                a [href="{boardurl}/index.php?action=admin"]
+                  span.admin.main_icons
+                  span.textmenu
+                    "Admin"
+                ul
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=featuresettings"]
+                      "Features and Options"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=packages"]
+                      "Package Manager"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=logs;sa=errorlog;desc"]
+                      "Error Log"
+                  li
+                    a [href="{boardurl}/index.php?action=admin;area=permissions"]
+                      "Permissions"
+              li.button_moderate.subsections
+                a [href="{boardurl}/index.php?action=moderate"]
+                  span.main_icons.moderate
+                  span.textmenu
+                    "Moderate"
+                ul
+                  li
+                    a [href="{boardurl}/index.php?action=moderate;area=modlog"]
+                      "Moderation Log"
+                  li
+                    a [href="{boardurl}/index.php?action=moderate;area=reportedposts"]
+                      "Reported Posts"
+                  li
+                    a [href="{boardurl}/index.php?action=moderate;area=reportedmembers"]
+                      "Reported Members"
+              li.button_mlist.subsections
+                a [href="{boardurl}/index.php?action=mlist"]
+                  span.main_icons.mlist
+                  span.textmenu
+                    "Members"
+                ul
+                  li
+                    a [href="{boardurl}/index.php?action=mlist"]
+                      "View the memberlist"
+                  li
+                    a [href="{boardurl}/index.php?action=mlist;sa=search"]
+                      "Search for Members"
+    div#wrapper.content_wrapper
+      div#inner_wrap
+        div.user
+          time [datetime="{date}"]
+            "{date}"
+          ul.unread_links
+            li
+              a [href="{boardurl}/index.php?action=unread" title="Show unread posts since last visit."]
+                "Unread Posts"
+            li
+              a [href="{boardurl}/index.php?action=unreadreplies" title="Show new replies to your posts."]
+                "Updated Topics"
+        div.news
+          h2
+            "News:"
+          p
+            "SMF - Just Installed!"
+      nav.navigate_section [aria-label="Breadcrumb"]
+        ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+          li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+            a [href="{boardurl}/index.php" itemprop="item"]
+              span [itemprop="name"]
+                "{forum_name}"
+            meta [content="#" itemprop="position"]
+      div#content_section
+        snapshot-ignored [selector="#main_content_section"]
+  footer#footer
+    div.content_wrapper
+      ul
+        li.copyright
+          a [href="{boardurl}/index.php?action=credits" rel="noopener" target="_blank" title="License"]
+            "SMF # Alpha(s) #-dev © #"
+          ","
+          a [href="https://www.simplemachines.org" rel="noopener" target="_blank" title="Simple Machines"]
+            "Simple Machines"
+        li.helplinks
+          a [href="{boardurl}/index.php?action=help"]
+            "Help"
+          a [href="{boardurl}/index.php?action=agreement"]
+            "Terms and Rules"
+          a [href="#top_section"]
+            "Go Up ▲"
+  script
+    | window.addEventListener("DOMContentLoaded", function() { function triggerCron() { $.get('{boardurl}' + "/cron.php?ts=#"); } window.setTimeout(triggerCron, #); var user_menus = new smc_PopupMenu(); user_menus.add("profile", "{boardurl}/index.php?action=profile;area=popup"); user_menus.add("alerts", "{boardurl}/index.php?action=profile;area=alerts_popup;u=#"); user_menus.add("pm", "{boardurl}/index.php?action=pm;sa=popup"); });

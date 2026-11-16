@@ -583,6 +583,54 @@ at.
 
 [baseline]: https://github.com/SimpleMachines/SMF/pull/9330
 
+## Converting templates to Plates
+
+The default theme's `*.template.php` files, each a set of `template_*()`
+functions that echo, convert mechanically into Plates templates, one file per
+sub-template in `Themes/default/templates/<Template>/`:
+
+```bash
+.dev/convert-templates.sh Who Recent
+.dev/convert-templates.sh --from <commit> --all --skip Stats
+```
+
+Every run starts again from the old files as the commit has them (`HEAD` by
+default), so it can be repeated as often as the converter changes, and the
+result depends on nothing else. `.dev/plates/convert.php` does the conversion;
+the script adds the handful of fix-ups the default theme needs, removes the
+empty lines the conversion leaves where HTML does not need them, and runs
+php-cs-fixer. The converter stops on anything it cannot convert faithfully,
+and warns about what a person should look at: a template that returns a
+value, a by-reference parameter, a call whose parameters it cannot find.
+
+Convert callers before the templates they call. A converted template reaches
+a sub-template of either kind through `$this->subTemplate()`, but an old one
+calling a `template_*()` function breaks once that function is gone.
+
+The point of converting mechanically is that the result can be checked
+mechanically. Capture every page the template snapshot suite renders, on both
+engines, before and after, and compare them:
+
+```bash
+.dev/capture-pages.sh before
+.dev/convert-templates.sh Who
+.dev/capture-pages.sh after
+.dev/compare-pages.sh before after -v
+.dev/compare-pages.sh before after --rendered -v
+```
+
+Straight out of the converter the pages match byte for byte, once sessions,
+tokens, times and counts are masked. After the tidying they match as a browser
+shows them: `--rendered` treats a run of whitespace as one space, except
+inside `<pre>`, `<textarea>` and `<script>`, which must still match exactly.
+The capture includes a few responses the snapshot suite does not cover:
+`ssi_examples.php`, XML responses, and `.dev/plates/probe.php`, which calls
+the template helpers the way a mod does.
+
+Capture both sides on the same forum, one straight after the other. The pages
+show counts and recent activity, so a forum that has been used in between
+reads differently for reasons that have nothing to do with the templates.
+
 ## Debugging SQL with the PostgreSQL log
 
 The `postgres` log is the best tool in the stack for tracking down a broken
@@ -671,6 +719,14 @@ compose.yaml                     the stack
 .dev/interrupt-upgrade.sh        kill an upgrade part way, report what recovery left
 .dev/compare-upgrade.sh          upgrade a 2.1 dump, install 3.0, diff the two
 .dev/schema-tool.php             read a database's shape, and compare readings
+
+.dev/convert-templates.sh        convert default theme templates to Plates, repeatably
+.dev/capture-pages.sh            save every snapshot page's HTML, on both engines
+.dev/compare-pages.sh            diff two captures, byte for byte or as rendered
+.dev/plates/convert.php          the converter: template_*() functions to Plates files
+.dev/plates/tidy.php             drop empty lines HTML does not need
+.dev/plates/compare.php          what compare-pages.sh runs
+.dev/plates/probe.php            call the template helpers the way a mod does
 ```
 
 `.dev/db.php` exists because the two runners reach the database differently.

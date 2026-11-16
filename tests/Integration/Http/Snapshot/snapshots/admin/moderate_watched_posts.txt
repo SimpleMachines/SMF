@@ -1,0 +1,72 @@
+status 200
+@ title
+title
+  "Watched Members"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=moderate" itemprop="item"]
+        span [itemprop="name"]
+          "Moderation Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=moderate;area=userwatch" itemprop="item"]
+        span [itemprop="name"]
+          "Watched Members"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=moderate;area=userwatch;sa=post" itemprop="item"]
+        span [itemprop="name"]
+          "View by Post"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      "Watched Members"
+  p.information
+    "Here you can keep a track of all members who have been assigned a \"watch\" by the moderation team."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Watched Members Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Watched Members Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a [href="{boardurl}/index.php?action=moderate;area=userwatch;sa=member"]
+                "Member"
+            li
+              a.active [href="{boardurl}/index.php?action=moderate;area=userwatch;sa=post"]
+                "View by Post"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  form [accept-charset="UTF-#" action="{boardurl}/index.php?action=moderate;area=userwatch;sa=post" method="post"]
+    div.cat_bar
+      h3.catbg
+        "Watched Members - View By Post"
+    table#watch_user_list.table_grid
+      tbody
+        tr.windowbg
+          td.centertext [colspan="#"]
+            "There are no posts from watched members."
+    div.additional_row.floatright
+      input.button [name="delete_selected" type="submit" value="Remove selected"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]

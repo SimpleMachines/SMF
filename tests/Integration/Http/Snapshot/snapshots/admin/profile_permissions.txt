@@ -1,0 +1,401 @@
+status 200
+@ title
+title
+  "Show Permissions"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=profile;u=#" itemprop="item"]
+        span [itemprop="name"]
+          "{member}"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=profile;u=#;area=permissions" itemprop="item"]
+        span [itemprop="name"]
+          "Show Permissions"
+      meta [content="#" itemprop="position"]
+@ #content_section
+div#content_section
+  main#main_content_section
+    nav#genericmenu [aria-label=" Menu"]
+      a.mobile_generic_menu_1
+        span.menu_icon
+        span.text_menu
+          "Menu"
+      div#mobile_generic_menu_#.popup_container
+        div.description.popup_window
+          div.popup_heading
+            "Menu"
+            a.hide_popup.main_icons [href="javascript:void(#);"]
+          div.generic_menu
+            ul.dropdown_menu_1.dropmenu
+              li.subsections
+                a.active [href="{boardurl}/index.php?action=profile;area=summary;u=#"]
+                  "{member}"
+                ul
+                  li
+                    a.administration.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=summary;u=#"]
+                      span.administration.main_icons
+                      "{member}"
+                  li
+                    a.profile_menu_icon.stats [href="{boardurl}/index.php?action=profile;area=statistics;u=#"]
+                      span.main_icons.stats
+                      "Show Stats"
+                  li.subsections
+                    a.posts.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=showposts;u=#"]
+                      span.main_icons.posts
+                      "Show Posts"
+                    ul
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=showposts;sa=messages;u=#"]
+                          "Messages"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=showposts;sa=topics;u=#"]
+                          "Topics"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=showposts;sa=attach;u=#"]
+                          "Attachments"
+                  li
+                    a.chosen.permissions.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=permissions;u=#"]
+                      span.main_icons.permissions
+                      "Show Permissions"
+                  li.subsections
+                    a.logs.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=tracking;u=#"]
+                      span.logs.main_icons
+                      "Track User"
+                    ul
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=tracking;sa=activity;u=#"]
+                          "Activity"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=tracking;sa=ip;u=#"]
+                          "IP Address"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=tracking;sa=logins;u=#"]
+                          "Logins"
+              li.subsections
+                a [href="{boardurl}/index.php?action=profile;area=account;u=#"]
+                  "Forum Profile"
+                ul
+                  li
+                    a.maintain.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=account;u=#"]
+                      span.main_icons.maintain
+                      "Account Settings"
+                  li
+                    a.members.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=forumprofile;u=#"]
+                      span.main_icons.members
+                      "Forum Profile"
+                  li
+                    a.features.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=theme;u=#"]
+                      span.features.main_icons
+                      "Look and Layout"
+                  li.subsections
+                    a.alerts.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=notification;u=#"]
+                      span.alerts.main_icons
+                      "Notifications"
+                    ul
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=notification;sa=alerts;u=#"]
+                          "Notification Preferences"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=notification;sa=topics;u=#"]
+                          "Watched Topics"
+                      li
+                        a [href="{boardurl}/index.php?action=profile;area=notification;sa=boards;u=#"]
+                          "Watched Boards"
+              li.subsections
+                a [href="{boardurl}/index.php?action=pm;sa=send;u=#"]
+                  "Actions"
+                ul
+                  li
+                    a.personal_message.profile_menu_icon [href="{boardurl}/index.php?action=pm;sa=send;u=#"]
+                      span.main_icons.personal_message
+                      "Send personal message"
+                  li
+                    a.profile_menu_icon.warning [href="{boardurl}/index.php?action=reporttm;{session_var}={session_id};u=#"]
+                      span.main_icons.warning
+                      "Report this member"
+                  li
+                    a.profile_menu_icon.warning [href="{boardurl}/index.php?action=profile;area=issuewarning;u=#"]
+                      span.main_icons.warning
+                      "Issue a Warning"
+                  li
+                    a.ban.profile_menu_icon [href="{boardurl}/index.php?action=admin;area=ban;sa=add;u=#"]
+                      span.ban.main_icons
+                      "Ban this user"
+                  li
+                    a.packages.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=getprofiledata;u=#"]
+                      span.main_icons.packages
+                      "Download profile data"
+                  li
+                    a.members_delete.profile_menu_icon [href="{boardurl}/index.php?action=profile;area=deleteaccount;u=#"]
+                      span.main_icons.members_delete
+                      "Delete this account"
+    script
+      | $( ".mobile_generic_menu_#" ).click(function() { $( "#mobile_generic_menu_#" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#" ).hide(); });
+    div#admin_content
+      div#profile_error.errorbox [style="display:none"]
+      div.cat_bar
+        h3.catbg.profile_hd
+          "Show Permissions"
+      div.information
+        "This section allows you to view all permissions for this member (denied permissions are"
+        del.error
+          "struck out"
+        ")."
+      div#permissions.flow_hidden
+        div.tborder
+          div.cat_bar
+            h3.catbg
+              "General Permissions"
+          table.table_grid
+            thead
+              tr.title_bar
+                th.half_table.lefttext
+                  "Permission (denied permissions are"
+                  del.error
+                    "struck out"
+                  ")"
+                th.half_table.lefttext
+                  "Permission status"
+            tbody
+              tr.windowbg
+                td [title="calendar_view"]
+                  "View the calendar"
+                td.smalltext
+                  "Given by Regular Members"
+              tr.windowbg
+                td [title="pm_draft"]
+                  "Save drafts of personal messages"
+                td.smalltext
+                  "Given by Regular Members"
+              tr.windowbg
+                td [title="pm_read"]
+                  "Read personal messages"
+                td.smalltext
+                  "Given by Regular Members"
+              tr.windowbg
+                td [title="pm_send"]
+                  "Send personal messages"
+                td.smalltext
+                  "Given by Regular Members"
+              tr.windowbg
+                td [title="profile_blurb_own"]
+                  "Edit personal text - Own profile"
+                td.smalltext
+                  "Given by Regular Members"
+              tr.windowbg
+                td [title="profile_displayed_name_own"]
+                  "Edit displayed name - Own displayed name"
+                td.smalltext
+                  "Given by Regular Members"
+              tr.windowbg
+                td [title="profile_extra_own"]
+                  "Edit additional profile settings - Own profile"
+                td.smalltext
+                  "Given by Regular Members"
+              tr.windowbg
+                td [title="profile_forum_own"]
+                  "Allow Forum Profile edits - Own profile"
+                td.smalltext
+                  "Given by Regular Members"
+              tr.windowbg
+                td [title="profile_identity_own"]
+                  "Edit account settings - Own profile"
+                td.smalltext
+                  "Given by Regular Members"
+              tr.windowbg
+                td [title="profile_password_own"]
+                  "Change password - Own profile"
+                td.smalltext
+                  "Given by Regular Members"
+              tr.windowbg
+                td [title="profile_remote_avatar"]
+                  "Choose a remotely stored avatar"
+                td.smalltext
+                  "Given by Regular Members"
+              tr.windowbg
+                td [title="profile_remove_own"]
+                  "Delete account - Own account"
+                td.smalltext
+                  "Given by Regular Members"
+              tr.windowbg
+                td [title="profile_server_avatar"]
+                  "Select an avatar from the server"
+                td.smalltext
+                  "Given by Regular Members"
+              tr.windowbg
+                td [title="profile_signature_own"]
+                  "Edit signature - Own signature"
+                td.smalltext
+                  "Given by Regular Members"
+              tr.windowbg
+                td [title="profile_upload_avatar"]
+                  "Upload an avatar to the server"
+                td.smalltext
+                  "Given by Regular Members"
+              tr.windowbg
+                td [title="profile_view"]
+                  "View other members’ profile summary and stats pages"
+                td.smalltext
+                  "Given by Regular Members"
+              tr.windowbg
+                td [title="profile_website_own"]
+                  "Edit website - Own profile"
+                td.smalltext
+                  "Given by Regular Members"
+              tr.windowbg
+                td [title="search_posts"]
+                  "Search for posts and topics"
+                td.smalltext
+                  "Given by Regular Members"
+              tr.windowbg
+                td [title="view_mlist"]
+                  "View the memberlist and groups"
+                td.smalltext
+                  "Given by Regular Members"
+              tr.windowbg
+                td [title="view_stats"]
+                  "View forum statistics"
+                td.smalltext
+                  "Given by Regular Members"
+              tr.windowbg
+                td [title="who_view"]
+                  "View Who’s Online page"
+                td.smalltext
+                  "Given by Regular Members"
+        br
+        form [accept-charset="UTF-#" action="{boardurl}/index.php?action=profile;u=#;area=permissions#board_permissions" method="post"]
+          div.cat_bar
+            h3.catbg
+              span#board_permissions
+                "Board specific permissions for"
+              select [name="board" onchange="if (this.options[this.selectedIndex].value) this.form.submit();"]
+                option [selected value="#"]
+                  "All boards"
+        table.table_grid
+          thead
+            tr.title_bar
+              th.half_table.lefttext
+                "Permission (denied permissions are"
+                del.error
+                  "struck out"
+                ")"
+              th.half_table.lefttext
+                "Permission status"
+          tbody
+            tr.windowbg
+              td [title="delete_own"]
+                "Delete posts - Own post"
+              td.smalltext
+                "Given by Regular Members"
+            tr.windowbg
+              td [title="lock_own"]
+                "Lock topics - Own topic"
+              td.smalltext
+                "Given by Regular Members"
+            tr.windowbg
+              td [title="modify_own"]
+                "Modify posts - Own post"
+              td.smalltext
+                "Given by Regular Members"
+            tr.windowbg
+              td [title="poll_add_own"]
+                "Add poll to topics - Own topics"
+              td.smalltext
+                "Given by Regular Members"
+            tr.windowbg
+              td [title="poll_edit_own"]
+                "Edit polls - Own poll"
+              td.smalltext
+                "Given by Regular Members"
+            tr.windowbg
+              td [title="poll_lock_own"]
+                "Lock polls - Own poll"
+              td.smalltext
+                "Given by Regular Members"
+            tr.windowbg
+              td [title="poll_post"]
+                "Post polls"
+              td.smalltext
+                "Given by Regular Members"
+            tr.windowbg
+              td [title="poll_view"]
+                "View polls"
+              td.smalltext
+                "Given by Regular Members"
+            tr.windowbg
+              td [title="poll_vote"]
+                "Vote in polls"
+              td.smalltext
+                "Given by Regular Members"
+            tr.windowbg
+              td [title="post_attachment"]
+                "Post attachments"
+              td.smalltext
+                "Given by Regular Members"
+            tr.windowbg
+              td [title="post_draft"]
+                "Save drafts of new posts"
+              td.smalltext
+                "Given by Regular Members"
+            tr.windowbg
+              td [title="post_new"]
+                "Post new topics"
+              td.smalltext
+                "Given by Regular Members"
+            tr.windowbg
+              td [title="post_reply_any"]
+                "Post replies to topics - Any topic"
+              td.smalltext
+                "Given by Regular Members"
+            tr.windowbg
+              td [title="post_reply_own"]
+                "Post replies to topics - Own topic"
+              td.smalltext
+                "Given by Regular Members"
+            tr.windowbg
+              td [title="post_unapproved_attachments"]
+                "Post attachments, but hide until approved"
+              td.smalltext
+                "Given by Regular Members"
+            tr.windowbg
+              td [title="post_unapproved_replies_any"]
+                "Post replies to topics, but hide until approved - Any topic"
+              td.smalltext
+                "Given by Regular Members"
+            tr.windowbg
+              td [title="post_unapproved_replies_own"]
+                "Post replies to topics, but hide until approved - Own topic"
+              td.smalltext
+                "Given by Regular Members"
+            tr.windowbg
+              td [title="post_unapproved_topics"]
+                "Post new topics, but hide until approved"
+              td.smalltext
+                "Given by Regular Members"
+            tr.windowbg
+              td [title="remove_own"]
+                "Remove topics - Own topic"
+              td.smalltext
+                "Given by Regular Members"
+            tr.windowbg
+              td [title="report_any"]
+                "Report posts to the moderators"
+              td.smalltext
+                "Given by Regular Members"
+            tr.windowbg
+              td [title="view_attachments"]
+                "View attachments"
+              td.smalltext
+                "Given by Regular Members"

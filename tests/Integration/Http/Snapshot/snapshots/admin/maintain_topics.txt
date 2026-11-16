@@ -1,0 +1,182 @@
+status 200
+@ title
+title
+  "Forum Maintenance"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=maintain;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Forum Maintenance"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=maintain;sa=topics;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Topics"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      "Forum Maintenance"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "Optimize tables, make backups, check for errors, and prune boards with these tools."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Forum Maintenance Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Forum Maintenance Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a [href="{boardurl}/index.php?action=admin;area=maintain;sa=routine;{session_var}={session_id}"]
+                "Routine"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=maintain;sa=database;{session_var}={session_id}"]
+                "Database"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=maintain;sa=members;{session_var}={session_id}"]
+                "Members"
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=maintain;sa=topics;{session_var}={session_id}"]
+                "Topics"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=maintain;sa=hooks;{session_var}={session_id}"]
+                "Integration Hooks"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  script
+    | var rotSwap = false; function swapRot() { rotSwap = !rotSwap; // Toggle icon document.getElementById("rotIcon").src = smf_images_url + (rotSwap ? "/selected_open.png" : "/selected.png"); setInnerHTML(document.getElementById("rotText"), rotSwap ? 'Specific boards (click to select all)' : 'All boards (click to select specific boards)'); // Toggle panel $("#rotPanel").slideToggle(#); // Toggle checkboxes var rotPanel = document.getElementById('rotPanel'); var oBoardCheckBoxes = rotPanel.getElementsByTagName('input'); for (var i = #; i < oBoardCheckBoxes.length; i++) { if (oBoardCheckBoxes[i].type.toLowerCase() == "checkbox") oBoardCheckBoxes[i].checked = !rotSwap; } }
+  div#manage_maintenance
+    div.cat_bar
+      h3.catbg
+        "Remove old posts"
+    div.windowbg
+      div.flow_auto
+        form [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=maintain;sa=topics;activity=pruneold" method="post"]
+          p
+            a#rotLink
+            "Remove all topics not posted in for"
+            input [name="maxdays" size="#" type="number" value="#"]
+            "days, which are:"
+          p
+            label [for="delete_type_nothing"]
+              input#delete_type_nothing [name="delete_type" type="radio" value="nothing"]
+              "Any sort of topic."
+            br
+            label [for="delete_type_moved"]
+              input#delete_type_moved [checked name="delete_type" type="radio" value="moved"]
+              "Moved/merged topic notices."
+            br
+            label [for="delete_type_locked"]
+              input#delete_type_locked [name="delete_type" type="radio" value="locked"]
+              "Locked."
+            br
+          p
+            label [for="delete_old_not_sticky"]
+              input#delete_old_not_sticky [checked name="delete_old_not_sticky" type="checkbox"]
+              "But do not count stickied topics."
+            br
+          p
+            a [href="#rotLink" onclick="swapRot();"]
+              img#rotIcon [alt="+" src="{boardurl}/Themes/default/images/selected.png"]
+            a#rotText [href="#rotLink" onclick="swapRot();" style="font-weight: bold;"]
+              "All boards (click to select specific boards)"
+          div#rotPanel.flow_hidden [style="display: none;"]
+            snapshot-ignored [selector="#rotPanel > div"]
+          input.button.you_sure [data-confirm="Are you really sure you want to delete old posts now?-n-This cannot be undone!" type="submit" value="Remove now"]
+          input [name="{session_var}" type="hidden" value="{session_id}"]
+          input [name="{token_var}" type="hidden" value="{hash}"]
+    div.cat_bar
+      h3.catbg
+        "Remove old drafts"
+    div.windowbg
+      form [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=maintain;sa=topics;activity=olddrafts" method="post"]
+        p
+          "Remove all drafts older than"
+          input [name="draftdays" size="#" type="number" value="#"]
+          "days."
+        input.button.you_sure [data-confirm="Are you really sure you want to delete old drafts now?-n-This cannot be undone!" type="submit" value="Remove now"]
+        input [name="{session_var}" type="hidden" value="{session_id}"]
+        input [name="{token_var}" type="hidden" value="{hash}"]
+    div.cat_bar
+      h3.catbg
+        "Move Topics"
+    div.windowbg
+      form [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=maintain;sa=topics;activity=massmove" method="post"]
+        p
+          "Move topics from"
+          select#id_board_from [name="id_board_from"]
+            option [disabled selected]
+              "(Select Board)"
+            optgroup [label="Snapshot fixtures"]
+              option [value="#"]
+                "=> Snapshot board"
+              option [value="#"]
+                "===> Snapshot child one"
+              option [value="#"]
+                "===> Snapshot child two"
+              option [value="#"]
+                "=> Snapshot empty board"
+          "to"
+          select#id_board_to [name="id_board_to"]
+            option [disabled selected]
+              "(Select Board)"
+            optgroup [label="Snapshot fixtures"]
+              option [value="#"]
+                "=> Snapshot board"
+              option [value="#"]
+                "===> Snapshot child one"
+              option [value="#"]
+                "===> Snapshot child two"
+              option [value="#"]
+                "=> Snapshot empty board"
+        p
+          "Move topics not posted in for"
+          input [name="maxdays" size="#" type="number" value="#"]
+          "days. (Enter # to(s) move all topics)"
+        p
+          label [for="move_type_locked"]
+            input#move_type_locked [checked name="move_type_locked" type="checkbox"]
+            "Locked topics"
+          br
+          label [for="move_type_sticky"]
+            input#move_type_sticky [name="move_type_sticky" type="checkbox"]
+            "Sticky topics"
+          br
+        input.button [onclick="if (document.getElementById('id_board_from').options[document.getElementById('id_board_from').selectedIndex].disabled || document.getElementById('id_board_from').options[document.getElementById('id_board_to').selectedIndex].disabled) return false; var confirmText = 'Are you sure you want to move ALL the topics from \"%board_from%\" to \"%board_to%\"?'; return confirm(confirmText.replace(/%board_from%/, document.getElementById('id_board_from').options[document.getElementById('id_board_from').selectedIndex].text.replace(/^=+> /, '')).replace(/%board_to%/, document.getElementById('id_board_to').options[document.getElementById('id_board_to').selectedIndex].text.replace(/^=+> /, '')));" type="submit" value="Move now"]
+        input [name="{session_var}" type="hidden" value="{session_id}"]
+        input [name="{token_var}" type="hidden" value="{hash}"]

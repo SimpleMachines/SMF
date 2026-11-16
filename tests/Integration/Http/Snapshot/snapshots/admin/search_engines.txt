@@ -1,0 +1,177 @@
+status 200
+@ title
+title
+  "Settings"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=sengines;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Search Engines"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      "Search Engines"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "From this area you can decide in what detail you wish to track search engines as they index your forum as well as review search engine logs."
+  form#admin_form_wrapper [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=sengines;save;sa=settings" method="post"]
+    div.cat_bar
+      h3.catbg
+        "Settings"
+    div.information.noup
+      "You can change settings for robot tracking from this page. Note, if you wish to enable automatic pruning of the hit logs you can set this up"
+      a [href="{boardurl}/index.php?action=admin;area=logs;sa=settings;{session_var}={session_id}"]
+        "here"
+    div.noup.windowbg
+      dl.settings
+        dt
+          a#setting_spider_mode_help [href="{boardurl}/index.php?action=helpadmin;help=spider_mode" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_spider_mode
+          span
+            label [for="spider_mode"]
+              "Search Engine and Robot Tracking level"
+            br
+            span.smalltext
+              "Note that logging of every robot action only occurs if tracking is set to either \"moderate\" or \"aggressive\". Details about every robot action are only logged if tracking is set to \"aggressive\"."
+        dd
+          select#spider_mode [name="spider_mode" onchange="disableFields();" size="#"]
+            option [value="#"]
+              "Disabled"
+            option [value="#"]
+              "Standard"
+            option [value="#"]
+              "Moderate"
+            option [value="#"]
+              "Aggressive"
+        dt
+          a#setting_spider_group_help [href="{boardurl}/index.php?action=helpadmin;help=spider_group" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_spider_group
+          span
+            label [for="spider_group"]
+              "Apply restrictive permissions from group"
+            br
+            span.smalltext
+              "To enable you to stop robots indexing some pages."
+        dd
+          select#spider_group [name="spider_group" size="#"]
+            option [value="#"]
+              "Disabled"
+            option [value="#"]
+              "Regular Members"
+            option [value="#"]
+              "Global Moderator"
+            option [value="#"]
+              "Newbie"
+            option [value="#"]
+              "Jr. Member"
+            option [value="#"]
+              "Full Member"
+            option [value="#"]
+              "Sr. Member"
+            option [value="#"]
+              "Hero Member"
+        dt
+          a#setting_show_spider_online_help [href="{boardurl}/index.php?action=helpadmin;help=show_spider_online" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_show_spider_online
+          span
+            label [for="show_spider_online"]
+              "Show robots in the online list"
+        dd
+          select#show_spider_online [name="show_spider_online" size="#"]
+            option [value="#"]
+              "Not at all"
+            option [value="#"]
+              "Show robot quantity"
+            option [value="#"]
+              "Show robot names"
+            option [value="#"]
+              "Show robot names - admin only"
+      hr
+      dl.settings
+        dt
+          a#setting_robots_txt_help [href="{boardurl}/index.php?action=helpadmin;help=robots_txt" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_robots_txt
+          span
+            label [for="robots_txt"]
+              "Add SMF rules to robots.txt"
+            br
+            span.smalltext
+              "Enter the path to your robots.txt file so that SMF can append rules to it."
+        dd
+          input#robots_txt [name="robots_txt" size="#" type="text" value]
+          button.button.floatnone [onclick="document.getElementById('robots_txt').value = '{boarddir}/robots.txt'; return false;"]
+            "Detect path"
+        dt
+          a#setting_robots_txt_search_help [href="{boardurl}/index.php?action=helpadmin;help=robots_txt_search" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_robots_txt_search
+          span
+            label [for="robots_txt_search"]
+              "Allow search engines to link to the forum in their search results"
+        dd
+          input#robots_txt_search [checked name="robots_txt_search" type="checkbox" value="#"]
+        dt
+          a#setting_robots_txt_ai_input_help [href="{boardurl}/index.php?action=helpadmin;help=robots_txt_ai_input" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_robots_txt_ai_input
+          span
+            label [for="robots_txt_ai_input"]
+              "Allow search engines to generate AI summaries of forum content"
+        dd
+          input#robots_txt_ai_input [name="robots_txt_ai_input" type="checkbox" value="#"]
+        dt
+          a#setting_robots_txt_ai_train_help [href="{boardurl}/index.php?action=helpadmin;help=robots_txt_ai_train" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_robots_txt_ai_train
+          span
+            label [for="robots_txt_ai_train"]
+              "Allow forum content to be used for AI training"
+        dd
+          input#robots_txt_ai_train [name="robots_txt_ai_train" type="checkbox" value="#"]
+        dt
+          a#setting_meta_keywords_help [href="{boardurl}/index.php?action=helpadmin;help=meta_keywords" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_meta_keywords
+          span
+            label [for="meta_keywords"]
+              "Meta keywords associated with forum"
+            br
+            span.smalltext
+              "In most situations, this should be left blank."
+        dd
+          textarea#meta_keywords [cols="#" name="meta_keywords" rows="#"]
+      input.button [type="submit" value="Save"]
+    input [name="{token_var}" type="hidden" value="{hash}"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]

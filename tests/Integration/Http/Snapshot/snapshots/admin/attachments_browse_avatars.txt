@@ -1,0 +1,128 @@
+status 200
+@ title
+title
+  "Attachments and Avatars"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=manageattachments;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Attachments and Avatars"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=browse;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Browse Files"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      a.help [href="{boardurl}/index.php?action=helpadmin;help=manage_files" onclick="return reqOverlayDiv(this.href);"]
+        span.help.main_icons [title="Help"]
+      "Attachments and Avatars"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "From here you can administer the attached files on your system. You can delete attachments by size and by date from your system. Statistics on attachments are also displayed below."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Attachments and Avatars Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Attachments and Avatars Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=browse;{session_var}={session_id}"]
+                "Browse Files"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=attachments;{session_var}={session_id}"]
+                "Attachment Settings"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=avatars;{session_var}={session_id}"]
+                "Avatar Settings"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=attachpaths;{session_var}={session_id}"]
+                "Attachment Directories"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=maintenance;{session_var}={session_id}"]
+                "File Maintenance"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  form [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=manageattachments;sa=remove;avatars" method="post"]
+    div.cat_bar
+      h3.catbg
+        "Browse files:"
+        a [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=browse"]
+          "Attachments"
+        "|"
+        img [alt=">" src="{boardurl}/Themes/default/images/selected.png"]
+        a [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=browse;avatars"]
+          "Avatars"
+        "|"
+        a [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=browse;thumbs"]
+          "Thumbnails"
+    div.additional_row
+      input.button.you_sure [data-confirm="Are you sure you want to delete the selected attachments?" name="remove_submit" type="submit" value="Remove selected"]
+    table#file_list.table_grid
+      thead
+        tr.title_bar
+          th#header_file_list_name.name [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=browse;avatars;sort=name;desc" rel="nofollow"]
+              "Attachment name"
+              span.main_icons.sort_up
+          th#header_file_list_filesize.filesize [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=browse;avatars;sort=filesize" rel="nofollow"]
+              "File size"
+          th#header_file_list_member.member [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=browse;avatars;sort=member" rel="nofollow"]
+              "Member"
+          th#header_file_list_date.date [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=browse;avatars;sort=date" rel="nofollow"]
+              "Last active"
+          th#header_file_list_downloads.downloads [scope="col"]
+            a [href="{boardurl}/index.php?action=admin;area=manageattachments;sa=browse;avatars;sort=downloads" rel="nofollow"]
+              "Downloads"
+          th#header_file_list_check.centercol.check [scope="col"]
+            input [onclick="invertAll(this, this.form);" type="checkbox"]
+      tbody
+        tr.windowbg
+          td.centertext [colspan="#"]
+            "There are currently no avatars."
+    div.flow_auto
+      div.additional_row
+        input.button.you_sure [data-confirm="Are you sure you want to delete the selected attachments?" name="remove_submit" type="submit" value="Remove selected"]
+    input [name="type" type="hidden" value="avatars"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]
+    input [name="sort" type="hidden" value="name"]

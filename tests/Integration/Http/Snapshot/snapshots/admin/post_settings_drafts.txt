@@ -1,0 +1,148 @@
+status 200
+@ title
+title
+  "Draft Settings"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=postsettings;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Posts and Topics"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=postsettings;sa=drafts;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Drafts"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      a.help [href="{boardurl}/index.php?action=helpadmin;help=posts_and_topics" onclick="return reqOverlayDiv(this.href);"]
+        span.help.main_icons [title="Help"]
+      "Manage Posts and Topics"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "Here you can set all settings involving drafts."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Manage Posts and Topics Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Manage Posts and Topics Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a [href="{boardurl}/index.php?action=admin;area=postsettings;sa=posts;{session_var}={session_id}"]
+                "Post Settings"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=postsettings;sa=censor;{session_var}={session_id}"]
+                "Censored Words"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=postsettings;sa=topics;{session_var}={session_id}"]
+                "Topic Settings"
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=postsettings;sa=drafts;{session_var}={session_id}"]
+                "Drafts"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  form#admin_form_wrapper [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=postsettings;sa=drafts;save" method="post"]
+    div.cat_bar
+      h3.catbg
+        "Draft Settings"
+    div.noup.windowbg
+      dl.settings
+        dt
+          a#setting_drafts_post_enabled
+          span
+            label [for="drafts_post_enabled"]
+              "Enable the saving of Post drafts"
+        dd
+          input#drafts_post_enabled [checked name="drafts_post_enabled" type="checkbox" value="#"]
+        dt
+          a#setting_drafts_pm_enabled
+          span
+            label [for="drafts_pm_enabled"]
+              "Enable the saving of PM drafts"
+        dd
+          input#drafts_pm_enabled [checked name="drafts_pm_enabled" type="checkbox" value="#"]
+        dt
+          a#setting_drafts_show_saved_enabled
+          span
+            label [for="drafts_show_saved_enabled"]
+              "Enable the selection of drafts from the posting screen"
+            br
+            span.smalltext
+              "This will allow the user to select and load appropriate drafts from the posting screen. The user must also have the proper permissions"
+        dd
+          input#drafts_show_saved_enabled [checked name="drafts_show_saved_enabled" type="checkbox" value="#"]
+        dt
+          a#setting_drafts_keep_days
+          span
+            label [for="drafts_keep_days"]
+              "Maximum number of days to keep a draft"
+            br
+            span.smalltext
+              "Enter # to(s) keep drafts indefinitely"
+        dd
+          input#drafts_keep_days [min="#" name="drafts_keep_days" size="#" type="number" value="#"]
+          "days"
+      hr
+      dl.settings
+        dt
+          a#setting_drafts_autosave_enabled
+          span
+            label [for="drafts_autosave_enabled"]
+              "Enable automatic saving of drafts"
+            br
+            span.smalltext
+              "This will automatically save user drafts in the background on a given frequency. The user must also have the proper permissions"
+        dd
+          input#drafts_autosave_enabled [checked name="drafts_autosave_enabled" type="checkbox" value="#"]
+        dt
+          a#setting_drafts_autosave_frequency
+          span
+            label [for="drafts_autosave_frequency"]
+              "How often should drafts be autosaved?"
+            br
+            span.smalltext
+              "The minimum allowable value is {duration}"
+        dd
+          input#drafts_autosave_frequency [min="#" name="drafts_autosave_frequency" size="#" type="number" value="#"]
+          "seconds"
+      input.button [type="submit" value="Save"]
+    input [name="{token_var}" type="hidden" value="{hash}"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]
+  script
+    | function toggle() { $("#drafts_autosave_frequency").prop("disabled", !($("#drafts_autosave_enabled").prop("checked"))); }; toggle(); $("#drafts_autosave_enabled").click(function() { toggle(); });
