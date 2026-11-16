@@ -41,6 +41,7 @@ class LicenseTest extends TestCase
 		'\./cache/',
 		'\./tests/',
 		'\./vendor/',
+		'\./test.php',
 
 		// Everything in other except install.php, upgrade.php, Settings.php and Settings_bak.php.
 		'\./other/(?!install|upgrade|Settings)\w+\.php',
@@ -49,6 +50,9 @@ class LicenseTest extends TestCase
 		'\./Settings\.php',
 		'\./Settings_bak\.php',
 		'\./db_last_error\.php',
+
+		// Mac OS creates resource forks
+		'\._\w+.php',
 	];
 	private const VERSION_AND_YEAR_FILES = [
 		'\./index\.php',
