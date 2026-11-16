@@ -1,0 +1,249 @@
+status 200
+@ title
+title
+  "Personal Messages Index"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=pm" itemprop="item"]
+        span [itemprop="name"]
+          "Personal Messages"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=pm;f=inbox" itemprop="item"]
+        span [itemprop="name"]
+          "Inbox"
+      meta [content="#" itemprop="position"]
+@ #content_section
+div#content_section
+  main#main_content_section
+    nav#genericmenu [aria-label=" Menu"]
+      a.mobile_generic_menu_1
+        span.menu_icon
+        span.text_menu
+          "Menu"
+      div#mobile_generic_menu_#.popup_container
+        div.description.popup_window
+          div.popup_heading
+            "Menu"
+            a.hide_popup.main_icons [href="javascript:void(#);"]
+          div.generic_menu
+            ul.dropdown_menu_1.dropmenu
+              li.subsections
+                a.active [href="{boardurl}/index.php?action=pm;f=inbox"]
+                  "Messages"
+                ul
+                  li
+                    a.chosen.inbox.pm_menu_icon [href="{boardurl}/index.php?action=pm;f=inbox"]
+                      span.inbox.main_icons
+                      "Inbox"
+                  li
+                    a.pm_menu_icon.send [href="{boardurl}/index.php?action=pm;sa=send"]
+                      span.main_icons.send
+                      "send"
+                  li
+                    a.pm_menu_icon.sent [href="{boardurl}/index.php?action=pm;f=sent"]
+                      span.main_icons.sent
+                      "sent"
+                  li
+                    a.drafts.pm_menu_icon [href="{boardurl}/index.php?action=pm;f=drafts"]
+                      span.drafts.main_icons
+                      "Drafts"
+              li.subsections
+                a [href="{boardurl}/index.php?action=pm;sa=search"]
+                  "Actions"
+                ul
+                  li
+                    a.pm_menu_icon.search [href="{boardurl}/index.php?action=pm;sa=search"]
+                      span.main_icons.search
+                      "Search"
+                  li
+                    a.pm_menu_icon.prune [href="{boardurl}/index.php?action=pm;sa=prune"]
+                      span.main_icons.prune
+                      "prune"
+              li.subsections
+                a [href="{boardurl}/index.php?action=pm;sa=manlabels"]
+                  "Preferences"
+                ul
+                  li
+                    a.manlabels.pm_menu_icon [href="{boardurl}/index.php?action=pm;sa=manlabels"]
+                      span.main_icons.manlabels
+                      "manlabels"
+                  li
+                    a.manrules.pm_menu_icon [href="{boardurl}/index.php?action=pm;sa=manrules"]
+                      span.main_icons.manrules
+                      "manrules"
+                  li
+                    a.pm_menu_icon.settings [href="{boardurl}/index.php?action=pm;sa=settings"]
+                      span.main_icons.settings
+                      "Settings"
+    script
+      | $( ".mobile_generic_menu_#" ).click(function() { $( "#mobile_generic_menu_#" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#" ).hide(); });
+    div#admin_content
+      div#personal_messages
+        script
+          | var allLabels = {}; var currentLabels = {}; function loadLabelChoices() { var listing = document.forms.pmFolder.elements; var theSelect = document.forms.pmFolder.pm_action; var add, remove, toAdd = {length: #}, toRemove = {length: #}; if (theSelect.childNodes.length == #) return; // This is done this way for internationalization reasons. if (!('-#' in allLabels)) { for (var o = #; o < theSelect.options.length; o++) if (theSelect.options[o].value.substr(#, #) == "rem_") allLabels[theSelect.options[o].value.substr(#)] = theSelect.options[o].text; } for (var i = #; i < listing.length; i++) { if (listing[i].name != "pms[]" || !listing[i].checked) continue; var alreadyThere = [], x; for (x in currentLabels[listing[i].value]) { if (!(x in toRemove)) { toRemove[x] = allLabels[x]; toRemove.length++; } alreadyThere[x] = allLabels[x]; } for (x in allLabels) { if (!(x in alreadyThere)) { toAdd[x] = allLabels[x]; toAdd.length++; } } } while (theSelect.options.length > #) theSelect.options[#] = null; if (toAdd.length != #) { theSelect.options[theSelect.options.length] = new Option("Add label", ""); setInnerHTML(theSelect.options[theSelect.options.length - #], "Add label"); theSelect.options[theSelect.options.length - #].disabled = true; for (i in toAdd) { if (i != "length") theSelect.options[theSelect.options.length] = new Option(toAdd[i], "add_" + i); } } if (toRemove.length != #) { theSelect.options[theSelect.options.length] = new Option("Remove label", ""); setInnerHTML(theSelect.options[theSelect.options.length - #], "Remove label"); theSelect.options[theSelect.options.length - #].disabled = true; for (i in toRemove) { if (i != "length") theSelect.options[theSelect.options.length] = new Option(toRemove[i], "rem_" + i); } } }
+        form#pmFolder.flow_hidden [accept-charset="UTF-#" action="{boardurl}/index.php?action=pm;sa=pmactions;f=inbox;start=#" method="post" name="pmFolder"]
+          div.cat_bar
+            h3.catbg
+              "Inbox"
+          table.table_grid
+            thead
+              tr.title_bar
+                th.centercol.pm_icon.table_icon
+                  a [href="{boardurl}/index.php?action=pm;view;f=inbox;start=#;sort=date"]
+                    span.main_icons.switch [title="Change view"]
+                th.lefttext.pm_time.quarter_table
+                  a [href="{boardurl}/index.php?action=pm;f=inbox;start=#;sort=date;desc"]
+                    "Date"
+                    span.main_icons.sort_up
+                th.half_table.lefttext.pm_subject
+                  a [href="{boardurl}/index.php?action=pm;f=inbox;start=#;sort=subject"]
+                    "Subject"
+                th.lefttext.pm_from_to
+                  a [href="{boardurl}/index.php?action=pm;f=inbox;start=#;sort=name"]
+                    "From"
+                th.centercol.pm_moderation.table_icon
+                  input [onclick="invertAll(this, this.form);" type="checkbox"]
+            tbody
+              tr.windowbg
+                td.pm_icon.table_icon
+                  script
+                    | currentLabels[#] = { "-#": "Inbox" };
+                  span.im_off.main_icons [title="Read"]
+                td.pm_time
+                  "{date}"
+                td.pm_subject
+                  a [href="#msg#"]
+                    "Snapshot message"
+                td.pm_from_to
+                  a [href="{boardurl}/index.php?action=profile;u=#" title="View the profile of {member}"]
+                    "{member}"
+                td.centercol.pm_moderation.table_icon
+                  input#deletelisting# [name="pms[]" onclick="if (document.getElementById('deletedisplay#')) document.getElementById('deletedisplay#').checked = this.checked;" type="checkbox" value="#"]
+          div.pagesection
+            div.pagelinks
+              span.pages
+                "Pages"
+              span.current_page
+                "#"
+            div.floatright
+              select [name="pm_action" onchange="if (this.options[this.selectedIndex].value) this.form.submit();" onfocus="loadLabelChoices();"]
+                option [value]
+                  "Label selected..."
+                option [disabled value]
+                  "---------------"
+                option [disabled value]
+                  "Add label"
+                option [disabled value]
+                  "Remove label"
+                option [value="rem_-#"]
+                  "Inbox"
+              noscript
+                input.button [type="submit" value="Apply"]
+              input.button.you_sure [data-confirm="Are you sure you want to delete all selected personal messages?" name="del_selected" type="submit" value="Remove selected"]
+          div.clear_right
+            br
+          div#msg#.windowbg
+            div.post_wrapper
+              div.poster
+                h4
+                  a [href="{boardurl}/index.php?action=profile;u=#" title="View the profile of {member}"]
+                    "{member}"
+                ul.user_info
+                  li.avatar
+                    a [href="{boardurl}/index.php?action=profile;u=#"]
+                      img.avatar [alt src="{boardurl}/avatars/default.png"]
+                  li.icons
+                    img [alt="*" src="{boardurl}/Themes/default/images/membericons/icon.png"]
+                  li.postgroup
+                    "{text}"
+                  li.postcount
+                    "Posts: #"
+                  li.blurb
+                    "Personal text for {member}"
+                  li.poster_ip
+                    a.help [href="{boardurl}/index.php?action=helpadmin;help=see_member_ip" onclick="return reqOverlayDiv(this.href);"]
+                      "Logged"
+                  li.profile
+                    ol.profile_icons
+                      li
+                        a [href="{boardurl}/index.php?action=profile;u=#" title="View profile"]
+                          span.main_icons.members
+                      li
+                        a [href="https://www.example.com" rel="noopener" target="_blank" title="Example"]
+                          span.centericon.main_icons.www [title="Example"]
+                      li
+                        a [href="{boardurl}/index.php?action=pm;sa=send;u=#" title="Personal Message (Offline)"]
+                          span.centericon.im_off.main_icons [title="Personal Message (Offline)"]
+              div.postarea
+                div.keyinfo
+                  div#subject_#.subject_title
+                    h5
+                      "Snapshot message"
+                  div.postinfo
+                    span.smalltext
+                      "Sent to"
+                      a [href="{boardurl}/index.php?action=profile;u=#"]
+                        "{member}"
+                      "and"
+                      a [href="{boardurl}/index.php?action=profile;u=#"]
+                        "{member}"
+                      "on {date}"
+                div.post
+                  div#msg_#.inner
+                    "A personal message to two people."
+                div.under_message
+                  div.floatleft.labels
+                    select [name="pm_actions[#]" onchange="if (this.options[this.selectedIndex].value) form.submit();"]
+                      option [value]
+                        "Label message..."
+                      option [disabled value]
+                        "---------------"
+                    noscript
+                      input.button [type="submit" value="Apply"]
+                  ul.quickbuttons.quickbuttons_pm
+                    li
+                      a [href="{boardurl}/index.php?action=pm;sa=send;f=inbox;pmsg=#;quote;u=all"]
+                        span.main_icons.reply_all_button
+                        "Reply to All"
+                    li
+                      a [href="{boardurl}/index.php?action=pm;sa=send;f=inbox;pmsg=#;u=#"]
+                        span.main_icons.reply_button
+                        "Reply"
+                    li
+                      a [href="{boardurl}/index.php?action=pm;sa=send;f=inbox;pmsg=#;quote;u=all"]
+                        span.main_icons.quote
+                        "Quote"
+                    li.you_sure
+                      a [data-confirm="'Remove this post?'" href="{boardurl}/index.php?action=pm;sa=pmactions;pm_actions%#b#%#D=delete;f=inbox;start=#;{session_var}={session_id}"]
+                        span.main_icons.remove_button
+                        "Delete"
+                    li.inline_mod_check
+                      input#deletedisplay# [name="pms[]" onclick="document.getElementById('deletelisting#').checked = this.checked;" type="checkbox" value="#"]
+              div.moderatorbar
+                div.signature
+                  "A signature with"
+                  strong
+                    "bold"
+                  "text."
+          div.pagesection
+            div.pagelinks
+              span.pages
+                "Pages"
+              span.current_page
+                "#"
+            div.floatright
+              input.button.you_sure [data-confirm="Are you sure you want to delete all selected personal messages?" name="del_selected" type="submit" value="Remove selected"]
+          br
+          input [name="{session_var}" type="hidden" value="{session_id}"]

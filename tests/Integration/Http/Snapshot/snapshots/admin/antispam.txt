@@ -1,0 +1,251 @@
+status 200
+@ title
+title
+  "Anti-Spam"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=antispam;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Anti-Spam"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      "Anti-Spam"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "This section allows you to setup verification checks to ensure the user is a human (and not a bot), and tweak how and where these apply."
+  form#admin_form_wrapper [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=antispam;save" method="post"]
+    div.cat_bar
+      h3.catbg
+        "Anti-Spam Verification"
+    div.noup.windowbg
+      dl.settings
+        dt
+          a#setting_reg_verification
+          span
+            label [for="reg_verification"]
+              "Require verification on registration page"
+        dd
+          input#reg_verification [checked name="reg_verification" type="checkbox" value="#"]
+        dt
+          a#setting_search_enable_captcha
+          span
+            label [for="search_enable_captcha"]
+              "Require verification on all guest searches"
+        dd
+          input#search_enable_captcha [name="search_enable_captcha" type="checkbox" value="#"]
+        dt
+          a#setting_guests_require_captcha
+          span
+            label [for="guests_require_captcha"]
+              "Guests must pass verification when making a post"
+            br
+            span.smalltext
+              "(Automatically set if you specify a minimum post count below)"
+        dd
+          input#guests_require_captcha [name="guests_require_captcha" type="checkbox" value="#"]
+        dt
+          a#setting_posts_require_captcha_help [href="{boardurl}/index.php?action=helpadmin;help=posts_require_captcha" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_posts_require_captcha
+          span
+            label [for="posts_require_captcha"]
+              "Post count under which users must pass verification to make a post"
+            br
+            span.smalltext
+              "(# for(s) no limit, moderators are exempt)"
+        dd
+          input#posts_require_captcha [min="-#" name="posts_require_captcha" onchange="if (this.value > #){ document.getElementById('guests_require_captcha').checked = true; document.getElementById('guests_require_captcha').disabled = true;} else {document.getElementById('guests_require_captcha').disabled = false;}" size="#" type="number" value="#"]
+      hr
+      dl.settings
+        dt
+          a#setting_max_pm_recipients_help [href="{boardurl}/index.php?action=helpadmin;help=max_pm_recipients" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_max_pm_recipients
+          span
+            label [for="max_pm_recipients"]
+              "Maximum number of recipients allowed in a personal message"
+            br
+            span.smalltext
+              "(# for(s) no limit, admins are exempt)"
+        dd
+          input#max_pm_recipients [min="#" name="max_pm_recipients" size="#" type="number" value="#"]
+        dt
+          a#setting_pm_posts_verification_help [href="{boardurl}/index.php?action=helpadmin;help=pm_posts_verification" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_pm_posts_verification
+          span
+            label [for="pm_posts_verification"]
+              "Post count under which users must pass verification when sending personal messages"
+            br
+            span.smalltext
+              "(# for(s) no limit, admins are exempt)"
+        dd
+          input#pm_posts_verification [min="#" name="pm_posts_verification" size="#" type="number" value="#"]
+        dt
+          a#setting_pm_posts_per_hour_help [href="{boardurl}/index.php?action=helpadmin;help=pm_posts_per_hour" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_pm_posts_per_hour
+          span
+            label [for="pm_posts_per_hour"]
+              "Number of personal messages a user may send in an hour"
+            br
+            span.smalltext
+              "(# for(s) no limit, moderators are exempt)"
+        dd
+          input#pm_posts_per_hour [min="#" name="pm_posts_per_hour" size="#" type="number" value="#"]
+    div.cat_bar
+      h3.catbg
+        "Configure Verification methods"
+    div.information.noup
+      span.smalltext
+        "Below you can set which anti-spam features you wish to have enabled whenever a user needs to verify they are a human. Note that the user will have to pass"
+        em
+          "all"
+        "verification so if you enable both a verification image and a question/answer test they need to complete both to proceed."
+    div.noup.windowbg
+      dl.settings
+        dt
+          a#setting_visual_verification_type
+          span
+            label [for="visual_verification_type"]
+              "Visual verification image to display"
+            br
+            span.smalltext
+              "The more complex the image the harder it is for bots to bypass"
+        dd
+          select#visual_verification_type [name="visual_verification_type" onchange="refreshImages();" size="#"]
+            option [value="#"]
+              "None"
+            option [value="#"]
+              "Very Simple - Plain text on image"
+            option [value="#"]
+              "Simple - Overlapping colored letters, no noise"
+            option [selected value="#"]
+              "Medium - Overlapping colored letters, with noise/lines"
+            option [value="#"]
+              "High - Angled letters, considerable noise/lines"
+            option [value="#"]
+              "Extreme - Angled letters, noise, lines and blocks"
+          br
+          img#verification_image [alt="Sample" src="{boardurl}/index.php?action=verificationcode;rand={hash};type=#"]
+          br
+    div.cat_bar
+      h3.catbg
+        "reCAPTCHA Verification System"
+    div.information.noup
+      "Configure the reCAPTCHA Verification System. Don’t have a key for reCAPTCHA?"
+      a [href="https://www.google.com/recaptcha/admin"]
+        "Get your reCAPTCHA key here"
+      "."
+    div.noup.windowbg
+      dl.settings
+        dt
+          a#setting_recaptcha_enabled
+          span
+            label [for="recaptcha_enabled"]
+              "Use reCAPTCHA Verification System"
+            br
+            span.smalltext
+              "This augments the built-in visual verification"
+        dd
+          input#recaptcha_enabled [name="recaptcha_enabled" type="checkbox" value="#"]
+        dt
+          a#setting_recaptcha_site_key
+          span
+            label [for="recaptcha_site_key"]
+              "Site Key"
+            br
+            span.smalltext
+              "This will be set in the HTML code your site serves to users."
+        dd
+          input#recaptcha_site_key [name="recaptcha_site_key" type="text" value]
+        dt
+          a#setting_recaptcha_secret_key
+          span
+            label [for="recaptcha_secret_key"]
+              "Secret Key"
+            br
+            span.smalltext
+              "This is for communication between your site and Google. Be sure to keep it a secret."
+        dd
+          input#recaptcha_secret_key [name="recaptcha_secret_key" type="text" value]
+        dt
+          a#setting_recaptcha_theme
+          span
+            label [for="recaptcha_theme"]
+              "reCAPTCHA Theme"
+        dd
+          select#recaptcha_theme [name="recaptcha_theme" size="#"]
+            option [value="light"]
+              "Light"
+            option [value="dark"]
+              "Dark"
+    div.cat_bar
+      h3.catbg
+        "Verification Questions"
+    div.information.noup
+      span.smalltext
+        "If you want users to answer verification questions in order to stop spam bots, you should setup a number of questions in the table below. You should choose questions which relate to the subject of your forum. Genuine users will be able to answer these questions, while spam bots will not. Answers are not case sensitive. You may use BBC in the questions for formatting. To remove a question simply delete the contents of that line."
+    div.noup.windowbg
+      dl.settings
+        dt
+          a#setting_qa_verification_number
+          span
+            label [for="qa_verification_number"]
+              "Number of verification questions user must answer"
+            br
+            span.smalltext
+              "(# to(s) disable; questions are set below)"
+        dd
+          input#qa_verification_number [min="#" name="qa_verification_number" size="#" type="number" value="#"]
+        dt#qa_dt_en_US.qa_link
+          a [href="javascript:void(#);"]
+            "[ English (US) ]"
+        fieldset#qa_fs_en_US.qa_fieldset
+          legend
+            a [href="javascript:void(#);"]
+              "English (US)"
+          dl.settings
+            dt
+              strong
+                "Question"
+            dd
+              strong
+                "Answer"
+            dt.qa_add_question
+              a [href="javascript:void(#);"]
+                "[ Add another question ]"
+      input.button [type="submit" value="Save"]
+    input [name="{token_var}" type="hidden" value="{hash}"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]
+  script
+    | function refreshImages() { var imageType = document.getElementById('visual_verification_type').value; document.getElementById('verification_image').src = '{boardurl}/index.php?action=verificationcode;rand={hash};type=' + imageType; }

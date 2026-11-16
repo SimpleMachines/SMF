@@ -1,0 +1,240 @@
+status 200
+@ title
+title
+  "Topic Settings"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=postsettings;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Posts and Topics"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=postsettings;sa=topics;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Topic Settings"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      a.help [href="{boardurl}/index.php?action=helpadmin;help=posts_and_topics" onclick="return reqOverlayDiv(this.href);"]
+        span.help.main_icons [title="Help"]
+      "Manage Posts and Topics"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "Here you can set all settings involving topics."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Manage Posts and Topics Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Manage Posts and Topics Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a [href="{boardurl}/index.php?action=admin;area=postsettings;sa=posts;{session_var}={session_id}"]
+                "Post Settings"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=postsettings;sa=censor;{session_var}={session_id}"]
+                "Censored Words"
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=postsettings;sa=topics;{session_var}={session_id}"]
+                "Topic Settings"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=postsettings;sa=drafts;{session_var}={session_id}"]
+                "Drafts"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  form#admin_form_wrapper [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=postsettings;save;sa=topics" method="post"]
+    div.cat_bar
+      h3.catbg
+        "Topic Settings"
+    div.noup.windowbg
+      dl.settings
+        dt
+          a#setting_enableParticipation_help [href="{boardurl}/index.php?action=helpadmin;help=enableParticipation" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_enableParticipation
+          span
+            label [for="enableParticipation"]
+              "Enable participation icons"
+        dd
+          input#enableParticipation [checked name="enableParticipation" type="checkbox" value="#"]
+      hr
+      dl.settings
+        dt
+          a#setting_oldTopicDays_help [href="{boardurl}/index.php?action=helpadmin;help=oldTopicDays" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_oldTopicDays
+          span
+            label [for="oldTopicDays"]
+              "Time before topic is warned as old on reply"
+            br
+            span.smalltext
+              "(Set to # to(s) disable.)"
+        dd
+          input#oldTopicDays [min="#" name="oldTopicDays" size="#" type="number" value="#"]
+          "days"
+        dt
+          a#setting_defaultMaxTopics
+          span
+            label [for="defaultMaxTopics"]
+              "Number of topics per page in the message index"
+        dd
+          input#defaultMaxTopics [min="#" name="defaultMaxTopics" size="#" type="number" value="#"]
+          "topics"
+        dt
+          a#setting_defaultMaxMessages
+          span
+            label [for="defaultMaxMessages"]
+              "Number of posts per page in a topic page"
+        dd
+          input#defaultMaxMessages [min="#" name="defaultMaxMessages" size="#" type="number" value="#"]
+          "posts"
+        dt
+          a#setting_disable_print_topic
+          span
+            label [for="disable_print_topic"]
+              "Disable print topic feature"
+        dd
+          input#disable_print_topic [name="disable_print_topic" type="checkbox" value="#"]
+      hr
+      dl.settings
+        dt
+          a#setting_enableAllMessages_help [href="{boardurl}/index.php?action=helpadmin;help=enableAllMessages" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_enableAllMessages
+          span
+            label [for="enableAllMessages"]
+              "Max topic size to show \"All\" posts"
+            br
+            span.smalltext
+              "# to(s) never show \"All\""
+        dd
+          input#enableAllMessages [min="#" name="enableAllMessages" size="#" type="number" value="#"]
+          "posts"
+        dt
+          a#setting_disableCustomPerPage_help [href="{boardurl}/index.php?action=helpadmin;help=disableCustomPerPage" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_disableCustomPerPage
+          span
+            label [for="disableCustomPerPage"]
+              "Disable user defined topic/message count per page"
+        dd
+          input#disableCustomPerPage [name="disableCustomPerPage" type="checkbox" value="#"]
+        dt
+          a#setting_enablePreviousNext_help [href="{boardurl}/index.php?action=helpadmin;help=enablePreviousNext" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_enablePreviousNext
+          span
+            label [for="enablePreviousNext"]
+              "Enable previous/next topic links"
+        dd
+          input#enablePreviousNext [checked name="enablePreviousNext" type="checkbox" value="#"]
+      hr
+      dl.settings
+        dt
+          a#setting_subject_toggle
+          span
+            label [for="subject_toggle"]
+              "Show subjects in topics."
+        dd
+          input#subject_toggle [name="subject_toggle" type="checkbox" value="#"]
+        dt
+          a#setting_show_modify
+          span
+            label [for="show_modify"]
+              "Show last modification date on modified posts"
+        dd
+          input#show_modify [checked name="show_modify" type="checkbox" value="#"]
+        dt
+          a#setting_show_profile_buttons
+          span
+            label [for="show_profile_buttons"]
+              "Show view profile button under post"
+        dd
+          input#show_profile_buttons [checked name="show_profile_buttons" type="checkbox" value="#"]
+        dt
+          a#setting_show_user_images
+          span
+            label [for="show_user_images"]
+              "Show user avatars in message view"
+        dd
+          input#show_user_images [checked name="show_user_images" type="checkbox" value="#"]
+        dt
+          a#setting_show_blurb
+          span
+            label [for="show_blurb"]
+              "Show personal text in message view"
+        dd
+          input#show_blurb [checked name="show_blurb" type="checkbox" value="#"]
+        dt
+          a#setting_hide_post_group
+          span
+            label [for="hide_post_group"]
+              "Hide post group titles for grouped members"
+            br
+            span.smalltext
+              "Enabling this will not display a member’s post group title on the message view if they are assigned to a non-post based group."
+        dd
+          input#hide_post_group [name="hide_post_group" type="checkbox" value="#"]
+      hr
+      dl.settings
+        dt
+          a#setting_preview_characters_help [href="{boardurl}/index.php?action=helpadmin;help=preview_characters" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_preview_characters
+          span
+            label [for="preview_characters"]
+              "Maximum length of last/first post preview"
+            br
+            span.smalltext
+              "(Set to # to(s) disable.)"
+        dd
+          input#preview_characters [min="#" name="preview_characters" size="#" type="number" value="#"]
+          "characters"
+        dt
+          a#setting_message_index_preview_first
+          span
+            label [for="message_index_preview_first"]
+              "When using post previews, show the text of the first post"
+            br
+            span.smalltext
+              "Leave unchecked to show the text of the last post instead"
+        dd
+          input#message_index_preview_first [name="message_index_preview_first" type="checkbox" value="#"]
+      input.button [type="submit" value="Save"]
+    input [name="{token_var}" type="hidden" value="{hash}"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]

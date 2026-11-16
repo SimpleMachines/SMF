@@ -1,0 +1,193 @@
+status 200
+@ title
+title
+  "Registration"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=regcenter;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Registration"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=regcenter;sa=settings;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Settings"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      a.help [href="{boardurl}/index.php?action=helpadmin;help=registrations" onclick="return reqOverlayDiv(this.href);"]
+        span.help.main_icons [title="Help"]
+      "Registration"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "Here you can change a variety of settings related to registration of new members."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Registration Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Registration Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a [href="{boardurl}/index.php?action=admin;area=regcenter;sa=register;{session_var}={session_id}"]
+                "Register new member"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=regcenter;sa=agreement;{session_var}={session_id}"]
+                "Registration Agreement"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=regcenter;sa=policy;{session_var}={session_id}"]
+                "Privacy Policy"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=regcenter;sa=reservednames;{session_var}={session_id}"]
+                "Set reserved names"
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=regcenter;sa=settings;{session_var}={session_id}"]
+                "Settings"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  form#admin_form_wrapper [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=regcenter;save;sa=settings" method="post"]
+    div.cat_bar
+      h3.catbg
+        "Settings"
+    div.noup.windowbg
+      dl.settings
+        dt
+          a#setting_registration_method_help [href="{boardurl}/index.php?action=helpadmin;help=registration_method" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_registration_method
+          span
+            label [for="registration_method"]
+              "Method of registration employed for new members"
+        dd
+          select#registration_method [name="registration_method" size="#"]
+            option [value="#"]
+              "Immediate Registration"
+            option [value="#"]
+              "Email Activation"
+            option [value="#"]
+              "Admin Approval"
+            option [value="#"]
+              "Registration Disabled"
+        dt
+          a#setting_send_welcomeEmail_help [href="{boardurl}/index.php?action=helpadmin;help=send_welcomeEmail" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_send_welcomeEmail
+          span
+            label [for="send_welcomeEmail"]
+              "Send welcome email to new members"
+        dd
+          input#send_welcomeEmail [checked name="send_welcomeEmail" type="checkbox" value="#"]
+      hr
+      dl.settings
+        dt
+          a#setting_requireAgreement_help [href="{boardurl}/index.php?action=helpadmin;help=requireAgreement" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_requireAgreement
+          span
+            label [for="requireAgreement"]
+              "Require new members to accept the registration agreement"
+        dd
+          input#requireAgreement [checked name="requireAgreement" type="checkbox" value="#"]
+        dt
+          a#setting_requirePolicyAgreement_help [href="{boardurl}/index.php?action=helpadmin;help=requirePolicyAgreement" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_requirePolicyAgreement
+          span
+            label [for="requirePolicyAgreement"]
+              "Require new members to accept the privacy policy"
+        dd
+          input#requirePolicyAgreement [name="requirePolicyAgreement" type="checkbox" value="#"]
+        dd.alert
+      hr
+      dl.settings
+        dt
+          a#setting_coppaAge_help [href="{boardurl}/index.php?action=helpadmin;help=coppaAge" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_coppaAge
+          span
+            label [for="coppaAge"]
+              "Age below which to apply registration restrictions"
+            br
+            span.smalltext
+              "(Set to # to(s) disable.)"
+        dd
+          input#coppaAge [min="#" name="coppaAge" onchange="checkCoppa();" size="#" type="number" value="#"]
+        dt
+          a#setting_coppaType_help [href="{boardurl}/index.php?action=helpadmin;help=coppaType" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_coppaType
+          span
+            label [for="coppaType"]
+              "Action to take when a user below minimum age registers"
+        dd
+          select#coppaType [name="coppaType" onchange="checkCoppa();" size="#"]
+            option [value="#"]
+              "Reject their registration"
+            option [value="#"]
+              "Require parent/guardian approval"
+        dt
+          a#setting_coppaPost_help [href="{boardurl}/index.php?action=helpadmin;help=coppaPost" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_coppaPost
+          span
+            label [for="coppaPost"]
+              "Postal address to which approval forms should be sent"
+            br
+            span.smalltext
+              "Only applies if age restriction is in place"
+        dd
+          textarea#coppaPost [cols="#" name="coppaPost" rows="#"]
+        dt
+          a#setting_coppaFax
+          span
+            label [for="coppaFax"]
+              "Fax number to which approval forms should be faxed"
+        dd
+          input#coppaFax [name="coppaFax" type="text" value]
+        dt
+          a#setting_coppaPhone
+          span
+            label [for="coppaPhone"]
+              "Contact number for parents to contact with age restriction queries"
+        dd
+          input#coppaPhone [name="coppaPhone" type="text" value]
+      input.button [type="submit" value="Save"]
+    input [name="{token_var}" type="hidden" value="{hash}"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]
+  script
+    | function checkCoppa() { var coppaDisabled = document.getElementById('coppaAge').value == #; document.getElementById('coppaType').disabled = coppaDisabled; var disableContacts = coppaDisabled || document.getElementById('coppaType').options[document.getElementById('coppaType').selectedIndex].value != #; document.getElementById('coppaPost').disabled = disableContacts; document.getElementById('coppaFax').disabled = disableContacts; document.getElementById('coppaPhone').disabled = disableContacts; } checkCoppa();

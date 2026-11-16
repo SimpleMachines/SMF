@@ -1,0 +1,195 @@
+status 200
+@ title
+title
+  "Mail"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=mailqueue;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Mail"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=mailqueue;sa=settings;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Settings"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      "Mail"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "From this page you can configure your mail settings, as well as view and administer the current mail queue."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Mail Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Mail Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a [href="{boardurl}/index.php?action=admin;area=mailqueue;sa=browse;{session_var}={session_id}"]
+                "Browse Queue"
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=mailqueue;sa=settings;{session_var}={session_id}"]
+                "Settings"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=mailqueue;sa=test;{session_var}={session_id}"]
+                "Send Test"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  script
+    | var bDay = { happy_birthday: { subject: 'Happy birthday from {FORUMNAME}.', body: 'Dear {REALNAME},<br />\n<br />\nWe here at {FORUMNAME} would like to wish you a happy birthday. May this day and the year to follow be full of joy.<br />\n<br />\n{REGARDS}' }, karlbenson#: { subject: 'On your Birthday...', body: 'We could have sent you a birthday card. We could have sent you some flowers or a cake.<br />\n<br />\nBut we didn’t.<br />\n<br />\nWe could have even sent you one of those automatically generated messages to wish you happy birthday where we don’t even have to replace INSERT NAME.<br />\n<br />\nBut we didn’t.<br />\n<br />\nWe wrote this birthday greeting just for you.<br />\n<br />\nWe would like to wish you a very special birthday.<br />\n<br />\n{REGARDS}<br />\n<br />\n//:: This message was automatically generated :://' }, nite#: { subject: 'Happy Birthday!', body: 'Your friends at {FORUMNAME} would like to take a moment of your time to wish you a happy birthday, {REALNAME}. If you have not done so recently, please visit our community in order for others to have the opportunity to pass along their warm regards.<br />\n<br />\nEven though today is your birthday, {REALNAME}, we would like to remind you that your membership in our community has been the best gift to us thus far.<br />\n<br />\nBest Wishes,<br />\nThe Staff of {FORUMNAME}' }, zwaldowski: { subject: 'Birthday Wishes to {REALNAME}', body: 'Dear {REALNAME},<br />\n<br />\nAnother year in your life has passed. We at {FORUMNAME} hope it has been filled with happiness, and wish you luck in the coming one.<br />\n<br />\n{REGARDS}' }, geezmo: { subject: 'Happy birthday, {REALNAME}!', body: 'Do you know who’s having a birthday today, {REALNAME}?<br />\n<br />\nWe know... YOU!<br />\n<br />\nHappy birthday!<br />\n<br />\nYou’re now a year older but we hope you’re a lot happier than last year.<br />\n<br />\nEnjoy your day today, {REALNAME}!<br />\n<br />\n- From your {FORUMNAME} family' }, karlbenson#: { subject: 'Your Birthday Greeting', body: 'We hope your birthday is the best ever; cloudy, sunny or whatever the weather.<br />\nHave lots of birthday cake and fun, and tell us what you have done.<br />\n<br />\nWe hope this message brought you cheer, and make it last, until same time same place, next year.<br />\n<br />\n{REGARDS}' } }; function fetch_birthday_preview() { var index = document.getElementById('birthday_email').value; document.getElementById('birthday_subject').innerHTML = bDay[index].subject; document.getElementById('birthday_body').innerHTML = bDay[index].body; }
+  form#admin_form_wrapper [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=mailqueue;save;sa=settings" method="post"]
+    div.cat_bar
+      h3.catbg
+        "Settings"
+    div.noup.windowbg
+      dl.settings
+        dt
+          a#setting_mail_limit
+          span
+            label [for="mail_limit"]
+              "Maximum emails to send per minute"
+            br
+            span.smalltext
+              "(Set to # to(s) disable.)"
+        dd
+          input#mail_limit [min="#" name="mail_limit" size="#" type="number" value="#"]
+        dt
+          a#setting_mail_quantity
+          span
+            label [for="mail_quantity"]
+              "Maximum amount of emails to send per page load"
+        dd
+          input#mail_quantity [min="#" name="mail_quantity" size="#" type="number" value="#"]
+      hr
+      dl.settings
+        dt
+          a#setting_birthday_email_help [href="{boardurl}/index.php?action=helpadmin;help=birthday_email" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_birthday_email
+          span
+            label [for="birthday_email"]
+              "Birthday message to use"
+        dd
+          select#birthday_email [name="birthday_email" onchange="fetch_birthday_preview()" size="#"]
+            option [value="happy_birthday"]
+              "happy_birthday"
+            option [value="karlbenson#"]
+              "karlbenson#"
+            option [value="nite#"]
+              "nite#"
+            option [value="zwaldowski"]
+              "zwaldowski"
+            option [value="geezmo"]
+              "geezmo"
+            option [value="karlbenson#"]
+              "karlbenson#"
+        dt
+          a#setting_birthday_subject
+          span [style="color: ##;"]
+            label [for="birthday_subject"]
+              "Email subject"
+        dd
+          div#birthday_subject
+            "Happy birthday from {FORUMNAME}."
+        dt
+          a#setting_birthday_body
+          span [style="color: ##;"]
+            label [for="birthday_body"]
+              "Email body"
+        dd
+          div#birthday_body
+            "Dear {REALNAME},"
+            br
+            "We here at {FORUMNAME} would like to wish you a happy birthday. May this day and the year to follow be full of joy."
+            br
+            "{REGARDS}"
+      hr
+      dl.settings
+        dt
+          a#setting_mail_type_help [href="{boardurl}/index.php?action=helpadmin;help=mail_type" onclick="return reqOverlayDiv(this.href);"]
+            span.help.main_icons [title="Help"]
+          a#setting_mail_type
+          span
+            label [for="mail_type"]
+              "Mail type"
+        dd
+          select#mail_type [name="mail_type" size="#"]
+            option [value="SMTP"]
+              "SMTP"
+            option [value="SMTPTLS"]
+              "SMTPTLS"
+            option [selected value="SendMail"]
+              "SendMail"
+        dt
+          a#setting_smtp_host
+          span
+            label [for="smtp_host"]
+              "SMTP server"
+        dd
+          input#smtp_host [name="smtp_host" type="text" value]
+        dt
+          a#setting_smtp_port
+          span
+            label [for="smtp_port"]
+              "SMTP port"
+        dd
+          input#smtp_port [name="smtp_port" type="text" value="#"]
+        dt
+          a#setting_smtp_username
+          span
+            label [for="smtp_username"]
+              "SMTP username"
+        dd
+          input#smtp_username [name="smtp_username" type="text" value]
+        dt
+          a#setting_smtp_password
+          span
+            label [for="smtp_password"]
+              "SMTP password"
+            br
+            em
+              "(confirm)"
+        dd
+          input [name="smtp_password[#]" onfocus="this.value = ''; this.form.smtp_password.disabled = false;" type="password" value="*#fakepass#*"]
+          br
+          input#smtp_password [disabled name="smtp_password[#]" type="password"]
+      input.button [type="submit" value="Save"]
+    input [name="{token_var}" type="hidden" value="{hash}"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]

@@ -1,0 +1,126 @@
+status 200
+@ title
+title
+  "Edit Poll"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php#c#" itemprop="item"]
+        span [itemprop="name"]
+          "Snapshot fixtures"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?board=#" itemprop="item"]
+        span [itemprop="name"]
+          "{board}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?topic=#" itemprop="item"]
+        span [itemprop="name"]
+          "{subject}"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      span [itemprop="name"]
+        "Edit Poll"
+      meta [content="#" itemprop="position"]
+@ #content_section
+div#content_section
+  main#main_content_section
+    div#edit_poll
+      form#postmodify [accept-charset="UTF-#" action="{boardurl}/index.php?action=editpoll#;topic=#" method="post" name="postmodify" onsubmit="submitonce(this);"]
+        div.cat_bar
+          h3.catbg
+            "Edit Poll"
+        div
+          div.noup.roundframe
+            input [name="poll" type="hidden" value="#"]
+            fieldset#poll_main
+              legend
+                span
+                  "Question"
+              dl#poll_choices.poll_options.settings [data-more-txt="Add Option" data-option-txt="Option #"]
+                dt
+                  "Question"
+                dd
+                  input [name="question" size="#" type="text" value="Which colour?"]
+                dt
+                  label [for="options-#"]
+                    "Option #"
+                dd
+                  input#options-# [maxlength="#" name="options[#]" size="#" type="text" value="Red"]
+                  "(# vote(s))"
+                dt
+                  label [for="options-#"]
+                    "Option #"
+                dd
+                  input#options-# [maxlength="#" name="options[#]" size="#" type="text" value="Green"]
+                  "(# vote(s))"
+                dt
+                  label [for="options-#"]
+                    "Option #"
+                dd
+                  input#options-# [maxlength="#" name="options[#]" size="#" type="text" value="Blue"]
+                  "(# vote(s))"
+                dt
+                  label [for="options-#"]
+                    "Option #"
+                dd
+                  input#options-# [maxlength="#" name="options[#]" size="#" type="text" value]
+            fieldset#poll_options
+              legend
+                "Poll Options"
+              dl.poll_options.settings
+                dt
+                  label [for="poll_max_votes"]
+                    "Maximum votes per user"
+                dd
+                  input#poll_max_votes [min="#" name="poll_max_votes" type="number" value="#"]
+                dt
+                  label [for="poll_expire"]
+                    "Number of days to run the poll"
+                  br
+                  em.smalltext
+                    "(# for(s) no limit)"
+                dd
+                  input#poll_expire [max="#" min="#" name="poll_expire" type="number" value="#"]
+                dt
+                  label [for="poll_change_vote"]
+                    "Allow users to change vote"
+                dd
+                  input#poll_change_vote [name="poll_change_vote" type="checkbox"]
+                dt
+                  "Result visibility"
+                dd
+                  input#poll_results_anyone [checked name="poll_hide" type="radio" value="#"]
+                  label [for="poll_results_anyone"]
+                    "Show the poll’s results to anyone."
+                  br
+                  input#poll_results_voted [name="poll_hide" type="radio" value="#"]
+                  label [for="poll_results_voted"]
+                    "Only show the results after someone has voted."
+                  br
+                  input#poll_results_expire [disabled name="poll_hide" type="radio" value="#"]
+                  label [for="poll_results_expire"]
+                    "Only show the results after the poll has expired."
+            fieldset#poll_reset
+              legend
+                "Reset vote count"
+              input [name="resetVoteCount" type="checkbox" value="on"]
+              "Check this if you want to reset all vote counts to #."
+            input.button [accesskey="s" name="post" onclick="return submitThisOnce(this);" type="submit" value="Save"]
+        input [name="seqnum" type="hidden" value="#"]
+        input [name="{session_var}" type="hidden" value="{session_id}"]

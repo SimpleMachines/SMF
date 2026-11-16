@@ -1,0 +1,41 @@
+status 200
+@ head
+head
+@ body
+body
+  div.login
+    div.cat_bar
+      h3.catbg
+        span.login.main_icons
+        "Log in"
+    div.roundframe
+      form#frmLogin.login [accept-charset="UTF-#" action="{boardurl}/index.php?action=login#" method="post" name="frmLogin"]
+        dl
+          dt
+            "Username"
+          dd
+            input#loginuser [name="user" required size="#" type="text" value]
+          dt
+            "Password"
+          dd
+            input#loginpass [name="passwrd" required size="#" type="password" value]
+        dl
+          dt
+          dd
+            label
+              input [name="cookieneverexp" type="checkbox"]
+              "Remember me"
+        p
+          input.button [type="submit" value="Log in"]
+        p.smalltext
+          a [href="{boardurl}/index.php?action=reminder"]
+            "Forgot your password?"
+        input [name="{token_var}" type="hidden" value="{hash}"]
+        script
+          | setTimeout(function() { document.getElementById("loginuser").focus(); }, #);
+      hr
+      div.centertext
+        "Don’t have an account?"
+        a [href="{boardurl}/index.php?action=signup"]
+          "Sign up"
+        "."

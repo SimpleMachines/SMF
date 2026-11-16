@@ -1,0 +1,375 @@
+status 200
+@ title
+title
+  "Signature Settings"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=featuresettings;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Features and Options"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=sig;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Signatures"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  div.cat_bar
+    h3.catbg
+      a.help [href="{boardurl}/index.php?action=helpadmin;help=featuresettings" onclick="return reqOverlayDiv(this.href);"]
+        span.help.main_icons [title="Help"]
+      "Features and Options"
+    form.admin_search [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=search" method="post"]
+      span.centericon.filter.main_icons
+      input [name="search_term" placeholder="Quick Search" type="search"]
+      select [name="search_type"]
+        option [selected value="internal"]
+          "Task/Setting"
+        option [value="member"]
+          "Member"
+        option [value="online"]
+          "Online Manual"
+      input#search_go.button [name="search_go" type="submit" value="Go"]
+  p.information
+    "Use the settings on this page to decide how member signatures should be treated in SMF."
+  a.mobile_generic_menu_1_tabs
+    span.menu_icon
+    span.text_menu
+      "Features and Options Menu"
+  div#adm_submenus
+    div#mobile_generic_menu_#_tabs.popup_container
+      div.description.popup_window
+        div.popup_heading
+          "Features and Options Menu"
+          a.hide_popup.main_icons [href="javascript:void(#);"]
+        div.generic_menu
+          ul.dropdown_menu_1_tabs.dropmenu
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=basic;{session_var}={session_id}"]
+                "General"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=bbc;{session_var}={session_id}"]
+                "Bulletin Board Code & Markdown"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=layout;{session_var}={session_id}"]
+                "Layout"
+            li
+              a.active [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=sig;{session_var}={session_id}"]
+                "Signatures"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=profile;{session_var}={session_id}"]
+                "Profile Fields"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=likes;{session_var}={session_id}"]
+                "Likes"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=mentions;{session_var}={session_id}"]
+                "Mentions"
+            li
+              a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=alerts;{session_var}={session_id}"]
+                "Notifications"
+  script
+    | $( ".mobile_generic_menu_#_tabs" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).show(); }); $( ".hide_popup" ).click(function() { $( "#mobile_generic_menu_#_tabs" ).hide(); });
+  form#admin_form_wrapper [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=featuresettings;save;sa=sig" method="post"]
+    div.cat_bar
+      h3.catbg
+        "Signature Settings"
+    div.information.noup
+      div.centertext
+        "Note that settings are not applied to existing signatures by default."
+        a [href="{boardurl}/index.php?action=admin;area=featuresettings;sa=sig;apply;{session_var}={sessions_id}"]
+          "Apply changes now"
+    div.noup.windowbg
+      dl.settings
+        dt
+          a#setting_signature_enable
+          span
+            label [for="signature_enable"]
+              "Enable signatures"
+        dd
+          input#signature_enable [checked name="signature_enable" type="checkbox" value="#"]
+      hr
+      dl.settings
+        dt
+          a#setting_signature_max_length
+          span
+            label [for="signature_max_length"]
+              "Maximum allowed characters"
+            br
+            span.smalltext
+              "(# for(s) no limit)"
+        dd
+          input#signature_max_length [min="#" name="signature_max_length" size="#" type="number" value="#"]
+        dt
+          a#setting_signature_max_lines
+          span
+            label [for="signature_max_lines"]
+              "Maximum amount of lines"
+            br
+            span.smalltext
+              "(# for(s) no limit)"
+        dd
+          input#signature_max_lines [min="#" name="signature_max_lines" size="#" type="number" value="#"]
+        dt
+          a#setting_signature_max_font_size
+          span
+            label [for="signature_max_font_size"]
+              "Maximum font size allowed in signatures (pixels)"
+            br
+            span.smalltext
+              "(# for(s) no limit)"
+        dd
+          input#signature_max_font_size [min="#" name="signature_max_font_size" size="#" type="number" value="#"]
+        dt
+          a#setting_signature_allow_smileys
+          span
+            label [for="signature_allow_smileys"]
+              "Allow smileys in signatures"
+        dd
+          input#signature_allow_smileys [checked name="signature_allow_smileys" onclick="document.getElementById('signature_max_smileys').disabled = !this.checked;" type="checkbox" value="#"]
+        dt
+          a#setting_signature_max_smileys
+          span
+            label [for="signature_max_smileys"]
+              "Maximum smiley count"
+            br
+            span.smalltext
+              "(# for(s) no limit)"
+        dd
+          input#signature_max_smileys [min="#" name="signature_max_smileys" size="#" type="number" value="#"]
+      hr
+      dl.settings
+        dt
+          a#setting_signature_max_images
+          span
+            label [for="signature_max_images"]
+              "Maximum image count"
+            br
+            span.smalltext
+              "(# for(s) no max - excludes smileys)"
+        dd
+          input#signature_max_images [min="#" name="signature_max_images" size="#" type="number" value="#"]
+        dt
+          a#setting_signature_max_image_width
+          span
+            label [for="signature_max_image_width"]
+              "Maximum width of signature images (pixels)"
+            br
+            span.smalltext
+              "(# for(s) no limit)"
+        dd
+          input#signature_max_image_width [min="#" name="signature_max_image_width" size="#" type="number" value="#"]
+        dt
+          a#setting_signature_max_image_height
+          span
+            label [for="signature_max_image_height"]
+              "Maximum height of signature images (pixels)"
+            br
+            span.smalltext
+              "(# for(s) no limit)"
+        dd
+          input#signature_max_image_height [min="#" name="signature_max_image_height" size="#" type="number" value="#"]
+      hr
+      dl.settings
+        dt
+          a#setting_signature_bbc
+          span
+            label [for="signature_bbc"]
+              "Enabled BBC tags"
+        dd
+          fieldset#signature_bbc
+            legend
+              "Select the tags which are allowed to be used"
+            ul
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_abbr [checked name="signature_bbc_enabledTags[]" type="checkbox" value="abbr"]
+                label [for="tag_signature_bbc_abbr"]
+                  "abbr"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_anchor [checked name="signature_bbc_enabledTags[]" type="checkbox" value="anchor"]
+                label [for="tag_signature_bbc_anchor"]
+                  "anchor"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_attach [checked name="signature_bbc_enabledTags[]" type="checkbox" value="attach"]
+                label [for="tag_signature_bbc_attach"]
+                  "attach"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_b [checked name="signature_bbc_enabledTags[]" type="checkbox" value="b"]
+                label [for="tag_signature_bbc_b"]
+                  "b"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_br [checked name="signature_bbc_enabledTags[]" type="checkbox" value="br"]
+                label [for="tag_signature_bbc_br"]
+                  "br"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_center [checked name="signature_bbc_enabledTags[]" type="checkbox" value="center"]
+                label [for="tag_signature_bbc_center"]
+                  "center"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_code [checked name="signature_bbc_enabledTags[]" type="checkbox" value="code"]
+                label [for="tag_signature_bbc_code"]
+                  "code"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_color [checked name="signature_bbc_enabledTags[]" type="checkbox" value="color"]
+                label [for="tag_signature_bbc_color"]
+                  "color"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_details [checked name="signature_bbc_enabledTags[]" type="checkbox" value="details"]
+                label [for="tag_signature_bbc_details"]
+                  "details"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_email [checked name="signature_bbc_enabledTags[]" type="checkbox" value="email"]
+                label [for="tag_signature_bbc_email"]
+                  "email"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_float [checked name="signature_bbc_enabledTags[]" type="checkbox" value="float"]
+                label [for="tag_signature_bbc_float"]
+                  "float"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_font [checked name="signature_bbc_enabledTags[]" type="checkbox" value="font"]
+                label [for="tag_signature_bbc_font"]
+                  "font"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_h# [checked name="signature_bbc_enabledTags[]" type="checkbox" value="h#"]
+                label [for="tag_signature_bbc_h#"]
+                  "h#"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_html [checked name="signature_bbc_enabledTags[]" type="checkbox" value="html"]
+                label [for="tag_signature_bbc_html"]
+                  "html"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_hr [checked name="signature_bbc_enabledTags[]" type="checkbox" value="hr"]
+                label [for="tag_signature_bbc_hr"]
+                  "hr"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_i [checked name="signature_bbc_enabledTags[]" type="checkbox" value="i"]
+                label [for="tag_signature_bbc_i"]
+                  "i"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_img [checked name="signature_bbc_enabledTags[]" type="checkbox" value="img"]
+                label [for="tag_signature_bbc_img"]
+                  "img"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_iurl [checked name="signature_bbc_enabledTags[]" type="checkbox" value="iurl"]
+                label [for="tag_signature_bbc_iurl"]
+                  "iurl"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_justify [checked name="signature_bbc_enabledTags[]" type="checkbox" value="justify"]
+                label [for="tag_signature_bbc_justify"]
+                  "justify"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_list [checked name="signature_bbc_enabledTags[]" type="checkbox" value="list"]
+                label [for="tag_signature_bbc_list"]
+                  "list"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_ltr [checked name="signature_bbc_enabledTags[]" type="checkbox" value="ltr"]
+                label [for="tag_signature_bbc_ltr"]
+                  "ltr"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_me [checked name="signature_bbc_enabledTags[]" type="checkbox" value="me"]
+                label [for="tag_signature_bbc_me"]
+                  "me"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_member [checked name="signature_bbc_enabledTags[]" type="checkbox" value="member"]
+                label [for="tag_signature_bbc_member"]
+                  "member"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_nobbc [checked name="signature_bbc_enabledTags[]" type="checkbox" value="nobbc"]
+                label [for="tag_signature_bbc_nobbc"]
+                  "nobbc"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_nolink [checked name="signature_bbc_enabledTags[]" type="checkbox" value="nolink"]
+                label [for="tag_signature_bbc_nolink"]
+                  "nolink"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_php [checked name="signature_bbc_enabledTags[]" type="checkbox" value="php"]
+                label [for="tag_signature_bbc_php"]
+                  "php"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_pre [checked name="signature_bbc_enabledTags[]" type="checkbox" value="pre"]
+                label [for="tag_signature_bbc_pre"]
+                  "pre"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_quote [checked name="signature_bbc_enabledTags[]" type="checkbox" value="quote"]
+                label [for="tag_signature_bbc_quote"]
+                  "quote"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_right [checked name="signature_bbc_enabledTags[]" type="checkbox" value="right"]
+                label [for="tag_signature_bbc_right"]
+                  "right"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_rtl [checked name="signature_bbc_enabledTags[]" type="checkbox" value="rtl"]
+                label [for="tag_signature_bbc_rtl"]
+                  "rtl"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_s [checked name="signature_bbc_enabledTags[]" type="checkbox" value="s"]
+                label [for="tag_signature_bbc_s"]
+                  "s"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_size [checked name="signature_bbc_enabledTags[]" type="checkbox" value="size"]
+                label [for="tag_signature_bbc_size"]
+                  "size"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_spoiler [checked name="signature_bbc_enabledTags[]" type="checkbox" value="spoiler"]
+                label [for="tag_signature_bbc_spoiler"]
+                  "spoiler"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_sub [checked name="signature_bbc_enabledTags[]" type="checkbox" value="sub"]
+                label [for="tag_signature_bbc_sub"]
+                  "sub"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_sup [checked name="signature_bbc_enabledTags[]" type="checkbox" value="sup"]
+                label [for="tag_signature_bbc_sup"]
+                  "sup"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_table [checked name="signature_bbc_enabledTags[]" type="checkbox" value="table"]
+                label [for="tag_signature_bbc_table"]
+                  "table"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_time [checked name="signature_bbc_enabledTags[]" type="checkbox" value="time"]
+                label [for="tag_signature_bbc_time"]
+                  "time"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_tt [checked name="signature_bbc_enabledTags[]" type="checkbox" value="tt"]
+                label [for="tag_signature_bbc_tt"]
+                  "tt"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_u [checked name="signature_bbc_enabledTags[]" type="checkbox" value="u"]
+                label [for="tag_signature_bbc_u"]
+                  "u"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_url [checked name="signature_bbc_enabledTags[]" type="checkbox" value="url"]
+                label [for="tag_signature_bbc_url"]
+                  "url"
+              li.floatleft.list_bbc
+                input#tag_signature_bbc_youtube [checked name="signature_bbc_enabledTags[]" type="checkbox" value="youtube"]
+                label [for="tag_signature_bbc_youtube"]
+                  "youtube"
+            input#bbc_signature_bbc_select_all [checked onclick="invertAll(this, this.form, 'signature_bbc_enabledTags');" type="checkbox"]
+            label [for="bbc_signature_bbc_select_all"]
+              em
+                "Select all tags"
+      input.button [type="submit" value="Save"]
+    input [name="{token_var}" type="hidden" value="{hash}"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]
+  script
+    | document.getElementById('signature_max_smileys').disabled = !document.getElementById('signature_allow_smileys').checked;

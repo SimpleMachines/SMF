@@ -1,0 +1,68 @@
+status 200
+@ title
+title
+  "Search for Members"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=mlist" itemprop="item"]
+        span [itemprop="name"]
+          "Members List"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=mlist;sa=search" itemprop="item"]
+        span [itemprop="name"]
+          "Search for Members"
+      meta [content="#" itemprop="position"]
+@ #content_section
+div#content_section
+  main#main_content_section
+    form [accept-charset="UTF-#" action="{boardurl}/index.php?action=mlist;sa=search" method="post"]
+      div#memberlist
+        div.pagesection
+          div.buttonlist.floatright
+            a.button.button_strip_view_all_members [href="{boardurl}/index.php?action=mlist;sa=all"]
+              "View all Members"
+            a.active.button.button_strip_mlist_search [href="{boardurl}/index.php?action=mlist;sa=search"]
+              "Search for Members"
+        div.cat_bar
+          h3.catbg.mlist
+            span.filter.main_icons
+            "Search for Members"
+        div#advanced_search.roundframe
+          dl#mlist_search.settings
+            dt
+              label [for="search"]
+                strong
+                  "Search for"
+            dd
+              input#search [name="search" size="#" type="text" value]
+            dt
+              label
+                strong
+                  "Search options"
+            dd
+              ul
+                li
+                  input#fields-name [checked name="fields[]" type="checkbox" value="name"]
+                  label [for="fields-name"]
+                    "Search by name"
+                li
+                  input#fields-website [name="fields[]" type="checkbox" value="website"]
+                  label [for="fields-website"]
+                    "Search by website"
+                li
+                  input#fields-group [name="fields[]" type="checkbox" value="group"]
+                  label [for="fields-group"]
+                    "Search by position"
+          input.button.floatright [name="submit" type="submit" value="Search"]

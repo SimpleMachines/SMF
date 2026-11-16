@@ -1,0 +1,245 @@
+status 200
+@ title
+title
+  "Scheduled Tasks"
+@ .navigate_section
+nav.navigate_section [aria-label="Breadcrumb"]
+  ol [itemscope itemtype="https://schema.org/BreadcrumbList"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      a [href="{boardurl}/index.php" itemprop="item"]
+        span [itemprop="name"]
+          "{forum_name}"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin" itemprop="item"]
+        span [itemprop="name"]
+          "Administration Center"
+      meta [content="#" itemprop="position"]
+    li [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=scheduledtasks;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Scheduled Tasks"
+      meta [content="#" itemprop="position"]
+    li.last [itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"]
+      span.dividers
+        "►"
+      a [href="{boardurl}/index.php?action=admin;area=scheduledtasks;sa=tasks;{session_var}={session_id}" itemprop="item"]
+        span [itemprop="name"]
+          "Scheduled Tasks"
+      meta [content="#" itemprop="position"]
+@ #admin_content
+div#admin_content
+  form [accept-charset="UTF-#" action="{boardurl}/index.php?action=admin;area=scheduledtasks" method="post"]
+    div.cat_bar
+      h3.catbg
+        "Scheduled Tasks"
+    div.flow_hidden.information
+      div.additional_row
+        strong
+          "Note:"
+        "All times given below are"
+        em
+          "server time"
+        "and do not take into account any time offsets set up within SMF."
+    table#scheduled_tasks.table_grid
+      thead
+        tr.title_bar
+          th#header_scheduled_tasks_name.name [scope="col" style="width: #%;"]
+            "Task Name"
+          th#header_scheduled_tasks_next_due.next_due [scope="col"]
+            "Next Due"
+          th#header_scheduled_tasks_regularity.regularity [scope="col"]
+            "Regularity"
+          th#header_scheduled_tasks_run_now.centercol.run_now [scope="col" style="width: #%;"]
+            "Run now"
+          th#header_scheduled_tasks_enabled.centercol.enabled [scope="col" style="width: #%;"]
+            "Enabled"
+      tbody
+        tr#list_scheduled_tasks_#.windowbg
+          td.name
+            a [href="{boardurl}/index.php?action=admin;area=scheduledtasks;sa=taskedit;tid=#"]
+              "Daily Maintenance"
+            br
+            span.smalltext
+              "Runs essential daily maintenance on the forum - should not be disabled."
+          td.next_due.smalltext
+            "{date}"
+          td.regularity.smalltext
+            "Starting at #:#, repeating every {duration}"
+          td.centercol.run_now
+            input#run_task_# [name="run_task[#]" type="checkbox"]
+          td.centercol.enabled
+            input#task_# [name="enable_task[#]" type="hidden" value="#"]
+            input#task_check_# [checked name="enable_task[#]" type="checkbox"]
+        tr#list_scheduled_tasks_#.windowbg
+          td.name
+            a [href="{boardurl}/index.php?action=admin;area=scheduledtasks;sa=taskedit;tid=#"]
+              "Daily Notification summary"
+            br
+            span.smalltext
+              "Emails out the daily digest for notification subscribers."
+          td.next_due.smalltext
+            "{date}"
+          td.regularity.smalltext
+            "Starting at #:#, repeating every {duration}"
+          td.centercol.run_now
+            input#run_task_# [name="run_task[#]" type="checkbox"]
+          td.centercol.enabled
+            input#task_# [name="enable_task[#]" type="hidden" value="#"]
+            input#task_check_# [checked name="enable_task[#]" type="checkbox"]
+        tr#list_scheduled_tasks_#.windowbg
+          td.name
+            a [href="{boardurl}/index.php?action=admin;area=scheduledtasks;sa=taskedit;tid=#"]
+              "Fetch Simple Machines files"
+            br
+            span.smalltext
+              "Retrieves javascript files containing notifications of updates and other information."
+          td.next_due.smalltext
+            "{date}"
+          td.regularity.smalltext
+            "Starting at #:#, repeating every {duration}"
+          td.centercol.run_now
+            input#run_task_# [name="run_task[#]" type="checkbox"]
+          td.centercol.enabled
+            input#task_# [name="enable_task[#]" type="hidden" value="#"]
+            input#task_check_# [checked name="enable_task[#]" type="checkbox"]
+        tr#list_scheduled_tasks_#.windowbg
+          td.name
+            a [href="{boardurl}/index.php?action=admin;area=scheduledtasks;sa=taskedit;tid=#"]
+              "Mark Boards as Read"
+            br
+            span.smalltext
+              "Marks boards as read for users inactive longer than the number of days defined in the"
+              a [href="{boardurl}/index.php?action=admin;area=logs;sa=settings#markread_title"]
+                "Read Logs settings"
+              "in the admin panel."
+          td.next_due.smalltext
+            "N/A"
+          td.regularity.smalltext
+            "Starting at #:#, repeating every {duration}"
+          td.centercol.run_now
+            input#run_task_# [name="run_task[#]" type="checkbox"]
+          td.centercol.enabled
+            input#task_# [name="enable_task[#]" type="hidden" value="#"]
+            input#task_check_# [name="enable_task[#]" type="checkbox"]
+        tr#list_scheduled_tasks_#.windowbg
+          td.name
+            a [href="{boardurl}/index.php?action=admin;area=scheduledtasks;sa=taskedit;tid=#"]
+              "Paid Subscription Checks"
+            br
+            span.smalltext
+              "Sends out any necessary paid subscription reminders and removes expired member subscriptions."
+          td.next_due.smalltext
+            "N/A"
+          td.regularity.smalltext
+            "Starting at #:#, repeating every {duration}"
+          td.centercol.run_now
+            input#run_task_# [name="run_task[#]" type="checkbox"]
+          td.centercol.enabled
+            input#task_# [name="enable_task[#]" type="hidden" value="#"]
+            input#task_check_# [name="enable_task[#]" type="checkbox"]
+        tr#list_scheduled_tasks_#.windowbg
+          td.name
+            a [href="{boardurl}/index.php?action=admin;area=scheduledtasks;sa=taskedit;tid=#"]
+              "Remove MOVED: redirection topics"
+            br
+            span.smalltext
+              "Deletes \"MOVED:\" topic notifications as specified when the moved notice was created."
+          td.next_due.smalltext
+            "{date}"
+          td.regularity.smalltext
+            "Starting at #:#, repeating every {duration}"
+          td.centercol.run_now
+            input#run_task_# [name="run_task[#]" type="checkbox"]
+          td.centercol.enabled
+            input#task_# [name="enable_task[#]" type="hidden" value="#"]
+            input#task_check_# [checked name="enable_task[#]" type="checkbox"]
+        tr#list_scheduled_tasks_#.windowbg
+          td.name
+            a [href="{boardurl}/index.php?action=admin;area=scheduledtasks;sa=taskedit;tid=#"]
+              "Remove old drafts"
+            br
+            span.smalltext
+              "Deletes drafts older than the number of days defined in the draft settings in the admin panel."
+          td.next_due.smalltext
+            "{date}"
+          td.regularity.smalltext
+            "Starting at #:#, repeating every {duration}"
+          td.centercol.run_now
+            input#run_task_# [name="run_task[#]" type="checkbox"]
+          td.centercol.enabled
+            input#task_# [name="enable_task[#]" type="hidden" value="#"]
+            input#task_check_# [checked name="enable_task[#]" type="checkbox"]
+        tr#list_scheduled_tasks_#.windowbg
+          td.name
+            a [href="{boardurl}/index.php?action=admin;area=scheduledtasks;sa=taskedit;tid=#"]
+              "Remove temporary attachment files"
+            br
+            span.smalltext
+              "Deletes temporary files created while attaching a file to a post that for any reason were not renamed or deleted before."
+          td.next_due.smalltext
+            "{date}"
+          td.regularity.smalltext
+            "Starting at #:#, repeating every {duration}"
+          td.centercol.run_now
+            input#run_task_# [name="run_task[#]" type="checkbox"]
+          td.centercol.enabled
+            input#task_# [name="enable_task[#]" type="hidden" value="#"]
+            input#task_check_# [checked name="enable_task[#]" type="checkbox"]
+        tr#list_scheduled_tasks_#.windowbg
+          td.name
+            a [href="{boardurl}/index.php?action=admin;area=scheduledtasks;sa=taskedit;tid=#"]
+              "Send Birthday emails"
+            br
+            span.smalltext
+              "Sends out emails wishing members a happy birthday."
+          td.next_due.smalltext
+            "N/A"
+          td.regularity.smalltext
+            "Starting at #:#, repeating every {duration}"
+          td.centercol.run_now
+            input#run_task_# [name="run_task[#]" type="checkbox"]
+          td.centercol.enabled
+            input#task_# [name="enable_task[#]" type="hidden" value="#"]
+            input#task_check_# [name="enable_task[#]" type="checkbox"]
+        tr#list_scheduled_tasks_#.windowbg
+          td.name
+            a [href="{boardurl}/index.php?action=admin;area=scheduledtasks;sa=taskedit;tid=#"]
+              "Weekly Maintenance"
+            br
+            span.smalltext
+              "Runs essential weekly maintenance on the forum - should not be disabled."
+          td.next_due.smalltext
+            "{date}"
+          td.regularity.smalltext
+            "Starting at #:#, repeating every {duration}"
+          td.centercol.run_now
+            input#run_task_# [name="run_task[#]" type="checkbox"]
+          td.centercol.enabled
+            input#task_# [name="enable_task[#]" type="hidden" value="#"]
+            input#task_check_# [checked name="enable_task[#]" type="checkbox"]
+        tr#list_scheduled_tasks_#.windowbg
+          td.name
+            a [href="{boardurl}/index.php?action=admin;area=scheduledtasks;sa=taskedit;tid=#"]
+              "Weekly Notification summary"
+            br
+            span.smalltext
+              "Emails out the weekly digest for notification subscribers."
+          td.next_due.smalltext
+            "{date}"
+          td.regularity.smalltext
+            "Starting at #:#, repeating every {duration}"
+          td.centercol.run_now
+            input#run_task_# [name="run_task[#]" type="checkbox"]
+          td.centercol.enabled
+            input#task_# [name="enable_task[#]" type="hidden" value="#"]
+            input#task_check_# [checked name="enable_task[#]" type="checkbox"]
+    div.flow_auto
+      div.additional_row
+        input.button [name="save" type="submit" value="Save Changes"]
+        input.button [name="run" type="submit" value="Run now"]
+    input [name="{session_var}" type="hidden" value="{session_id}"]
