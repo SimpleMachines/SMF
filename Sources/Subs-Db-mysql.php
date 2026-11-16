@@ -983,7 +983,7 @@ function smf_db_fetch_all($request)
  */
 function smf_db_error_insert($error_array)
 {
-	global $db_prefix, $db_connection;
+	global $db_prefix, $db_connection, $db_character_set, $smcFunc;
 	static $mysql_error_data_prep;
 
 	// without database we can't do anything
@@ -997,16 +997,41 @@ function smf_db_error_insert($error_array)
 			VALUES( ?, ?, unhex(?), ?, ?, ?, ?, ?, ?, ?)'
 		);
 
+	// Without a prepared statement, give up rather than go through the regular query path:
+	// whatever caused this error may have broken that too, and its own errors would be
+	// logged by calling this again.
 	if (empty($mysql_error_data_prep))
 		return;
+
+	// Cut everything to fit its column. On a UTF-8 forum, cut on a character boundary and
+	// drop invalid bytes, or the database rejects the row and the error is lost. The prepared
+	// statement bypasses the query path, so 4-byte characters need encoding here as well.
+	foreach (array(3 => 65534, 4 => 65534, 5 => 128, 6 => 15, 7 => 255, 9 => 65534) as $key => $size)
+	{
+		$error_array[$key] = str_replace("\0", '', (string) $error_array[$key]);
+
+		if (isset($db_character_set) && $db_character_set == 'utf8')
+		{
+			$error_array[$key] = mb_convert_encoding($error_array[$key], 'UTF-8', 'UTF-8');
+
+			if (isset($smcFunc['fix_utf8mb4']))
+				$error_array[$key] = $smcFunc['fix_utf8mb4']($error_array[$key]);
+
+			$error_array[$key] = mb_strcut($error_array[$key], 0, $size, 'UTF-8');
+		}
+		else
+			$error_array[$key] = substr($error_array[$key], 0, $size);
+	}
 
 	if (filter_var($error_array[2], FILTER_VALIDATE_IP) !== false)
 		$error_array[2] = bin2hex(inet_pton($error_array[2]));
 	else
 		$error_array[2] = null;
+
 	mysqli_stmt_bind_param($mysql_error_data_prep, 'iissssssis',
 		$error_array[0], $error_array[1], $error_array[2], $error_array[3], $error_array[4], $error_array[5], $error_array[6],
-		$error_array[7], $error_array[8], $error_array[9]);
+		$error_array[7], $error_array[8], $error_array[9]
+	);
 	mysqli_stmt_execute($mysql_error_data_prep);
 }
 
