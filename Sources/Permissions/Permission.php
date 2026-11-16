@@ -369,12 +369,6 @@ class Permission implements \ArrayAccess
 			'never_guests' => true,
 			'never_banned' => true,
 		],
-		'likes_like' => [
-			'view_group' => 'likes',
-			'scope' => 'global',
-			'group_level' => self::GROUP_LEVEL_STANDARD,
-			'never_guests' => true,
-		],
 		'lock_own' => [
 			'generic_name' => 'lock',
 			'own_any' => 'own',
@@ -888,6 +882,12 @@ class Permission implements \ArrayAccess
 			'group_level' => self::GROUP_LEVEL_MAINTENANCE,
 			'never_guests' => true,
 		],
+		'reactions_react' => [
+			'view_group' => 'reactions',
+			'scope' => 'global',
+			'group_level' => self::GROUP_LEVEL_STANDARD,
+			'never_guests' => true,
+		],
 		'remove_own' => [
 			'generic_name' => 'remove',
 			'own_any' => 'own',
@@ -1302,9 +1302,9 @@ class Permission implements \ArrayAccess
 			self::$permissions['post_attachment']['hidden'] = true;
 		}
 
-		// If likes are disabled, disable the related permission.
-		if (empty(Config::$modSettings['enable_likes'])) {
-			self::$permissions['likes_like']['hidden'] = true;
+		// If reactions are disabled, disable the related permission.
+		if (empty(Config::$modSettings['enable_reacts'])) {
+			self::$permissions['reactions_react']['hidden'] = true;
 		}
 
 		// If mentions are disabled, disable the related permission.
