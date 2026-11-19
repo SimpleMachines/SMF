@@ -115,7 +115,7 @@ class SmfSessionHandler extends SessionHandler implements SessionHandlerInterfac
 	 *
 	 * Holds our session data, used for multiple reads/validations to reduce database impact.
 	 */
-	private /*PHP 8.0 ?string*/ $data = null;
+	private /*PHP 7.4 ?string*/ $data = null;
 
 	/**
 	 * Implementation of SessionHandler::open() replacing the standard open handler.
@@ -158,7 +158,8 @@ class SmfSessionHandler extends SessionHandler implements SessionHandlerInterfac
 		if (!$this->isValidSessionID($id))
 			return '';
 
-		if ($this->data === null) {
+		if ($this->data === null)
+		{
 			// Look for it in the database.
 			$result = $smcFunc['db_query']('', '
 				SELECT data
@@ -169,10 +170,14 @@ class SmfSessionHandler extends SessionHandler implements SessionHandlerInterfac
 					'session_id' => $id,
 				)
 			);
+
 			list ($sess_data) = $smcFunc['db_fetch_row']($result);
 			$smcFunc['db_free_result']($result);
 
-			$this->data = $sess_data;
+			if ($sess_data !== null)
+			{
+				$this->data = $sess_data;
+			}
 		}
 
 		return $this->data != null ? $this->data : '';
@@ -301,7 +306,7 @@ class SmfSessionHandler extends SessionHandler implements SessionHandlerInterfac
 			$this->read($id);
 		}
 
-		return $this->data !== '';
+		return $this->data !== null;
 	}
 
 	 /**
@@ -324,7 +329,7 @@ class SmfSessionHandler extends SessionHandler implements SessionHandlerInterfac
 		}
 
 		// Just call the write.
-		return $this->write($id, data);
+		return $this->write($id, $data);
 	 }
 }
 
