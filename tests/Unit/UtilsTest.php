@@ -28,58 +28,67 @@ class UtilsTest extends TestCase
 	 ****************/
 
 	/**
-	 * Strings that start the same share one copy of that prefix in the regex.
+	 * Strings that start with the same characters share one copy of that prefix in the regex.
 	 *
 	 * Expected: buildRegex(['abc', 'abd']) returns '(?>ab(?>c|d))'.
 	 */
-	public function testBuildRegexSharesACommonPrefix(): void
+	#[DataProvider('buildRegexCommonPrefixProvider')]
+	public function testBuildRegexSharesACommonPrefix(array $strings, string $expected): void
 	{
-		$this->assertSame('(?>ab(?>c|d))', Utils::buildRegex(['abc', 'abd']));
+		$this->assertSame($expected, Utils::buildRegex($strings));
 	}
 
 	/**
-	 * The regex matches every string it was built from.
+	 * The generated regex matches every string it was built from.
 	 *
-	 * Expected: a regex built from strings containing regex metacharacters,
-	 *           such as 'a.b', 'a+b' and 'a(b)', matches each of them in full.
+	 * Expected: buildRegex($strings) matches every input string in full,
+	 *           including strings containing regex metacharacters.
 	 */
-	public function testBuildRegexMatchesEveryStringItWasBuiltFrom(): void
+	#[DataProvider('buildRegexMatchesEveryStringProvider')]
+	public function testBuildRegexMatchesEveryStringItWasBuiltFrom(array $strings): void
 	{
-		$strings = ['abc', 'abd', 'xyz', 'a.b', 'a+b', 'a(b)'];
-		$regex = Utils::buildRegex($strings);
+		$regex = Utils::buildRegex($strings, '~');
 
 		foreach ($strings as $string) {
-			$this->assertMatchesRegularExpression('~^' . $regex . '$~', $string);
+			$this->assertMatchesRegularExpression('~^(?:' . $regex . ')$~u', $string);
 		}
 	}
 
 	/**
-	 * A trailing character that is special in a regex stays quoted.
+	 * Special characters in a shared trailing suffix are quoted in the regex.
 	 *
-	 * Expected: buildRegex(['ab.', 'ab']) matches 'ab.' but not 'abx'.
-	 * Guards:   the trailing character that all the strings shared was added to
-	 *           the pattern unquoted, so a "." there matched any character and
-	 *           the pattern matched things it should not.
+	 * Expected: buildRegex(['ab.', 'cb.']) matches 'ab.' and 'cb.',
+	 *           but does not match 'abx' or 'cbx'.
+	 * Guards:   the shared suffix was appended without being quoted, so a
+	 *           trailing "." matched any character.
 	 *
 	 * @link https://github.com/SimpleMachines/SMF/commit/ea308c3cf Introduced by "Improvements to Utils::buildRegex()"
 	 * @link https://github.com/SimpleMachines/SMF/pull/9318
 	 */
-	public function testBuildRegexQuotesTrailingSpecialCharacters(): void
+	#[DataProvider('buildRegexTrailingSpecialCharactersProvider')]
+	public function testBuildRegexQuotesTrailingSpecialCharacters(array $strings, array $non_matches): void
 	{
-		$regex = Utils::buildRegex(['ab.', 'ab']);
+		$regex = Utils::buildRegex($strings, '~');
+		$pattern = '~^(?:' . $regex . ')$~u';
 
-		$this->assertMatchesRegularExpression('~^' . $regex . '$~', 'ab.');
-		$this->assertDoesNotMatchRegularExpression('~^' . $regex . '$~', 'abx');
+		foreach ($strings as $string) {
+			$this->assertMatchesRegularExpression($pattern, $string);
+		}
+
+		foreach ($non_matches as $string) {
+			$this->assertDoesNotMatchRegularExpression($pattern, $string);
+		}
 	}
 
 	/**
-	 * A list holding a single string yields a regex that matches it.
+	 * A list containing one string produces a regex that matches that string.
 	 *
 	 * Expected: buildRegex(['solo']) matches 'solo'.
 	 */
-	public function testBuildRegexHandlesASingleString(): void
+	#[DataProvider('buildRegexSingleStringProvider')]
+	public function testBuildRegexHandlesASingleString(string $string): void
 	{
-		$this->assertMatchesRegularExpression('~^' . Utils::buildRegex(['solo']) . '$~', 'solo');
+		$this->assertMatchesRegularExpression('~^(?:' . Utils::buildRegex([$string]) . ')$~u', $string);
 	}
 
 	/**
@@ -320,6 +329,70 @@ class UtilsTest extends TestCase
 	/***********************
 	 * Public static methods
 	 ***********************/
+
+	public static function buildRegexCommonPrefixProvider(): iterable
+	{
+		yield 'two alternatives' => [
+			['abc', 'abd'],
+			'(?>ab(?>c|d))',
+		];
+
+		yield 'three alternatives' => [
+			['abc', 'abd', 'abe'],
+			'(?>ab(?>c|d|e))',
+		];
+
+		yield 'multibyte prefix' => [
+			['東京A', '東京B'],
+			'(?>東京(?>A|B))',
+		];
+
+		yield 'multibyte suffix' => [
+			['A東京', 'B東京'],
+			'(?>(?>A|B)東京)',
+		];
+	}
+
+	public static function buildRegexMatchesEveryStringProvider(): iterable
+	{
+		yield 'ASCII strings and regex metacharacters' => [
+			['abc', 'abd', 'xyz', 'a.b', 'a+b', 'a(?)c', 'a~b'],
+		];
+
+		yield 'multibyte strings' => [
+			['café', 'caffè', '東京', '大阪', '🙂', 'добро', 'שלום'],
+		];
+
+		yield 'strings with shared prefixes' => [
+			['foobar', 'foobaz', 'foo'],
+		];
+
+		yield 'duplicate strings' => [
+			['duplicate', 'duplicate', 'different'],
+		];
+	}
+
+	public static function buildRegexTrailingSpecialCharactersProvider(): iterable
+	{
+		yield 'shared trailing period' => [
+			['ab.', 'cb.'],
+			['abx', 'cbx'],
+		];
+
+		yield 'shared trailing delimiter' => [
+			['ab~', 'cb~'],
+			['abx', 'cbx'],
+		];
+	}
+
+	public static function buildRegexSingleStringProvider(): iterable
+	{
+		yield 'ASCII' => ['solo'];
+
+		yield 'multibyte' => ['東京'];
+
+		yield 'emoji' => ['🙂'];
+	}
 
 	/**
 	 * @return array<string, array{string, int}>

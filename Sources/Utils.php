@@ -1073,23 +1073,72 @@ class Utils
 			}
 		}
 
-		// Create the trie from the strings.
+		// Build a radix tree directly from the input strings (snake_case version)
 		$trie = [];
 
 		foreach ($strings as $string) {
-			$chars = mb_str_split($string, 1, $encoding);
+			$node =& $trie;
+			$remaining = $string;
 
-			$node = &$trie;
+			while ($remaining !== '') {
+				$branch_found = false;
 
-			foreach ($chars as $char) {
-				if (!isset($node[$char])) {
-					$node[$char] = [];
+				foreach ($node as $edge => &$child) {
+					// PHP converts numeric keys to integers, so the XOR
+					// would operate on integers instead of raw bytes.
+					$edge = (string) $edge;
+
+					// Equal bytes XOR to NUL, so count the common byte prefix.
+					$common_bytes = strspn($edge ^ $remaining, "\0");
+
+					if ($common_bytes === 0) {
+						continue;
+					}
+
+					// Truncate to a complete character boundary.
+					$prefix = mb_strcut($edge, 0, $common_bytes, $encoding);
+
+					if ($prefix === '') {
+						continue;
+					}
+
+					$prefix_bytes = \strlen($prefix);
+
+					// Find the common prefix.
+					$edge_remainder = substr($edge, $prefix_bytes);
+					$string_remainder = substr($remaining, $prefix_bytes);
+
+					// Split the existing branch if only part of it matched.
+					if ($edge_remainder !== '') {
+						unset($node[$edge]);
+
+						$node[$prefix] = [$edge_remainder => $child];
+						$child =& $node[$prefix];
+					}
+
+					if ($string_remainder === '') {
+						// Create a leaf node.  This is the end of a matching path.
+						$child[''] = '';
+						$remaining = '';
+					} else {
+						$node =& $child;
+						$remaining = $string_remainder;
+					}
+
+					$branch_found = true;
+					break;
 				}
 
-				$node = &$node[$char];
+				unset($child);
+
+				if (!$branch_found) {
+					// No matching branch: insert the remaining string.
+					$node[$remaining] = ['' => ''];
+					break;
+				}
 			}
 
-			$node[''] = '';
+			unset($node);
 		}
 
 		// This recursive closure turns the trie into a regular expression.
