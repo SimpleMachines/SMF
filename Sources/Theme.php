@@ -2219,7 +2219,15 @@ class Theme
 
 			// User selection?
 			if (empty($this->settings['disable_user_mode']) || User::$me->allowedTo('admin_forum')) {
-				Utils::$context['theme_colormode'] = !empty($_SESSION['theme_colormode']) && \in_array($_SESSION['theme_colormode'], $this->settings['theme_colormodes']) ? $_SESSION['theme_colormode'] : (!empty($this->options['theme_colormode']) && \in_array($this->options['theme_colormode'], $this->settings['theme_colormodes']) ? $this->options['theme_colormode'] : '');
+				// An explicit mode change takes priority for this request. Otherwise,
+				// a member's saved preference must override an older session value.
+				if (!empty($_REQUEST['mode']) && \in_array($_REQUEST['mode'], $this->settings['theme_colormodes'])) {
+					Utils::$context['theme_colormode'] = $_REQUEST['mode'];
+				} elseif (!User::$me->is_guest && !empty($this->options['theme_colormode']) && \in_array($this->options['theme_colormode'], $this->settings['theme_colormodes'])) {
+					Utils::$context['theme_colormode'] = $this->options['theme_colormode'];
+				} elseif (!empty($_SESSION['theme_colormode']) && \in_array($_SESSION['theme_colormode'], $this->settings['theme_colormodes'])) {
+					Utils::$context['theme_colormode'] = $_SESSION['theme_colormode'];
+				}
 			}
 
 			// If no color mode, set a default
