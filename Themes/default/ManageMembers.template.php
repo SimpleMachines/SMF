@@ -112,7 +112,7 @@ function template_search_members()
 								<strong><label for="email">', Lang::getTxt('email_address', file: 'Admin'), '</label></strong>
 							</dt>
 							<dd>
-								<input type="email" name="email" id="email" value="">
+								<input type="text" name="email" id="email" value="">
 							</dd>
 							<dt class="righttext">
 								<strong><label for="website">', Lang::getTxt('website', file: 'General'), '</label></strong>
