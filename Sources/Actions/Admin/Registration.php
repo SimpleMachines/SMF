@@ -303,7 +303,7 @@ class Registration implements ActionInterface
 					// If no one else has accepted the current version, we can
 					// simplify the history a bit.
 					if (empty($num_accepted)) {
-						if ($edit_history[1][1] === $diff->label1) {
+						if ($edit_history[1][1] === hash('crc32c', $_POST['agreement'])) {
 							// The admin is simply undoing the last change.
 							$rollback = true;
 						} else {
@@ -489,7 +489,7 @@ class Registration implements ActionInterface
 				// If no one else has accepted the current version, we can
 				// simplify the history a bit.
 				if (empty($num_accepted)) {
-					if (isset($edit_history[1]) && $edit_history[1][1] === $diff->label1) {
+					if (isset($edit_history[1]) && $edit_history[1][1] === hash('crc32c', $_POST['policy'])) {
 						// The admin is simply undoing the last change.
 						$rollback = true;
 					} else {
