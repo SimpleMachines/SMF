@@ -83,7 +83,7 @@ $txt['pm_actions_go'] = 'Go';
 
 // Manage Labels Screen.
 $txt['pm_apply'] = 'Apply';
-$txt['pm_manage_labels'] = 'Manage labels';
+$txt['pm_manage_labels'] = 'Manage Labels';
 $txt['pm_labels_delete'] = 'Are you sure you wish to delete the selected labels?';
 $txt['pm_labels_desc'] = 'From here you can add, edit and delete the labels used in your personal message center.';
 $txt['pm_label_add_new'] = 'Add new label';
