@@ -528,7 +528,7 @@ abstract class Parser
 		}
 
 		// Replace code BBC with placeholders. We'll restore them at the end.
-		$parts = preg_split('/(\[code(?:=[^\]]+)?\](?:[^\[]|\[(?!\/code\])|(?R))*\[\/code])/i', $message, -1, PREG_SPLIT_DELIM_CAPTURE);
+		$parts = preg_split('/(\[code(?:=[^\]]+)?\][\s\S]*?\[\/code])/i', $message, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 		for ($i = 0, $n = \count($parts); $i < $n; $i++) {
 			if ($i % 2 == 1) {
@@ -769,7 +769,7 @@ abstract class Parser
 		IntegrationHook::call('integrate_unpreparsecode', [&$message]);
 
 		// We're going to unparse only the stuff outside [code]...
-		$parts = preg_split('/(\[code(?:=[^\]]+)?\](?:[^\[]|\[(?!\/code\])|(?R))*\[\/code])/i', $message, -1, PREG_SPLIT_DELIM_CAPTURE);
+		$parts = preg_split('/(\[code(?:=[^\]]+)?\][\s\S]*?\[\/code])/i', $message, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 		for ($i = 0, $n = \count($parts); $i < $n; $i++) {
 			if ($i % 2 == 1) {

@@ -114,6 +114,36 @@ class ParserTest extends TestCase
 		);
 	}
 
+	/**
+	 * Long code blocks can be sanitized without exhausting PCRE's JIT stack.
+	 *
+	 * Expected: A code block with 25,000 characters is preserved unchanged.
+	 * Guards:   The recursive regex made preg_split() return false on long input.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/issues/9886
+	 */
+	public function testLongCodeBlocksSurviveSanitization(): void
+	{
+		$message = '[code]' . str_repeat('a', 25000) . '[/code]';
+
+		$this->assertSame($message, Parser::sanitize($message));
+	}
+
+	/**
+	 * Long multiline code blocks remain editable without a PCRE error.
+	 *
+	 * Expected: getEditableString() returns the full code block unchanged.
+	 * Guards:   PCRE JIT stack exhaustion while protecting long code blocks.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/issues/9886
+	 */
+	public function testLongCodeBlocksRemainEditable(): void
+	{
+		$message = '[code=php]' . str_repeat("line\n", 5000) . '[/code]';
+
+		$this->assertSame($message, Parser::getEditableString($message));
+	}
+
 	/***********************
 	 * Public static methods
 	 ***********************/
