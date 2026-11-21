@@ -86,14 +86,23 @@ class PollVote implements ActionInterface, Routable
 					$changed = true;
 					$poll->choices[$id]->votes--;
 					$poll->choices[$id]->voted_this = false;
+
+					// Voting should not require permission to edit the poll itself.
+					Db::$db->query(
+						'UPDATE {db_prefix}poll_choices
+						SET votes = votes - 1
+						WHERE id_poll = {int:id_poll}
+							AND id_choice = {int:id_choice}',
+						[
+							'id_poll' => $poll->id,
+							'id_choice' => $id,
+						],
+					);
 				}
 			}
 
 			// Just skip it if they had voted for nothing before.
 			if ($changed) {
-				// Update the poll.
-				$poll->save();
-
 				// Delete off the log.
 				Db::$db->query(
 					'DELETE FROM {db_prefix}log_polls
@@ -128,6 +137,18 @@ class PollVote implements ActionInterface, Routable
 			$id_choice = (int) $id_choice;
 			$poll->choices[$id_choice]->votes++;
 			$inserts[] = [$poll->id, User::$me->id, $id_choice];
+
+			// Update the tally without requiring poll editing privileges.
+			Db::$db->query(
+				'UPDATE {db_prefix}poll_choices
+				SET votes = votes + 1
+				WHERE id_poll = {int:id_poll}
+				AND id_choice = {int:id_choice}',
+				[
+					'id_poll' => $poll->id,
+					'id_choice' => $id_choice,
+				],
+			);
 		}
 
 		// If it's a guest don't let them vote again.
@@ -141,11 +162,18 @@ class PollVote implements ActionInterface, Routable
 			$cookie = new Cookie('guest_poll_vote', $_COOKIE['guest_poll_vote'], time() + 2500000);
 			$cookie->set();
 
-			// Increase num_guest_voters by 1
+			// Increase num_guest_voters by 1.
 			$poll->num_guest_voters++;
-		}
 
-		$poll->save();
+			Db::$db->query(
+				'UPDATE {db_prefix}polls
+				SET num_guest_voters = num_guest_voters + 1
+				WHERE id_poll = {int:id_poll}',
+				[
+					'id_poll' => $poll->id,
+				],
+			);
+		}
 
 		// Add their vote to the tally.
 		Db::$db->insert(
