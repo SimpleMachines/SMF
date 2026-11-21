@@ -526,11 +526,14 @@ class Menu implements \ArrayAccess
 			return;
 		}
 
+		// Use a translated label or the area ID as the fallback.
+		$label = $area['label'] ?? $this->area_id;
+
 		// Define the new area.
 		$this->sections[$this->section_id]['areas'][$this->area_id] = [
 			'id' => $this->area_id,
 			'txt_key' => $area['label'] ?? $this->area_id,
-			'label' => isset($area['label']) && Lang::txtExists($area['label'], file: $this->options['lang_file']) ? Lang::getTxt($area['label'], file: $this->options['lang_file']) : (Lang::txtExists($this->area_id, file: $this->options['lang_file']) ? Lang::getTxt($this->area_id, file: $this->options['lang_file']) : $this->area_id),
+			'label' => Lang::txtExists($label, file: $this->options['lang_file']) ? Lang::getTxt($label, file: $this->options['lang_file']) : $label,
 			'url' => $area['custom_url'] ?? $this->base_url . ';area=' . $this->area_id,
 			'amt' => $area['amt'] ?? null,
 			'subsections' => [],
