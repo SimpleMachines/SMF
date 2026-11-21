@@ -250,10 +250,11 @@ class Memberlist implements ActionInterface, Routable
 				$request = Db::$db->query(
 					'SELECT real_name
 					FROM {db_prefix}members
-					WHERE is_activated = {int:is_activated}
+					WHERE is_activated IN ({int:is_activated}, {int:is_activated_banned})
 					ORDER BY real_name',
 					[
 						'is_activated' => User::ACTIVATED,
+						'is_activated_banned' => User::ACTIVATED_BANNED,
 					],
 				);
 
@@ -282,9 +283,10 @@ class Memberlist implements ActionInterface, Routable
 			$request = Db::$db->query(
 				'SELECT COUNT(*)
 				FROM {db_prefix}members
-				WHERE is_activated = {int:is_activated}',
+				WHERE is_activated IN ({int:is_activated}, {int:is_activated_banned})',
 				[
 					'is_activated' => User::ACTIVATED,
+					'is_activated_banned' => User::ACTIVATED_BANNED,
 				],
 			);
 			list(Utils::$context['num_members']) = Db::$db->fetch_row($request);
@@ -350,6 +352,7 @@ class Memberlist implements ActionInterface, Routable
 		$query_parameters = [
 			'regular_id_group' => 0,
 			'is_activated' => User::ACTIVATED,
+			'is_activated_banned' => User::ACTIVATED_BANNED,
 			'sort' => Utils::$context['columns'][$_REQUEST['sort']]['sort'][Utils::$context['sort_direction']],
 			'blank_string' => '',
 		];
@@ -391,7 +394,7 @@ class Memberlist implements ActionInterface, Routable
 				LEFT JOIN {db_prefix}log_online AS lo ON (lo.id_member = mem.id_member)' : '') . ($_REQUEST['sort'] === 'id_group' ? '
 				LEFT JOIN {db_prefix}membergroups AS mg ON (mg.id_group = CASE WHEN mem.id_group = {int:regular_id_group} THEN mem.id_post_group ELSE mem.id_group END)' : '') . '
 				' . $custom_fields_qry . '
-			WHERE mem.is_activated = {int:is_activated}' . (empty($where) ? '' : '
+			WHERE mem.is_activated IN ({int:is_activated}, {int:is_activated_banned})' . (empty($where) ? '' : '
 				AND ' . $where) . '
 			ORDER BY {raw:sort}
 			LIMIT {int:start}, {int:max}',
@@ -490,6 +493,7 @@ class Memberlist implements ActionInterface, Routable
 			$query_parameters = [
 				'regular_id_group' => 0,
 				'is_activated' => User::ACTIVATED,
+				'is_activated_banned' => User::ACTIVATED_BANNED,
 				'blank_string' => '',
 				'search' => '%' . strtr($_POST['search'], ['_' => '\\_', '%' => '\\%', '*' => '%']) . '%',
 				'sort' => Utils::$context['columns'][$_REQUEST['sort']]['sort'][Utils::$context['sort_direction']],
@@ -574,7 +578,7 @@ class Memberlist implements ActionInterface, Routable
 				WHERE (
 						' . $where . '
 					)
-					AND mem.is_activated = {int:is_activated}',
+					AND mem.is_activated IN ({int:is_activated}, {int:is_activated_banned})',
 				$query_parameters,
 			);
 			list($numResults) = Db::$db->fetch_row($request);
@@ -606,7 +610,7 @@ class Memberlist implements ActionInterface, Routable
 				WHERE (
 						' . $where . '
 					)
-					AND mem.is_activated = {int:is_activated}
+					AND mem.is_activated IN ({int:is_activated}, {int:is_activated_banned})
 				ORDER BY {raw:sort}
 				LIMIT {int:start}, {int:max}',
 				array_merge($query_parameters, [
