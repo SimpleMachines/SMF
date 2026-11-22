@@ -24,6 +24,7 @@ $txt['download'] = 'Download';
 $txt['download_success'] = 'Package downloaded successfully';
 $txt['package_downloaded_successfully'] = 'Package has been downloaded successfully';
 $txt['package_manager'] = 'Package Manager';
+$txt['package_upload_drop_hint'] = 'Drop one package file here, or choose a file below.';
 $txt['install_modification'] = 'Install Mod';
 $txt['install_language'] = 'Add Language';
 $txt['install_avatar'] = 'Install Avatar Pack';
