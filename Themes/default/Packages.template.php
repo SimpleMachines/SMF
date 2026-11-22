@@ -720,15 +720,57 @@ function template_servers()
 			<form action="', Config::$scripturl, '?action=admin;area=packages;get;sa=upload" method="post" accept-charset="UTF-8" enctype="multipart/form-data">
 				<dl class="settings">
 					<dt>
-						<strong>', Lang::getTxt('package_upload_select', file: 'Packages'), '</strong>
+						<label for="package_upload_file"><strong>', Lang::getTxt('package_upload_select', file: 'Packages'), '</strong></label>
 					</dt>
 					<dd>
-						<input type="file" name="package" size="38">
+						<div id="package_upload_dropzone" class="information">
+							<p>', Lang::getTxt('package_upload_drop_hint', file: 'Packages'), '</p>
+							<input type="file" name="package" id="package_upload_file" accept=".zip,.tgz,.tar.gz">
+							<p id="package_upload_selected" class="smalltext" aria-live="polite"></p>
+						</div>
 					</dd>
 				</dl>
 				<input type="submit" value="', Lang::getTxt('upload', file: 'General'), '" class="button">
 				<input type="hidden" name="', Utils::$context['session_var'], '" value="', Utils::$context['session_id'], '">
 			</form>
+			<script>
+				(function () {
+					"use strict";
+					const zone = document.getElementById("package_upload_dropzone");
+					const input = document.getElementById("package_upload_file");
+					const selected = document.getElementById("package_upload_selected");
+
+					if (!zone || !input || !selected) {
+						return;
+					}
+
+					function showFilename() {
+						selected.textContent = input.files.length ? input.files[0].name : "";
+					}
+
+					input.addEventListener("change", showFilename);
+					zone.addEventListener("dragover", function (event) {
+						if (event.dataTransfer && Array.from(event.dataTransfer.types).includes("Files")) {
+							event.preventDefault();
+						}
+					});
+					zone.addEventListener("drop", function (event) {
+						if (!event.dataTransfer || !event.dataTransfer.files.length) {
+							return;
+						}
+						event.preventDefault();
+						if (event.dataTransfer.files.length !== 1) {
+							return;
+						}
+						try {
+							input.files = event.dataTransfer.files;
+							showFilename();
+						} catch (error) {
+							input.focus();
+						}
+					});
+				})();
+			</script>
 		</div>
 		<div class="cat_bar">
 			<h3 class="catbg">
