@@ -749,7 +749,7 @@ class CreatePost_Notify extends BackgroundTask
 				unset($msgOptions['quoted_members'][$member_id]);
 			} elseif (TIME_START >= $this->mention_mail_time || \in_array($member_id, $this->members['watching'])) {
 				$replacements = [
-					'CONTENTSUBJECT' => $msgOptions['subject'],
+					'CONTENTSUBJECT' => Utils::htmlspecialcharsDecode($msgOptions['subject']),
 					'QUOTENAME' => Utils::htmlspecialcharsDecode(User::$loaded[$posterOptions['id']]->name ?? $posterOptions['name']),
 					'MEMBERNAME' => $member_data['real_name'],
 					'CONTENTLINK' => Config::$scripturl . '?msg=' . $msgOptions['id'],
@@ -818,7 +818,7 @@ class CreatePost_Notify extends BackgroundTask
 				unset($msgOptions['mentioned_members'][$member_id]);
 			} elseif (TIME_START >= $this->mention_mail_time || \in_array($member_id, $this->members['watching'])) {
 				$replacements = [
-					'CONTENTSUBJECT' => $msgOptions['subject'],
+					'CONTENTSUBJECT' => Utils::htmlspecialcharsDecode($msgOptions['subject']),
 					'MENTIONNAME' => $member_data['mentioned_by']['name'],
 					'MEMBERNAME' => $member_data['real_name'],
 					'CONTENTLINK' => Config::$scripturl . '?msg=' . $msgOptions['id'],
