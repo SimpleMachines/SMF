@@ -528,8 +528,21 @@ function template_ic_block_online()
 
 	// Assuming there ARE users online... each user in users_online has an id, username, name, group, href, and link.
 	if (!empty(Utils::$context['users_online'])) {
+		$active_minutes = (int) Config::$modSettings['lastActive'];
+		$active_unit = 'minutes';
+		$active_value = $active_minutes;
+
+		// Use the largest exact unit so that the displayed time remains accurate.
+		foreach (['weeks' => 10080, 'days' => 1440, 'hours' => 60] as $unit => $minutes_per_unit) {
+			if ($active_minutes > 0 && $active_minutes % $minutes_per_unit === 0) {
+				$active_unit = $unit;
+				$active_value = intdiv($active_minutes, $minutes_per_unit);
+				break;
+			}
+		}
+
 		echo '
-				', Lang::getTxt('users_active', ['minutes' => Config::$modSettings['lastActive'], 'list' => Lang::sentenceList(Utils::$context['list_users_online'])], file: 'General');
+				', Lang::getTxt('users_active' . ($active_unit === 'minutes' ? '' : '_' . $active_unit), [$active_unit => $active_value, 'list' => Lang::sentenceList(Utils::$context['list_users_online'])], file: 'General');
 
 		// Showing membergroups?
 		if (!empty(Theme::$current->settings['show_group_key']) && !empty(Utils::$context['membergroups'])) {
