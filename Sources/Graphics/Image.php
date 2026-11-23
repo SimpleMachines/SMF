@@ -500,7 +500,7 @@ class Image
 		// In that case, retry with GD if it supports both formats.
 		if (!$success && self::gdSupportsFormat($this->type) && self::gdSupportsFormat($preferred_type)) {
 			// Remove any partial ImageMagick output before retrying.
-			if ($attempted_imagick && is_file($destination)) {
+			if ($attempted_imagick && $destination !== $this->source && is_file($destination)) {
 				@unlink($destination);
 			}
 
