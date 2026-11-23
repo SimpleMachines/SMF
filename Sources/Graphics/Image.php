@@ -189,6 +189,11 @@ class Image
 	 */
 	protected static array $supported;
 
+	/**
+	 * Cache of available ImageMagick formats, or null until queried.
+	 */
+	protected static ?array $imagick_formats = null;
+
 	/****************
 	 * Public methods
 	 ****************/
@@ -478,13 +483,29 @@ class Image
 		$max_height = (int) round($max_height);
 		$success = false;
 
-		// Do the job using ImageMagick.
-		if (\extension_loaded('imagick') && isset(self::IMAGETYPE_TO_IMAGICK[$preferred_type])) {
-			$success = $this->resizeUsingImagick($destination, $max_width, $max_height, $preferred_type);
+		// Prefer ImageMagick when it supports both formats, but let GD
+		// handle formats missing from the installed ImageMagick delegates.
+		if (self::imagickSupportsFormat($this->type) && self::imagickSupportsFormat($preferred_type)) {
+			try {
+				$success = $this->resizeUsingImagick($destination, $max_width, $max_height, $preferred_type);
+			} catch (\Throwable $e) {
+				$success = false;
+			}
 		}
-		// Do the job using GD.
-		elseif (\extension_loaded('gd')) {
-			$success = $this->resizeUsingGD($destination, $max_width, $max_height, $preferred_type);
+
+		// ImageMagick can advertise a format yet still fail to process a file.
+		// In that case, retry with GD if it supports both formats.
+		if (!$success && self::gdSupportsFormat($this->type) && self::gdSupportsFormat($preferred_type)) {
+			// Remove any partial ImageMagick output before retrying.
+			if (is_file($destination)) {
+				@unlink($destination);
+			}
+
+			try {
+				$success = $this->resizeUsingGD($destination, $max_width, $max_height, $preferred_type);
+			} catch (\Throwable $e) {
+				$success = false;
+			}
 		}
 
 		if (!$success) {
@@ -566,22 +587,44 @@ class Image
 		if (!isset(self::$supported)) {
 			self::$supported = [];
 
-			if (\extension_loaded('imagick')) {
-				foreach (self::getImageTypes() as $name => $int) {
-					if (isset(self::IMAGETYPE_TO_IMAGICK[$int])) {
-						self::$supported[$name] = $int;
-					}
-				}
-			} elseif (\extension_loaded('gd')) {
-				foreach (self::getImageTypes() as $name => $int) {
-					if (imagetypes() & (self::IMAGETYPE_TO_IMG[$int] ?? 0)) {
-						self::$supported[$name] = $int;
-					}
+			foreach (self::getImageTypes() as $name => $int) {
+				if (self::imagickSupportsFormat($int) || self::gdSupportsFormat($int)) {
+					self::$supported[$name] = $int;
 				}
 			}
 		}
 
 		return self::$supported;
+	}
+
+	/**
+	 * Check whether the installed ImageMagick delegates support a format.
+	 */
+	protected static function imagickSupportsFormat(int $type): bool
+	{
+		if (!\extension_loaded('imagick') || !isset(self::IMAGETYPE_TO_IMAGICK[$type])) {
+			return false;
+		}
+
+		if (self::$imagick_formats === null) {
+			try {
+				self::$imagick_formats = array_map('strtolower', \Imagick::queryFormats());
+			} catch (\Throwable $e) {
+				self::$imagick_formats = [];
+			}
+		}
+
+		return \in_array(self::IMAGETYPE_TO_IMAGICK[$type], self::$imagick_formats, true);
+	}
+
+	/**
+	 * Check whether GD has format-specific support in this PHP installation.
+	 */
+	protected static function gdSupportsFormat(int $type): bool
+	{
+		return \extension_loaded('gd')
+			&& isset(self::IMAGETYPE_TO_IMG[$type])
+			&& (imagetypes() & self::IMAGETYPE_TO_IMG[$type]) !== 0;
 	}
 
 	/**
@@ -772,21 +815,23 @@ class Image
 			}
 		}
 
-		// Next try ImageMagick.
+		// Next try ImageMagick. The constructor itself can fail when the
+		// installed ImageMagick build lacks a decoder for this format.
 		if (\extension_loaded('imagick')) {
-			$imagick = new \Imagick($this->source);
-
 			try {
-				$this->orientation = $imagick->getImageOrientation();
-			} catch (\Throwable $e) {
-			}
+				$imagick = new \Imagick($this->source);
 
-			try {
+				try {
+					$this->orientation = $imagick->getImageOrientation();
+				} catch (\Throwable $e) {
+				}
+
 				$this->width = $imagick->getImageWidth();
 				$this->height = $imagick->getImageHeight();
 
 				return;
 			} catch (\Throwable $e) {
+				// Fall through to getimagesize() below.
 			}
 		}
 
@@ -1078,10 +1123,14 @@ class Image
 			return true;
 		}
 
-		// Figure out the functions we need.
-		$imagecreatefrom = 'imagecreatefrom' . strtolower(substr(array_search($this->type, self::getSupportedFormats()), 10));
+		// The combined supported-format list also contains Imagick-only
+		// formats, so check GD itself before constructing GD function names.
+		if (!self::gdSupportsFormat($this->type) || !self::gdSupportsFormat($preferred_type)) {
+			return false;
+		}
 
-		$imagesave = 'image' . strtolower(substr(array_search($preferred_type, self::getSupportedFormats()), 10));
+		$imagecreatefrom = 'imagecreatefrom' . image_type_to_extension($this->type, false);
+		$imagesave = 'image' . image_type_to_extension($preferred_type, false);
 
 		// Do the functions exist?
 		if (!\function_exists($imagecreatefrom) || !\function_exists($imagesave)) {
