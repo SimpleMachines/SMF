@@ -482,10 +482,13 @@ class Image
 		$max_width = (int) round($max_width);
 		$max_height = (int) round($max_height);
 		$success = false;
+		$attempted_imagick = false;
 
 		// Prefer ImageMagick when it supports both formats, but let GD
 		// handle formats missing from the installed ImageMagick delegates.
 		if (self::imagickSupportsFormat($this->type) && self::imagickSupportsFormat($preferred_type)) {
+			$attempted_imagick = true;
+
 			try {
 				$success = $this->resizeUsingImagick($destination, $max_width, $max_height, $preferred_type);
 			} catch (\Throwable $e) {
@@ -497,7 +500,7 @@ class Image
 		// In that case, retry with GD if it supports both formats.
 		if (!$success && self::gdSupportsFormat($this->type) && self::gdSupportsFormat($preferred_type)) {
 			// Remove any partial ImageMagick output before retrying.
-			if (is_file($destination)) {
+			if ($attempted_imagick && is_file($destination)) {
 				@unlink($destination);
 			}
 
@@ -1154,8 +1157,9 @@ class Image
 			$dst_width = (int) round($this->width * $max_height / $this->height);
 			$dst_height = (int) $max_height;
 		} else {
-			$dst_width = 0;
-			$dst_height = 0;
+			// Re-encoding with no size limits must preserve the original size.
+			$dst_width = (int) $this->width;
+			$dst_height = (int) $this->height;
 		}
 
 		// Don't bother resizing if it's already smaller...
