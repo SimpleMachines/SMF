@@ -88,6 +88,9 @@ class GroupMembership implements ActionInterface
 		// Can they manage groups?
 		Utils::$context['can_edit_primary'] = $this->canEditPrimary();
 
+		// Group managers may join requestable groups without submitting a request.
+		Utils::$context['can_join_requestable'] = User::$me->allowedTo('manage_membergroups');
+
 		// This beast will be our group holder.
 		Utils::$context['groups'] = [
 			'member' => [],
@@ -151,6 +154,7 @@ class GroupMembership implements ActionInterface
 		if (
 			isset($_REQUEST['request'], Utils::$context['groups']['available'][(int) $_REQUEST['request']])
 
+			&& !Utils::$context['can_join_requestable']
 			&& Utils::$context['groups']['available'][(int) $_REQUEST['request']]->type == Group::TYPE_REQUESTABLE
 		) {
 			Utils::$context['group_request'] = Utils::$context['groups']['available'][(int) $_REQUEST['request']];
@@ -193,6 +197,12 @@ class GroupMembership implements ActionInterface
 		// Just for improved legibility...
 		$new_group_info = $this->current_and_assignable_groups[$new_group_id];
 
+		// A group manager's requestable-group join is a direct membership change.
+		// Only convert actual requests for requestable groups, never private groups.
+		if ($this->change_type === 'request' && $new_group_info['type'] == Group::TYPE_REQUESTABLE && User::$me->allowedTo('manage_membergroups')) {
+			$this->change_type = 'free';
+		}
+
 		// Can't request a non-requestable group.
 		if ($this->change_type == 'request' && $new_group_info['type'] != 2) {
 			ErrorHandler::fatalLang('no_access', false);
@@ -205,7 +215,7 @@ class GroupMembership implements ActionInterface
 			}
 
 			// Can't leave a requestable group that you're not part of.
-			if ($new_group_info['type'] == 2 && !\in_array($new_group_id, Profile::$member->groups)) {
+			if ($new_group_info['type'] == Group::TYPE_REQUESTABLE && !User::$me->allowedTo('manage_membergroups') && !\in_array($new_group_id, Profile::$member->groups)) {
 				ErrorHandler::fatalLang('no_access', false);
 			}
 		} elseif ($this->change_type === 'primary') {
