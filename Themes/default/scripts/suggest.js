@@ -74,7 +74,8 @@ smc_AutoSuggest.prototype.init = function()
 	// Set up all the event monitoring
 	this.oTextHandle.onkeydown = this.handleKey.bind(this);
 	this.oTextHandle.oninput = this.autoSuggestUpdate.bind(this);
-	this.oTextHandle.onblur = this.autoSuggestActualHide.bind(this);
+	// Keep suggestions visible long enough for the subsequent click event to select one.
+	this.oTextHandle.onblur = this.autoSuggestHide.bind(this);
 	this.oTextHandle.onfocus = function()
 	{
 		if (this.oSuggestDivHandle.children.length)
@@ -307,7 +308,8 @@ smc_AutoSuggest.prototype.addItemLink = function (sItemId, sItemName, bFromSubmi
 		'item_name': sItemName,
 	});
 
-	oNewDiv.getElementsByTagName('span')[0].addEventListener("click", this.deleteAddedItem.bind(this, oNewDiv.id));
+	// deleteAddedItem expects the item ID, not the already-prefixed DOM element ID.
+	oNewDiv.getElementsByTagName('span')[0].addEventListener("click", this.deleteAddedItem.bind(this, sItemId));
 	this.oItemList.appendChild(oNewDiv);
 
 	// If there's a registered callback, call it.
