@@ -304,6 +304,18 @@ $txt['users_active'] = 'Users active {minutes, plural,
 	one {in the past # minute}
 	other {in the past # minutes}
 }: {list}';
+$txt['users_active_hours'] = 'Users active {hours, plural,
+	one {in the past # hour}
+	other {in the past # hours}
+}: {list}';
+$txt['users_active_days'] = 'Users active {days, plural,
+	one {in the past # day}
+	other {in the past # days}
+}: {list}';
+$txt['users_active_weeks'] = 'Users active {weeks, plural,
+	one {in the past # week}
+	other {in the past # weeks}
+}: {list}';
 $txt['personal_messages'] = 'Personal Messages';
 $txt['reply_quote'] = 'Reply with quote';
 $txt['reply'] = 'Reply';
