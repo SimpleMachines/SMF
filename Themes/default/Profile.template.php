@@ -2205,7 +2205,7 @@ function template_groupMembership()
 				<div class="windowbg">
 					<strong>', (empty($group['color']) ? $group['name'] : '<span style="color: ' . $group['color'] . '">' . $group['name'] . '</span>'), '</strong>', (!empty($group['desc']) ? '<br><span class="smalltext">' . $group['desc'] . '</span>' : ''), '';
 
-				if ($group['type'] == 3) {
+				if ($group['type'] == 3 || ($group['type'] == 2 && !empty(Utils::$context['can_join_requestable']))) {
 					echo '
 					<a href="', Config::$scripturl, '?action=profile;save;u=', Utils::$context['id_member'], ';area=groupmembership;', Utils::$context['session_var'], '=', Utils::$context['session_id'], ';gid=', $group['id'], ';', Utils::$context[Utils::$context['token_check'] . '_token_var'], '=', Utils::$context[Utils::$context['token_check'] . '_token'], '" class="button floatright">', Lang::getTxt('join_group', file: 'Profile'), '</a>';
 				} elseif ($group['type'] == 2 && $group['pending']) {
