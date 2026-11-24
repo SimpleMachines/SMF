@@ -309,7 +309,8 @@ class Post implements ActionInterface, Routable
 		}
 
 		if ($this->usesDefaultReplySubject()) {
-			$this->form_subject = Lang::censorText(self::getDefaultReplySubject(Topic::$info->subject));
+			$this->form_subject = self::getDefaultReplySubject(Topic::$info->subject);
+			Lang::censorText($this->form_subject);
 		}
 
 		// Prepare any existing attachments for display.
