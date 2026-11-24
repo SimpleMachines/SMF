@@ -701,6 +701,9 @@ QuickModify.prototype.onMessageReceived = function (XMLDoc)
 	subjectInput.maxLength = "80";
 	subjectInput.size = "80";
 	subjectInput.value = XMLDoc.getElementsByTagName('subject')[0].childNodes[0].nodeValue;
+	if (this.opt.bShowSubjects === false && Number(this.oCurMessageDiv.id.match(/\d+/)[0]) !== this.opt.iFirstMessageId) {
+		subjectInput.type = "hidden";
+	}
 
 	const reasonLabel = document.createElement("label");
 	const reasonInput = document.createElement("input");

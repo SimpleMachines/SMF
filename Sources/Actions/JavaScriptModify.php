@@ -73,9 +73,10 @@ class JavaScriptModify implements ActionInterface, Routable
 				t.locked, t.num_replies, t.id_member_started, t.id_first_msg,
 				m.id_msg, m.id_member, m.poster_time, m.subject, m.smileys_enabled, m.body, m.icon,
 				m.modified_time, m.modified_name, m.modified_reason, m.approved,
-				m.poster_name, m.poster_email
+				m.poster_name, m.poster_email, first_msg.subject AS topic_subject
 			FROM {db_prefix}messages AS m
 				INNER JOIN {db_prefix}topics AS t ON (t.id_topic = {int:current_topic})
+				INNER JOIN {db_prefix}messages AS first_msg ON (first_msg.id_msg = t.id_first_msg)
 			WHERE m.id_msg = {raw:id_msg}
 				AND m.id_topic = {int:current_topic}' . (User::$me->allowedTo('modify_any') || User::$me->allowedTo('approve_posts') ? '' : (!Config::$modSettings['postmod_active'] ? '
 				AND (m.id_member != {int:guest_id} AND m.id_member = {int:current_member})' : '
@@ -123,7 +124,14 @@ class JavaScriptModify implements ActionInterface, Routable
 
 		$post_errors = [];
 
-		if (isset($_POST['subject']) && Utils::htmlTrim(Utils::htmlspecialchars($_POST['subject'])) !== '') {
+		// Inline edits must follow the same rule as the full post editor.
+		if (
+			empty(Config::$modSettings['subject_toggle'])
+			&& $row['id_msg'] != $row['id_first_msg']
+			&& (isset($_POST['message']) || isset($_POST['subject']) || isset($_REQUEST['icon']))
+		) {
+			$_POST['subject'] = Post::getDefaultReplySubject($row['topic_subject']);
+		} elseif (isset($_POST['subject']) && Utils::htmlTrim(Utils::htmlspecialchars($_POST['subject'])) !== '') {
 			$_POST['subject'] = strtr(Utils::htmlspecialchars($_POST['subject']), ["\r" => '', "\n" => '', "\t" => '']);
 
 			// Maximum number of characters.

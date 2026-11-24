@@ -308,6 +308,11 @@ class Post implements ActionInterface, Routable
 			$this->showNew();
 		}
 
+		if ($this->usesDefaultReplySubject()) {
+			$this->form_subject = self::getDefaultReplySubject(Topic::$info->subject);
+			Lang::censorText($this->form_subject);
+		}
+
 		// Prepare any existing attachments for display.
 		$this->showAttachments();
 
@@ -328,6 +333,11 @@ class Post implements ActionInterface, Routable
 
 		// Are there any drafts to show in the editor?
 		$this->loadDrafts();
+
+		// An older draft may have a custom reply subject.
+		if ($this->usesDefaultReplySubject()) {
+			Utils::$context['subject'] = addcslashes($this->form_subject, '"');
+		}
 
 		// Load the editor.
 		$this->loadEditor();
@@ -389,6 +399,25 @@ class Post implements ActionInterface, Routable
 	/***********************
 	 * Public static methods
 	 ***********************/
+
+	/**
+	 * Builds a reply subject from the stored (HTML-escaped) topic subject.
+	 *
+	 * @param string $subject The first message's stored subject.
+	 * @return string The default reply subject, in storage format.
+	 */
+	public static function getDefaultReplySubject(string $subject): string
+	{
+		self::loadResponsePrefix();
+
+		$prefix = Utils::$context['response_prefix'];
+
+		if (trim($prefix) !== '' && $subject !== '' && Utils::entityStrpos($subject, trim($prefix)) !== 0) {
+			$subject = $prefix . $subject;
+		}
+
+		return Utils::entitySubstr($subject, 0, 100);
+	}
 
 	/**
 	 * Builds a routing path based on URL query parameters.
@@ -939,6 +968,14 @@ class Post implements ActionInterface, Routable
 	 */
 	protected function setResponsePrefix(): void
 	{
+		self::loadResponsePrefix();
+	}
+
+	/**
+	 * Loads the default forum language's response prefix.
+	 */
+	private static function loadResponsePrefix(): void
+	{
 		if (!isset(Utils::$context['response_prefix'])) {
 			if (Config::$language === User::$me->language) {
 				Utils::$context['response_prefix'] = Lang::getTxt('response_prefix', file: 'General');
@@ -947,6 +984,17 @@ class Post implements ActionInterface, Routable
 				CacheApi::put('response_prefix', Utils::$context['response_prefix'], 600);
 			}
 		}
+	}
+
+	/**
+	 * Whether the current post must use the topic's default reply subject.
+	 */
+	protected function usesDefaultReplySubject(): bool
+	{
+		return empty(Config::$modSettings['subject_toggle'])
+			&& !empty(Topic::$info->id)
+			&& ($this->intent === self::INTENT_NEW_REPLY
+				|| ($this->intent === self::INTENT_EDIT_POST && (int) ($_REQUEST['msg'] ?? 0) !== (int) Topic::$info->id_first_msg));
 	}
 
 	/**
@@ -985,7 +1033,9 @@ class Post implements ActionInterface, Routable
 		Utils::$context['can_announce'] &= $this->becomes_approved;
 
 		// Set up the inputs for the form.
-		$this->form_subject = strtr(Utils::htmlspecialchars($_REQUEST['subject']), ["\r" => '', "\n" => '', "\t" => '']);
+		$this->form_subject = $this->usesDefaultReplySubject()
+			? self::getDefaultReplySubject(Topic::$info->subject)
+			: strtr(Utils::htmlspecialchars($_REQUEST['subject']), ["\r" => '', "\n" => '', "\t" => '']);
 		$this->form_message = Utils::htmlspecialchars($_REQUEST['message'], ENT_QUOTES);
 
 		// Make sure the subject isn't too long - taking into account special characters.
@@ -2171,6 +2221,7 @@ class Post implements ActionInterface, Routable
 					'maxlength' => 80 + (!empty(Topic::$info->id) ? Utils::entityStrlen(Utils::$context['response_prefix']) : 0),
 					'value' => Utils::$context['subject'],
 					'required' => true,
+					'readonly' => $this->usesDefaultReplySubject(),
 				],
 			],
 		];
