@@ -201,10 +201,57 @@ class SocketFetcher extends WebFetchApi
 
 		// Do we already have an open connection to the socket? If not, open one.
 		if (!\is_resource($this->fp ?? null) || !$this->keep_alive || $this->host != $host || $this->port != $port) {
+			$this->closeConnection();
 			$this->host = $host;
 			$this->port = $port;
 
-			$this->fp = @fsockopen($this->host, $this->port, $this->error_code, $this->error_message, $this->timeout);
+			// Reuse the addresses validated by isFetchSafe(). Do not resolve the
+			// hostname again when opening the socket, as DNS answers may change.
+			$ips = $url->getIPs();
+
+			if ($ips === [] || !\function_exists('stream_socket_client')) {
+				return $this;
+			}
+
+			$protocol = $url->scheme === 'https' ? 'ssl://' : 'tcp://';
+			$stream_context = stream_context_create([
+				'ssl' => [
+					'peer_name' => trim($url->host, '[]'),
+					'verify_peer' => true,
+					'verify_peer_name' => true,
+					'allow_self_signed' => false,
+				],
+			]);
+
+			// Share the connection timeout between all candidates, including IPv6.
+			$deadline = microtime(true) + $this->timeout;
+			$this->fp = false;
+
+			foreach ($ips as $index => $ip) {
+				$remaining = $deadline - microtime(true);
+
+				if ($remaining <= 0) {
+					break;
+				}
+
+				$address = (string) $ip;
+				$address = str_contains($address, ':') ? '[' . $address . ']' : $address;
+
+				$this->fp = @stream_socket_client(
+					$protocol . $address . ':' . $this->port,
+					$this->error_code,
+					$this->error_message,
+					$remaining / (\count($ips) - $index),
+					STREAM_CLIENT_CONNECT,
+					$stream_context,
+				);
+
+				if (\is_resource($this->fp)) {
+					$this->error_code = 0;
+					$this->error_message = '';
+					break;
+				}
+			}
 		}
 
 		// Uh-oh...
