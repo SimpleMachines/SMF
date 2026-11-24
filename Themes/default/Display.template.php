@@ -343,6 +343,8 @@ function template_main()
 					sClassName: \'quick_edit\',
 					bShowModify: ', Config::$modSettings['show_modify'] ? 'true' : 'false', ',
 					iTopicId: ', Utils::$context['current_topic'], ',
+					iFirstMessageId: ', Utils::$context['topic_first_message'], ',
+					bShowSubjects: ', !empty(Config::$modSettings['subject_toggle']) ? 'true' : 'false', ',
 					sSaveButtonText: ', Utils::escapeJavaScript(Lang::getTxt('save', file: 'General')), ',
 					sCancelButtonText: ', Utils::escapeJavaScript(Lang::getTxt('modify_cancel', file: 'General')), ',
 					sEditReasonText: ', Utils::escapeJavaScript(Lang::getTxt('reason_for_edit', file: 'General')) . ',

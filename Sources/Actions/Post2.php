@@ -191,6 +191,11 @@ class Post2 extends Post
 			$_SESSION['becomesUnapproved'] = true;
 		}
 
+		// Replace client-supplied reply subjects before draft and preview handling.
+		if ($this->usesDefaultReplySubject()) {
+			$_POST['subject'] = $_REQUEST['subject'] = htmlspecialchars_decode(self::getDefaultReplySubject(Topic::$info->subject), ENT_COMPAT);
+		}
+
 		// Replying to a topic?
 		if ($this->intent === self::INTENT_NEW_REPLY) {
 			$this->prepareNewReply();
@@ -371,7 +376,9 @@ class Post2 extends Post
 		@set_time_limit(300);
 
 		// Add special html entities to the subject, name, and email.
-		$_POST['subject'] = strtr(Utils::htmlspecialchars($_POST['subject']), ["\r" => '', "\n" => '', "\t" => '']);
+		$_POST['subject'] = $this->usesDefaultReplySubject()
+			? self::getDefaultReplySubject(Topic::$info->subject)
+			: strtr(Utils::htmlspecialchars($_POST['subject']), ["\r" => '', "\n" => '', "\t" => '']);
 		$_POST['guestname'] = Utils::htmlspecialchars($_POST['guestname']);
 		$_POST['email'] = Utils::htmlspecialchars($_POST['email']);
 		$_POST['modify_reason'] = empty($_POST['modify_reason']) ? '' : strtr(Utils::htmlspecialchars($_POST['modify_reason']), ["\r" => '', "\n" => '', "\t" => '']);
