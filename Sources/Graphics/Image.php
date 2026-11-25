@@ -815,7 +815,7 @@ class Image
 		// If attribute is missing, SVG spec says the default is '100%'.
 		// If no unit is supplied, spec says unit defaults to px.
 		foreach (['width', 'height'] as $dimension) {
-			if (preg_match("/\b{$dimension}\s*=\s*([\"'])\s*([\d.]+)([\D\S]*)\s*\1/", $svg, $matches)) {
+			if (preg_match("/\s{$dimension}\s*=\s*([\"'])\s*([\d.]+)([a-z%]*)\s*\1/", $svg, $matches)) {
 				$$dimension = $matches[2];
 				$unit = !empty($matches[3]) ? $matches[3] : 'px';
 			} else {
@@ -881,7 +881,7 @@ class Image
 		}
 
 		// Width and/or height is missing or a percentage, so try the viewBox attribute.
-		if ((!isset($width) || !isset($height)) && preg_match('/\bviewBox\s*=\s*(["\'])\s*[\d.]+[,\s]+[\d.]+[,\s]+([\d.]+)[,\s]+([\d.]+)\s*\1/', $svg, $matches)) {
+		if ((!isset($width) || !isset($height)) && preg_match('/\bviewBox\s*=\s*(["\'])\s*[\d.]+[,\s]+[\d.]+[,\s]+([\d.]+)[,\s]+([\d.]+)\s*\1/', $svg, $matches) && (float) $matches[2] > 0 && (float) $matches[3] > 0) {
 			$vb_width = $matches[2];
 			$vb_height = $matches[3];
 
@@ -900,11 +900,9 @@ class Image
 			}
 		}
 
-		// Viewport undefined, so call it infinite.
-		if (!isset($width) && !isset($height)) {
-			$width = INF;
-			$height = INF;
-		}
+		// Treat any undefined viewport dimension as infinite.
+		$width ??= INF;
+		$height ??= INF;
 
 		$this->width = round((float) $width);
 		$this->height = round((float) $height);
