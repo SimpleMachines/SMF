@@ -9,3 +9,12 @@
 *.zip binary
 *.tar.gz binary
 *.ttf binary
+
+# Baseline artifacts are byte-exact generated blobs. Never rewrite their line
+# endings and never try to diff them.
+/.docker/baseline/artifacts/**/*.sql -text -diff
+/.docker/baseline/artifacts/**/*.tgz binary
+
+# Shell scripts run inside Linux containers, so they must keep LF even if a
+# future .gitattributes change relaxes the global rule.
+/.docker/**/*.sh text eol=lf
