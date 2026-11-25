@@ -885,11 +885,11 @@ function smf_db_fetch_all($request)
  */
 function smf_db_error_insert($error_array)
 {
-	global $db_prefix, $db_connection, $db_persist, $smcFunc, $inTransaction;
-	static $pg_error_data_prep;
+	global $smcFunc, $db_prefix, $db_connection, $db_persist, $smcFunc, $inTransaction;
+	static $pg_error_data_prep, $loop;
 
 	// without database we can't do anything
-	if (empty($db_connection))
+	if (empty($db_connection) || $loop++ > 1)
 		return;
 
 	if (filter_var($error_array[2], FILTER_VALIDATE_IP) === false)
@@ -899,28 +899,55 @@ function smf_db_error_insert($error_array)
 	if (!empty($inTransaction))
 		smf_db_transaction('rollback');
 
-	if(empty($db_persist))
-	{ // without pooling
-		if (empty($pg_error_data_prep))
-			$pg_error_data_prep = pg_prepare($db_connection, 'smf_log_errors',
-				'INSERT INTO ' . $db_prefix . 'log_errors
-					(id_member, log_time, ip, url, message, session, error_type, file, line, backtrace)
-				VALUES( $1, $2, $3, $4, $5, $6, $7, $8,	$9, $10)'
-			);
-
-		pg_execute($db_connection, 'smf_log_errors', $error_array);
-	}
-	else
-	{ //with pooling
-		$pg_error_data_prep = pg_prepare($db_connection, '',
+	if (empty($pg_error_data_prep)) {
+		$pg_error_data_prep = pg_prepare($db_connection, empty($db_persist) ? 'smf_log_errors' : '',
 			'INSERT INTO ' . $db_prefix . 'log_errors
 				(id_member, log_time, ip, url, message, session, error_type, file, line, backtrace)
 			VALUES( $1, $2, $3, $4, $5, $6, $7, $8,	$9, $10)'
 		);
-
-		pg_execute($db_connection, '', $error_array);
 	}
 
+	// We still don't have a prepared statement, make one more try to log this.
+	if (empty($mysql_error_data_prep) && !isset($smcFunc['db_insert'])) {
+		// No hope left.
+		return;
+	}
+	else if (empty($mysql_error_data_prep)) {
+		$smcFunc['db_insert']('',
+			'{db_prefix}log_errors',
+			array('id_member' => 'int', 'log_time' => 'int', 'ip' => 'inet', 'url' => 'string-65534', 'message' => 'string-65534', 'session' => 'string', 'error_type' => 'string', 'file' => 'string-255', 'line' => 'int', 'backtrace' => 'string-65534'),
+			$error_array,
+			array('id_error')
+		);
+	} else {
+		// Things are looking bad.
+		if (!isset($smcFunc['substr'])) {
+			// We need something..
+			$mbsubstr = function($string, $offset, $length) use ($db_character_set) {
+				if (isset($db_character_set) && $db_character_set == 'utf8')
+				{
+					$string = mb_convert_encoding($string, 'UTF-8', 'UTF-8');
+					$string = mb_strcut($string, $offset, $length, 'UTF-8');
+				}
+				else
+					$string = substr($string, $offset, $length);
+
+				return $string;
+			};
+		} else {
+			$mbsubstr = $smcFunc['substr'];
+		}
+
+		$error_array[3] = $mbsubstr($error_array[3], 0, 65534);
+		$error_array[4] = $mbsubstr($error_array[4], 0, 65534);
+		$error_array[7] = $mbsubstr($error_array[7], 0, 255);
+		$error_array[9] = $mbsubstr($error_array[9], 0, 65534);
+
+		pg_execute($db_connection, empty($db_persist) ? 'smf_log_errors' : '', array(
+			$error_array[0], $error_array[1], $error_array[2], $error_array[3], $error_array[4], $error_array[5], $error_array[6],
+			$error_array[7], $error_array[8], $error_array[9]
+		));
+	}
 }
 
 /**
