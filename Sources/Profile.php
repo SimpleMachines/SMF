@@ -2710,7 +2710,7 @@ class Profile extends User implements \ArrayAccess
 		}
 
 		// Save a local copy? For security reasons, this should always be done for SVGs.
-		if (!empty(Config::$modSettings['avatar_download_external']) || $this->mime_type === 'image/svg+xml') {
+		if (!empty(Config::$modSettings['avatar_download_external']) || $image->mime_type === 'image/svg+xml') {
 			return $this->setAvatarAttachment($image->source);
 		}
 
@@ -2788,9 +2788,9 @@ class Profile extends User implements \ArrayAccess
 		// Construct an Image object for the new avatar.
 		$image = new Image($filepath);
 
-		// No size or MIME type? Then it's not a valid image.
-		if (empty($image->mime_type) || empty($image->width) || empty($image->height)) {
-			@unlink($image->source);
+		// A valid avatar must have a known image type and finite, non-zero dimensions.
+		if (empty($image->mime_type) || empty($image->type) || empty($image->width) || empty($image->height) || !is_finite($image->width) || !is_finite($image->height) || $image->width < 0 || $image->height < 0) {
+			@unlink($filepath);
 			unset($image);
 
 			return 'bad_avatar';
@@ -2828,8 +2828,17 @@ class Profile extends User implements \ArrayAccess
 			}
 		}
 
+		// PHP versions before 8.5 do not recognise the SVG image type.
+		$extension = $image->mime_type === 'image/svg+xml' ? '.svg' : image_type_to_extension($image->type);
+
+		if ($extension === false) {
+			@unlink($image->source);
+
+			return 'bad_avatar';
+		}
+
 		// Move to its final name and location. Error on failure.
-		if (!$image->move($upload_dir . '/avatar_' . $this->id . '_' . time() . image_type_to_extension($image->type))) {
+		if (!$image->move($upload_dir . '/avatar_' . $this->id . '_' . time() . $extension)) {
 			ErrorHandler::fatalLang('attach_timeout', 'critical');
 		}
 
