@@ -17,6 +17,12 @@ namespace SMF\Tests\Integration\Http;
 
 use PHPUnit\Framework\Attributes\CoversNothing;
 use SMF\Config;
+use SMF\Db\DatabaseApi as Db;
+use SMF\Db\InsertType;
+use SMF\Group;
+use SMF\Security;
+use SMF\Tests\Support\HttpClient;
+use SMF\User;
 
 /**
  * Signing in over HTTP.
@@ -59,6 +65,76 @@ class LoginTest extends HttpTestCase
 		);
 
 		$this->assertNoErrorsLogged('signing in logged something.' . "\n");
+	}
+
+	/**
+	 * An administrator stays signed in after changing their own login name.
+	 *
+	 * Expected: saving a new login name with only the current password resets
+	 *           the stored password and refreshes the current login cookie.
+	 * Guards:   the next request used a cookie tied to the old password.
+	 *
+	 * @link https://github.com/SimpleMachines/SMF/issues/9224
+	 */
+	public function testChangingTheLoginNameKeepsTheAdministratorSignedIn(): void
+	{
+		$name = 'rename_' . bin2hex(random_bytes(4));
+		$new_name = $name . '_updated';
+		$password = 'Test password ' . bin2hex(random_bytes(8));
+		$hash = Security::hashPassword($password);
+		$member = (int) Db::$db->insert(
+			InsertType::Insert,
+			'{db_prefix}members',
+			[
+				'member_name' => 'string',
+				'real_name' => 'string',
+				'email_address' => 'string',
+				'passwd' => 'string',
+				'password_salt' => 'string',
+				'id_group' => 'int',
+				'is_activated' => 'int',
+				'date_registered' => 'int',
+				'buddy_list' => 'string',
+				'signature' => 'string',
+				'ignore_boards' => 'string',
+			],
+			[[$name, $name, $name . '@example.invalid', $hash, bin2hex(random_bytes(8)), Group::ADMIN, User::ACTIVATED, time(), '', '', '']],
+			['id_member'],
+			1,
+		);
+
+		try {
+			$this->http = new HttpClient();
+			$this->fetch('');
+			$this->submitForm($this->fetch('?action=login'), [
+				'user' => $name,
+				'passwrd' => $password,
+			], '//form[contains(@action, "action=login2")]');
+			$this->assertSignedIn(true, 'the test administrator could not sign in');
+
+			$page = $this->fetch('?action=profile;area=account;changeusername');
+			$this->assertSame(1, $page->xpath('//form[@id="creator"]//input[@name="member_name"]')->length);
+
+			$saved = $this->submitForm($page, [
+				'member_name' => $new_name,
+				'oldpasswrd' => $password,
+				'save' => '1',
+			], '//form[@id="creator"]');
+
+			$this->assertSame('', $saved->errorText());
+			$row = $this->queryRow(
+				'SELECT member_name, passwd FROM {db_prefix}members WHERE id_member = {int:member}',
+				['member' => $member],
+			);
+			$this->assertSame($new_name, $row['member_name']);
+			$this->assertNotSame($hash, $row['passwd']);
+			$this->assertSignedIn(true, 'the new login cookie did not survive a fresh request');
+
+			$this->assertNoErrorsLogged('changing the login name logged an error');
+		} finally {
+			Db::$db->query('DELETE FROM {db_prefix}log_online WHERE id_member = {int:member}', ['member' => $member]);
+			Db::$db->query('DELETE FROM {db_prefix}members WHERE id_member = {int:member}', ['member' => $member]);
+		}
 	}
 
 	/**

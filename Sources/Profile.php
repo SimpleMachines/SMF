@@ -575,6 +575,7 @@ class Profile extends User implements \ArrayAccess
 							$old_username = $this->username;
 							$this->username = $value;
 							parent::save();
+							$this->data['member_name'] = $this->username;
 
 							// Call this here so any integrated systems will know about the name change (resetPassword() takes care of this if we're letting SMF generate the password)
 							IntegrationHook::call('integrate_reset_pass', [$old_username, $value, $_POST['passwrd1']]);
@@ -1499,7 +1500,7 @@ class Profile extends User implements \ArrayAccess
 		Utils::$context['profile_execute_on_save'] = [];
 
 		if ($this->is_me && \in_array(Menu::$loaded['profile']->current_area ?? null, ['account', 'forumprofile', 'theme'])) {
-			Utils::$context['profile_execute_on_save']['reload_user'] = [__CLASS__ . '::reloadUser', $this->id];
+			Utils::$context['profile_execute_on_save']['reload_user'] = [[$this, 'reloadUser'], $this->passwd];
 		}
 
 		$this->prepareToSaveStandardFields();
@@ -2974,6 +2975,8 @@ class Profile extends User implements \ArrayAccess
 		$this->username = $username ?? $old_username;
 		$this->passwd = $new_password_hashed;
 		parent::save();
+		$this->data['member_name'] = $this->username;
+		$this->data['passwd'] = $this->passwd;
 
 		IntegrationHook::call('integrate_reset_pass', [$old_username, $username, $new_password]);
 
@@ -2988,20 +2991,22 @@ class Profile extends User implements \ArrayAccess
 		Mail::send($this->email, $emaildata['subject'], $emaildata['body'], null, 'chgpass' . $this->id, $emaildata['is_html'], 0);
 	}
 
-	/*************************
-	 * Internal static methods
-	 *************************/
-
 	/**
-	 * Reload a user's settings.
+	 * Reloads the member's settings and refreshes their cookie after a self-service password change.
+	 *
+	 * @param string $old_password_hash The stored password hash before saving the profile.
 	 */
-	protected static function reloadUser(int $memID): void
+	protected function reloadUser(string $old_password_hash): void
 	{
-		if ($memID == User::$me->id && isset($_POST['passwrd2']) && $_POST['passwrd2'] != '') {
-			Cookie::setLoginCookie(User::$me->stay_logged_in ? Cookie::LENGTH_ONE_YEAR : Cookie::LENGTH_DEFAULT, User::$me->id, Cookie::encrypt($_POST['passwrd1'], User::$me->password_salt));
+		if ($this->is_me && $this->passwd !== $old_password_hash) {
+			Cookie::setLoginCookie(
+				User::$me->stay_logged_in ? Cookie::LENGTH_ONE_YEAR : Cookie::LENGTH_DEFAULT,
+				$this->id,
+				Cookie::encrypt($this->passwd, $this->password_salt),
+			);
 		}
 
-		User::reload($memID, UserDataset::Profile);
+		User::reload($this->id, UserDataset::Profile);
 
 		User::$me->logOnline();
 	}
